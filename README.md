@@ -1,18 +1,19 @@
 # WallWiz
 
-WallWiz is a tool for generating and applying themes from wallpapers to your terminal and window manager.
+WallWiz is a lightweight tool designed to enhance your desktop environment by allowing you to easily navigate, select, and apply wallpapers directly from your terminal. Additionally, WallWiz generates a color theme from the selected wallpaper and applies it across your desktop environment, including your terminal and window manager.
 
 ## Features
 
-- Generates themes from wallpapers
-- Applies themes to Kitty terminal and Hyprland window manager
-- Sets wallpaper using Hyprpaper (support for swww planned)
+- **Wallpaper Navigation:** Navigate through wallpapers presented in a grid using your keyboard.
+- **Wallpaper Application:** Apply selected wallpapers directly from the terminal.
+- **Theme Generation:** Automatically generates a color theme from the applied wallpaper.
+- **Theme Application:** Applies the generated theme to the Kitty terminal and Hyprland window manager.
 
-## Prerequisites
+## Requirements
 
-- Kitty terminal (for displaying images in the terminal)
-- ImageMagick (for generating themes)
-- Hyprpaper (for setting wallpaper)
+- **Kitty Terminal:** Required for displaying images in the terminal.
+- **ImageMagick:** Used for generating color themes.
+- **Hyprpaper:** Currently supported for setting wallpapers (support for `swww` is planned).
 
 ## Installation
 
