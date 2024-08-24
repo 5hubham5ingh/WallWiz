@@ -64,5 +64,5 @@ Contributions are welcome! Feel free to submit pull requests to extend the funct
 
 ## License
 
-[Add license information here]
+This project is licensed under the [MIT License](LICENSE).
       
