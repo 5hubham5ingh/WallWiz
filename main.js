@@ -50,7 +50,7 @@ const args = arg
       // .env('ForegroundColour')
       // .map(colour => colour[0] === '#' ? ansi.hex(colour) : ansi.rgb(colour.split(',')))
       .desc("Border colour"),
-    "--light-theme": arg.flag(false).desc("Enable light theme"),
+    "--light-theme": arg.flag().desc("Enable light theme."),
     "--padding": arg
       .str("1x1")
       .reg(/^\d+x\d+$/)
@@ -163,19 +163,13 @@ if (createWallpaperCachePromises.length) await Promise.all(createWallpaperCacheP
 
 const theme = new Theme(picCacheDir, wallpaperCache);
 
-await theme.createThemes(picCacheDir, wallpaperCache).catch(
+await theme.createThemes().catch(
   (e) => {
     print(e);
     exit(2);
   }
 );
 
-// await createThemesCache(picCacheDir, wallpaperCache).catch(
-//   (e) => {
-//     print(e);
-//     exit(2);
-//   }
-// );
 
 const [imageWidth, imageHeight] = args["--img-size"];
 const [paddV, paddH] = args["--padding"];
@@ -283,7 +277,7 @@ async function handleSelection(_, __, index = selection) {
   exec(["hyprctl", "-q", `hyprpaper wallpaper eDP-1,${wallpaperDir}`]);
 
   const cachedWallpaperPath = picCacheDir.concat(wallpaperName);
-  await theme.setTheme(cachedWallpaperPath, wallpaperName, enableLightTheme).catch(
+  await theme.setTheme(wallpaperName, enableLightTheme).catch(
     (e) => {
       print(clearTerminal, 'maim.js: line:279', e);
     }

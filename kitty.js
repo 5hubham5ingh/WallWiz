@@ -1,128 +1,15 @@
-import { exec, stat, readdir } from 'os'
-import { exec as execAsync } from "../justjs/src/process.js";
-import { exit, getenv } from "std";
-import config from './config.js';
-print('kitty.js')
+
 class Kitty {
-  constructor() {
-    //ensure kitty in installed and available
-    this.cacheDir = config.getAppCacheDir(app)
-  }
-
-  // setCacheDir(cacheDir) {
-  //   exec(['clear'])
-  //   print(cacheDir)
-  //   exit(2)
-  //   this.cacheDir = cacheDir;
-  // }
-
-  getThemeName(fileName, type) {
-    return type !== undefined
-      ? `${fileName}-${type ? "light" : "dark"}.conf`
-      : [
-        `${fileName}-light.conf`,
-        `${fileName}-dark.conf`,
-      ];
+  constructor(os, std) {
+    this.os = os;
+    this.std = std;
+    print('kitty created')
   }
 
   // change the active colour theme
-  async setTheme(
-    wallpaperDir,
-    wallpaperName,
-    enableLightTheme
-  ) {
-
-    const themeName = this.getThemeName(wallpaperName, enableLightTheme);
-    exec(['clear']);
-    print('kitty:', this.cacheDir)
-    exit(2)
-    const currentThemePath = this.cacheDir.concat(themeName);
-    const doesCacheExists = stat(currentThemePath)[1] === 0;
-
-    const setKittyThemeColours = (currentThemePath) => {
-      exec(["kitty", "@", "set-colors", "-a", "-c", currentThemePath]);
-    }
-
-    if (doesCacheExists) setKittyThemeColours(currentThemePath);
-    else
-      await this.createTheme(wallpaperDir, wallpaperName).then(
-        setKittyThemeColours
-      ).catch(e => {
-        throw new Error('Failed to create kittytheme', e)
-      });
-  };
-
-  // create the theme config, TODO: will receive the colours as input
-  async createThemes(picDir, pics) {
-    const makeThemePromises = [];
-    const cachedThemes = readdir(this.cacheDir)[0].filter(
-      (name) => name !== "." && name !== ".."
-    );
-
-    for (let i = 0; i < pics.length; i++) {
-      const currPicName = pics[i];
-      const currPicPath = picDir.concat(currPicName);
-      const doesKittyThemeExists = this.getThemeName(currPicName).every(
-        (cachedTheme) => cachedThemes.includes(cachedTheme)
-      );
-      !doesKittyThemeExists &&
-        makeThemePromises.push(this.createTheme(currPicPath, currPicName));
-    }
-
-    await Promise.all(makeThemePromises);
-  };
-
-  async createTheme(picPath, picName) {
-    const getHexCode = (result) =>
-      result
-        .split("\n")
-        .map((line) =>
-          line
-            .split(" ") // split lines
-            .filter((word) => word[0] === "#")
-            .join()
-        )
-        .filter((color) => color)
-
-    const createThemesConf = async (colours) => {
-      const kittyLightTheme = this.getThemeConf(colours); // generate light theme for kitty
-      const createKittyThemes = [];
-      createKittyThemes.push(
-        execAsync(
-          [
-            "echo",
-            `"${kittyLightTheme}"`,
-            ">",
-            this.cacheDir.concat(this.getThemeName(picName, true)),
-          ],
-          { useShell: true }
-        )
-      );
-      const kittyDarkTheme = this.getThemeConf(colours.reverse()); // generate dark theme for kitty
-      createKittyThemes.push(
-        execAsync(
-          [
-            "echo",
-            `"${kittyDarkTheme}"`,
-            ">",
-            this.cacheDir.concat(this.getThemeName(picName, false)),
-          ],
-          { useShell: true }
-        )
-      );
-
-      await Promise.all(createKittyThemes);
-    }
-
-    return execAsync(
-      `magick ${picPath} -format %c -depth 8 -colors 30 histogram:info:`
-    )
-      .then(getHexCode)
-      .then(createThemesConf)
-      .catch(e => {
-        exec(['clear']); print(e); exit(2)
-      });
-  };
+  setTheme(themeConfPath, exec, execAsync) {
+    exec(["kitty", "@", "set-colors", "-a", "-c", themeConfPath])
+  }
 
   getThemeConf(colors) {
     if (colors.length < 8) {

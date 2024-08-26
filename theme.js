@@ -1,17 +1,13 @@
 import { exec as execAsync } from "../justjs/src/process.js";
-import { getenv } from "std";
-import { exec, stat, readdir } from "os";
-import { ensureDir } from "../justjs/src/fs.js";
-import Kitty from "./kitty.js";
-import { exit } from "std";
+import { exec, stat } from "os";
 import config from "./config.js";
 
 print('theme.js')
 class Theme {
 
   constructor(wallpaperDir, wallpaperNames) {
-    this.picdir = wallpaperDir;
-    this.picNames = wallpaperNames;
+    this.wallpaperDir = wallpaperDir;
+    this.wallpaperNames = wallpaperNames;
   }
 
   getThemeName(fileName, type) {
@@ -23,43 +19,100 @@ class Theme {
       ];
   }
 
-  async createThemes(picDir, pics) {
-
-    const makeThemePromises = [];
-    for (const appName in config.getApps()) {
-      const cachedThemes = readdir(config.getAppCacheDir(appName))[0].filter(
-        (name) => name !== "." && name !== ".."
-      );
-
-      for (let i = 0; i < pics.length; i++) {
-        const currPicName = pics[i];
-        const currPicPath = picDir.concat(currPicName);
-        const doesKittyThemeExists = this.getThemeName(currPicName).every(
-          (cachedTheme) => cachedThemes.includes(cachedTheme)
-        );
-        !doesKittyThemeExists &&
-          makeThemePromises.push(config.getApp(appName)?.createTheme(currPicPath, currPicName));
+  async createThemes() {
+    await this.createColoursFromWallpapers();
+    const promises = [];
+    for (let i = 0; i < this.wallpaperNames.length; i++) {
+      const wallpaperName = this.wallpaperNames[i];
+      const wallpaperPath = this.wallpaperDir.concat(wallpaperName);
+      const colours = config.getCachedColours(wallpaperName);
+      if (!colours) throw new Error('failed to get cached color for ' + wallpaperName)
+      const lightColours = colours.toReversed();
+      for (const appName in config.getApps()) {
+        const app = config.getApp(appName);
+        const darkThemeConfig = app.getThemeConf(colours)
+        const lightThemeConfig = app.getThemeConf(lightColours);
+        const cacheDir = config.getAppCacheDir(appName);
+        promises.push(
+          this.writeThemeFile(lightThemeConfig, cacheDir.concat(this.getThemeName(wallpaperName, true))),
+          this.writeThemeFile(darkThemeConfig, cacheDir.concat(this.getThemeName(wallpaperName, false)))
+        )
       }
     }
+
+    await Promise.all(promises)
   }
 
-  async setTheme(...rest) {
-    for (const appName in config.getApps()) {
-      await config.getApp(appName)?.setTheme(rest)
+  async writeThemeFile(content, path) {
+    return execAsync(
+      [
+        "echo",
+        `"${content}"`,
+        ">",
+        path
+      ],
+      { useShell: true }
+    )
+  }
+
+  async createColoursFromWallpapers() {
+    // generate colours for each wallpaper 
+    const promises = [];
+    for (let i = 0; i < this.wallpaperNames.length; i++) {
+      const wallpaperName = this.wallpaperNames[i];
+      const wallpaperPath = this.wallpaperDir.concat(wallpaperName);
+      const doesCacheExist = config.doesColoursCacheExist(wallpaperName);
+      !doesCacheExist && promises.push(this.getColoursFromWallpaper(wallpaperPath, wallpaperName))
     }
+
+    //create colour cache
+    await Promise.allSettled(promises).then(async (results) => {
+      const promises = [];
+      results.forEach(result => {
+        for (const colourName in result.value) {
+          const colours = result.value[colourName];
+          promises.push(config.setCachedColours(colourName, colours))
+        }
+      })
+      await Promise.all(promises)
+    }
+    )
   }
 
+  async getColoursFromWallpaper(wallpaperPath, wallpaperName) {
+    const getHexCode = (result) =>
+      result
+        .split("\n")
+        .map((line) =>
+          line
+            .split(" ") // split lines
+            .filter((word) => word[0] === "#")
+            .join()
+        )
+        .filter((color) => color)
 
+    return execAsync(
+      `magick ${wallpaperPath} -format %c -depth 8 -colors 30 histogram:info:`
+    ).then((result) => ({ [wallpaperName]: getHexCode(result) }));
+  }
+
+  async setTheme(
+    wallpaperName,
+    enableLightTheme
+  ) {
+    const themeName = this.getThemeName(wallpaperName, enableLightTheme);
+    const promises = [];
+    for (const appName in config.getApps()) {
+      const currApp = config.getApp(appName)
+      const currentThemePath = config.getAppCacheDir(appName).concat(themeName);
+      const doesCacheExists = stat(currentThemePath)[1] === 0;
+
+      if (doesCacheExists) promises.push(currApp.setTheme(currentThemePath, exec, execAsync));
+      else throw new Error(`No theme exist in cache for ${wallpaperName}`);
+    }
+    await Promise.all(promises)
+  }
 }
 
-// const setColourTheme = (...rest) => kitty.setTheme(...rest)
-//   .catch(e => { exec(['clear']); print(e) })
-//
-// const createThemesCache = async (...rest) => await kitty.createThemes(...rest)
-//   .catch(e => { exec(['clear']); print(e) })
 export { Theme };
 
-// Resposibilities: 
-// 1: constructor checks if themes exits or not, make them if missing
-// 2: generate all the theme's colour and call the applications theme generator with it.
-// 3: function to update colour theme for all the supported applications.
