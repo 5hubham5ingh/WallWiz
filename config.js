@@ -1,74 +1,45 @@
-import { getenv, loadFile } from "std";
-import { exit } from "std";
-import { exec, stat, readdir } from "os";
-import * as os from 'os';
-import * as std from 'std'
+import { readdir, realpath } from "os";
+import * as os from "os";
+import * as std from "std";
+import cache from "./cache.js";
+import { getenv } from "std";
 import { ensureDir } from "../justjs/src/fs.js";
-import { exec as execAsync } from "../justjs/src/process.js";
-import Kitty from "./kitty.js";
-print('config.js')
-const userDefinedApplications = {}; // TODO: Dynamically import from ~/.config/WallWiz/config.js
 
-const defaultApps = {
-  kitty: Kitty,
-
-}
+print("config.js");
 
 class Config {
   constructor() {
-    this.cacheBaseDir = getenv("HOME").concat("/.cache/WallWiz");
-    this.wallColoursCacheDir = this.cacheBaseDir.concat('/colours/')
-    this.apps = { ...defaultApps, ...userDefinedApplications };
-    this.appThemeCacheDir = {};
-    for (const appName in this.apps) {
-      this.createAppCacheDir(appName)
+    this.cache = cache;
+    this.apps = {};
+  }
+
+  static async create() {
+    const config = new Config();
+    await config.loadApps();
+    return config;
+  }
+
+  async loadApps() {
+    const extensionDir = getenv("HOME").concat("/.config/WallWiz/");
+    print('ensured', extensionDir)
+    ensureDir(extensionDir)
+    const themeExtensionApps = readdir(extensionDir)[0]
+      .filter((name) => name !== "." && name !== ".." && name.endsWith('.js'));
+    for (const fileName of themeExtensionApps) {
+      const app = (await import(fileName)).default;
+      this.apps[fileName] = app;
+      this.cache.createAppCacheDir(fileName);
     }
-
-    this.createWallColoursCacheDir()
-  };
-
-  createWallColoursCacheDir() {
-    ensureDir(this.wallColoursCacheDir)
   }
-
-  async setCachedColours(cacheName, colours) {
-    return await execAsync(
-      [
-        "echo",
-        `'${JSON.stringify(colours)}'`,
-        ">",
-        this.wallColoursCacheDir.concat(cacheName, '.txt'),
-      ],
-      { useShell: true }
-    )
-  }
-
-  getCachedColours(cacheName) {
-    const cachePath = this.wallColoursCacheDir.concat(cacheName, '.txt');
-    if (this.doesColoursCacheExist(cacheName)) return JSON.parse(loadFile(cachePath))
-  }
-
-  doesColoursCacheExist(cacheName) {
-    const cachePath = this.wallColoursCacheDir.concat(cacheName, '.txt');
-    return stat(cachePath)[1] === 0;
-  }
-
-  createAppCacheDir(appName) {
-    this.appThemeCacheDir[appName] = this.cacheBaseDir.concat(`/themes/${appName}/`);
-    ensureDir(this.getAppCacheDir(appName));
-  };
 
   getApps() {
     return this.apps;
   }
 
   getApp(appName) {
-    return new this.apps[appName](os, std)
-  }
-
-  getAppCacheDir(app) {
-    return this.appThemeCacheDir[app];
+    return new this.apps[appName](os, std);
   }
 }
 
-export default new Config();
+const config = await Config.create()
+export default config;

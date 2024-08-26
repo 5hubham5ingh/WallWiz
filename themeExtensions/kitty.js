@@ -1,14 +1,12 @@
-
 class Kitty {
   constructor(os, std) {
     this.os = os;
     this.std = std;
-    print('kitty created')
   }
 
   // change the active colour theme
-  setTheme(themeConfPath, exec, execAsync) {
-    exec(["kitty", "@", "set-colors", "-a", "-c", themeConfPath])
+  setTheme(themeConfPath, execAsync) {
+    this.os.exec(["kitty", "@", "set-colors", "-a", "-c", themeConfPath]);
   }
 
   getThemeConf(colors) {
@@ -146,7 +144,6 @@ color15 ${lightestColor}
 `;
 
     return theme.trim();
-
   }
 }
 
