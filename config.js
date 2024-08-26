@@ -1,4 +1,4 @@
-import { readdir, realpath } from "os";
+import { readdir } from "os";
 import * as os from "os";
 import * as std from "std";
 import cache from "./cache.js";
@@ -26,7 +26,8 @@ class Config {
     const themeExtensionApps = readdir(extensionDir)[0]
       .filter((name) => name !== "." && name !== ".." && name.endsWith('.js'));
     for (const fileName of themeExtensionApps) {
-      const app = (await import(fileName)).default;
+      const extensionPath = extensionDir.concat(fileName);
+      const app = (await import(extensionPath)).default;
       this.apps[fileName] = app;
       this.cache.createAppCacheDir(fileName);
     }
