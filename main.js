@@ -65,26 +65,16 @@ class WallWiz {
           .desc(
             "Auto resize the kitty terminal when screen is insufficient to show all wallpapers."
           ),
-        "--override": [
-          arg
-            .str()
-            .reg(/^([a-zA-Z0-9]+=[^"]*|)$/)
-            .err("Invalid value, it should be of the form NAME=VALUE")
-            .desc("Do not override the specified default theme colour."),
-        ],
         "-d": "--wall-dir",
         "-r": "--random",
         "-s": "--img-size",
         "-p": "--padding",
         "-l": "--light-theme",
         "-a": "--auto-resize",
-        "-o": "--override",
       })
       .ex([
         "-d ~/Pics/wallpaper/wallpaper.jpeg -s 42x10",
-        "-p 4x4",
-        "-c 50,168,52",
-        '-o background=""',
+        "-l -p 4x4",
       ])
       .ver("0.0.1")
       .parse();
