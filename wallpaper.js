@@ -4,6 +4,7 @@ import { ensureDir } from "../justjs/src/fs.js";
 import { ansi } from "../justjs/src/just-js/helpers/ansiStyle.js";
 import { cursorShow } from "../justjs/src/just-js/helpers/cursor.js";
 import { exit } from "std";
+import { exec } from 'os'
 
 class Wallpaper {
   constructor(wallpapersDir, picCacheDir) {
@@ -11,6 +12,12 @@ class Wallpaper {
     this.picCacheDir = picCacheDir;
     this.wallpapers = [];
     this.wallpaperCache = [];
+  }
+
+  async init() {
+    this.loadWallpapers();
+    this.prepareCache();
+    await this.createCache();
   }
 
   isSupportedImageFormat(name) {
@@ -76,10 +83,6 @@ class Wallpaper {
       "50",
       this.picCacheDir.concat(wallpaper),
     ]);
-  }
-
-  getRandomWallpaper() {
-    return this.wallpapers[Math.floor(Math.random() * this.wallpapers.length)];
   }
 
   setWallpaper(wallpaperName) {

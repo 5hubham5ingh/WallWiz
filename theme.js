@@ -3,11 +3,14 @@ import { stat } from "os";
 import config from "./config.js";
 import cache from "./cache.js";
 
-print("theme.js");
 class Theme {
   constructor(wallpaperDir, wallpaperNames) {
     this.wallpaperDir = wallpaperDir;
     this.wallpaperNames = wallpaperNames;
+  }
+
+  async init() {
+    await this.createThemes();
   }
 
   getThemeName(fileName, type) {

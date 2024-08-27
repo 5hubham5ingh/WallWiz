@@ -26,14 +26,9 @@ class WallWiz {
 
 
   async run() {
-    this.wallpaper.loadWallpapers();
-    this.wallpaper.prepareCache();
-    await this.wallpaper.createCache();
+    await this.wallpaper.init();
     this.theme = new Theme(this.picCacheDir, this.wallpaper.wallpaperCache);
-    await this.theme.createThemes().catch((e) => {
-      print(e);
-      exit(2);
-    });
+    await this.theme.init()
     await this.handleRandomWallpaper();
     await this.initializeUI();
   }
@@ -51,7 +46,7 @@ class WallWiz {
           .desc("Image size in pixel")
           .err("Invalid size, it should be of WIDTHxHEIGHT format. \n Ex:- 60x20")
           .map((size) => size.split("x").map(Number)),
-        "--light-theme": arg.flag().desc("Enable light theme."),
+        "--light-theme": arg.flag(true).desc("Enable light theme."),
         "--padding": arg
           .str("1x1")
           .reg(/^\d+x\d+$/)
@@ -80,86 +75,23 @@ class WallWiz {
       .parse();
   }
 
-  isSupportedImageFormat(name) {
-    const nameArray = name.split(".");
-    const format = nameArray[nameArray.length - 1].toLowerCase();
-    return /^(jpeg|png|webp|jpg)$/i.test(format);
-  }
-
-  loadWallpapers() {
-    this.wallpapers = readdir(this.wallpapersDir)[0].filter(
-      (name) => name !== "." && name !== ".." && this.isSupportedImageFormat(name)
-    );
-
-    if (!this.wallpapers.length) {
-      print(
-        `No wallpapers found in "${ansi.styles(["bold", "underline", "red"]) +
-        this.wallpapersDir +
-        ansi.style.reset
-        }".`
-      );
-      print(cursorShow);
-      exit(1);
-    }
-  }
-
   async handleRandomWallpaper() {
-    if (this.setRandomWallpaper) {
-      const randomWallpaper = this.wallpaper.getRandomWallpaper();
-      this.wallpaper.setWallpaper(randomWallpaper);
-      await this.theme.setTheme(randomWallpaper, this.enableLightTheme).catch(print);
-      this.handleExit();
-    }
+    if (!this.setRandomWallpaper) return;
+    const randomWallpaperIndex = Math.floor(Math.random() * this.wallpaper.wallpapers.length)
+    await this.setThemeAndWallpaper(randomWallpaperIndex);
+    exit(0)
   }
 
-  prepareCache() {
-    ensureDir(this.picCacheDir);
-    this.wallpaperCache = readdir(this.picCacheDir)[0].filter(
-      (name) => name !== "." && name !== ".." && this.isSupportedImageFormat(name)
-    );
-  }
-
-  async createCache() {
-    const createWallpaperCachePromises = [];
-
-    if (!this.wallpaperCache.length) {
-      this.wallpapers.forEach((wallpaper) => {
-        createWallpaperCachePromises.push(this.makeCache(wallpaper));
-        this.wallpaperCache.push(wallpaper);
-      });
-    } else if (this.wallpapers.length > this.wallpaperCache.length) {
-      this.wallpapers.forEach((wallpaper) => {
-        const cacheExists = this.wallpaperCache.includes(wallpaper);
-        if (!cacheExists) {
-          createWallpaperCachePromises.push(this.makeCache(wallpaper));
-          this.wallpaperCache.push(wallpaper);
-        }
-      });
-    }
-
-    if (createWallpaperCachePromises.length) {
-      await Promise.all(createWallpaperCachePromises);
-    }
-  }
-
-  makeCache(wallpaper) {
-    return execAsync([
-      "magick",
-      this.wallpapersDir.concat(wallpaper),
-      "-resize",
-      "800x600",
-      "-quality",
-      "50",
-      this.picCacheDir.concat(wallpaper),
-    ]);
-  }
-
-  async initializeTheme() {
-    this.theme = new Theme(this.picCacheDir, this.wallpaperCache);
-    await this.theme.createThemes().catch((e) => {
-      print(e);
-      exit(2);
-    });
+  async setThemeAndWallpaper(index) {
+    const wallpaperName = this.wallpaper.wallpapers[index];
+    const wallpaperDir = `${this.wallpapersDir}/${wallpaperName}`;
+    const promises = [
+      this.theme.setTheme(wallpaperName, this.enableLightTheme).catch((e) => {
+        print(clearTerminal, "Failed to set theme.", e);
+      }),
+      this.wallpaper.setWallpaper(wallpaperName)
+    ];
+    await Promise.all(promises)
   }
 
   async initializeUI() {
@@ -170,10 +102,7 @@ class WallWiz {
       paddV: this.paddV,
       wallpapers: this.wallpaper.wallpapers,
       picCacheDir: this.picCacheDir,
-      wallpapersDir: this.wallpapersDir,
-      theme: this.theme,
-      enableLightTheme: this.enableLightTheme,
-      setWallpaper: (wallpaperName) => this.wallpaper.setWallpaper(wallpaperName),
+      handleSelection: async (index) => await this.setThemeAndWallpaper(index)
     });
     await UI.init().catch(e => {
       exec(['clear']);
@@ -183,4 +112,4 @@ class WallWiz {
 }
 
 const wallWiz = new WallWiz();
-await wallWiz.run();
+await wallWiz.run().catch(print)

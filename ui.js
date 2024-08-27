@@ -23,9 +23,7 @@ class UiInitializer {
     paddV,
     wallpapers,
     picCacheDir,
-    wallpapersDir,
-    theme,
-    enableLightTheme,
+    handleSelection
   }) {
     this.imageWidth = imageWidth;
     this.paddH = paddH;
@@ -33,16 +31,13 @@ class UiInitializer {
     this.paddV = paddV;
     this.wallpapers = wallpapers;
     this.picCacheDir = picCacheDir;
-    this.wallpapersDir = wallpapersDir;
-    this.theme = theme;
-    this.enableLightTheme = enableLightTheme;
-
     this.containerWidth = imageWidth + paddH;
     this.containerHeight = imageHeight + paddV;
     this.width = 0;
     this.height = 0;
     this.xy = [];
     this.selection = 0;
+    this.handleSelection = handleSelection
   }
 
   async init() {
@@ -170,17 +165,8 @@ class UiInitializer {
     }
   }
 
-  async handleSelection(_, __, index = this.selection) {
-    const wallpaperName = this.wallpapers[index];
-    const wallpaperDir = `${this.wallpapersDir}/${wallpaperName}`;
-
-    exec(["hyprctl", "-q", "hyprpaper unload all"]);
-    exec(["hyprctl", "-q", `hyprpaper preload ${wallpaperDir}`]);
-    exec(["hyprctl", "-q", `hyprpaper wallpaper eDP-1,${wallpaperDir}`]);
-
-    await this.theme.setTheme(wallpaperName, this.enableLightTheme).catch((e) => {
-      print(clearTerminal, "Failed to set theme.", e);
-    });
+  async handleEnter(index = this.selection) {
+    await this.handleSelection(index)
   }
 
   handleExit() {
@@ -198,8 +184,8 @@ class UiInitializer {
       [keySequences.ArrowDown]: () => this.moveDown(),
       h: () => this.moveLeft(),
       [keySequences.ArrowLeft]: () => this.moveLeft(),
-      " ": () => this.handleSelection(),
-      [keySequences.Enter]: () => this.handleSelection(),
+      " ": () => this.handleEnter(),
+      [keySequences.Enter]: () => this.handleEnter(),
       q: () => this.handleExit(),
       [keySequences.Escape]: () => this.handleExit(),
     };

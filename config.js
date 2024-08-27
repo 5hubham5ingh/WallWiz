@@ -20,7 +20,7 @@ class Config {
   }
 
   async loadApps() {
-    const extensionDir = getenv("HOME").concat("/.config/WallWiz/");
+    const extensionDir = getenv("HOME").concat("/.config/WallWiz/"); // TODO: change the dir to .../themeExtension
     print('ensured', extensionDir)
     ensureDir(extensionDir)
     const themeExtensionApps = readdir(extensionDir)[0]
