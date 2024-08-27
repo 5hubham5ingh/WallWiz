@@ -16,7 +16,7 @@ class Wallpaper {
 
   async init() {
     this.loadWallpapers();
-    this.prepareCache();
+    this.mountCache();
     await this.createCache();
   }
 
@@ -43,7 +43,7 @@ class Wallpaper {
     }
   }
 
-  prepareCache() {
+  mountCache() {
     this.wallpaperCache = readdir(this.picCacheDir)[0].filter(
       (name) => name !== "." && name !== ".." && this.isSupportedImageFormat(name)
     );

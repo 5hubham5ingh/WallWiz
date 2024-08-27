@@ -1,8 +1,8 @@
 import { exec as execAsync } from "../justjs/src/process.js";
-import { stat } from "os";
+import { stat, exec } from "os";
 import config from "./config.js";
 import cache from "./cache.js";
-import { loadFile } from "std";
+import { exit, loadFile } from "std";
 
 class Theme {
   constructor(wallpaperDir, wallpaperNames) {
@@ -28,7 +28,6 @@ class Theme {
   }
 
   async createAppThemesFromColours() {
-    const promises = [];
     const getCachedColours = (cacheName) => {
       const cachePath = cache.wallColoursCacheDir.concat(cacheName, ".txt");
       if (this.areColoursCached(cacheName))
@@ -39,16 +38,28 @@ class Theme {
       return execAsync(["echo", `"${content}"`, ">", path], { useShell: true });
     }
 
+    const isThemeConfCached = (wallpaperName, scriptName) => {
+      const cacheDir = cache.getCacheDir(scriptName).concat(this.getThemeName(wallpaperName, true));
+      const scriptDir = config.getThemeExtensionScriptDirByScriptName(scriptName);
+      const [cacheStat, err1] = stat(cacheDir);
+      if (err1 !== 0) return false;
+      const [scriptStat, err2] = stat(scriptDir);
+      if (err2 !== 0) throw new Error(`Failed to read script status for: "${scriptName}"`);
+      return cacheStat.mtime > scriptStat.mtime;
+    }
+
+    const promises = [];
     for (let i = 0; i < this.wallpaperNames.length; i++) {
       const wallpaperName = this.wallpaperNames[i];
       const colours = getCachedColours(wallpaperName);
       if (!colours)
         throw new Error("failed to get cached color for " + wallpaperName);
-      const lightColours = colours.toReversed();
+
       for (const scriptName in config.getThemeExtensionScripts()) {
+        if (isThemeConfCached(wallpaperName, scriptName)) continue;
         const themeHandler = config.getThemeHandler(scriptName);
         const darkThemeConfig = themeHandler.getThemeConf(colours);
-        const lightThemeConfig = themeHandler.getThemeConf(lightColours);
+        const lightThemeConfig = themeHandler.getThemeConf(colours.toReversed());
         const cacheDir = cache.getCacheDir(scriptName);
         promises.push(
           cacheThemeConf(
@@ -68,6 +79,24 @@ class Theme {
 
 
   async createColoursCacheFromWallpapers() {
+
+    const getColoursFromWallpaper = async (wallpaperPath, wallpaperName) => {
+      const getHexCode = (result) =>
+        result
+          .split("\n")
+          .map((line) =>
+            line
+              .split(" ") // split lines
+              .filter((word) => word[0] === "#")
+              .join()
+          )
+          .filter((color) => color);
+
+      return execAsync(
+        `magick ${wallpaperPath} -format %c -depth 8 -colors 30 histogram:info:`
+      ).then((result) => ({ [wallpaperName]: getHexCode(result) }));
+    }
+
     // generate colours for each wallpaper
     const promises = [];
     for (let i = 0; i < this.wallpaperNames.length; i++) {
@@ -76,7 +105,7 @@ class Theme {
       const doesCacheExist = this.areColoursCached(wallpaperName);
       !doesCacheExist &&
         promises.push(
-          this.getColoursFromWallpaper(wallpaperPath, wallpaperName)
+          getColoursFromWallpaper(wallpaperPath, wallpaperName)
         );
     }
 
@@ -102,22 +131,6 @@ class Theme {
     });
   }
 
-  async getColoursFromWallpaper(wallpaperPath, wallpaperName) {
-    const getHexCode = (result) =>
-      result
-        .split("\n")
-        .map((line) =>
-          line
-            .split(" ") // split lines
-            .filter((word) => word[0] === "#")
-            .join()
-        )
-        .filter((color) => color);
-
-    return execAsync(
-      `magick ${wallpaperPath} -format %c -depth 8 -colors 30 histogram:info:`
-    ).then((result) => ({ [wallpaperName]: getHexCode(result) }));
-  }
 
   async setTheme(wallpaperName, enableLightTheme) {
     const themeName = this.getThemeName(wallpaperName, enableLightTheme);

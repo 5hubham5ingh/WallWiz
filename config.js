@@ -9,6 +9,7 @@ class Config {
   constructor() {
     this.themeExtensionScripts = {};
     this.wallpaperDaemonHandler;
+    this.themeExtensionScriptsBaseDir = getenv("HOME").concat("/.config/WallWiz/themeExtensionScripts/");
   }
 
   static async create() {
@@ -33,8 +34,12 @@ class Config {
     }
   }
 
+  getThemeExtensionScriptDirByScriptName(scriptName) {
+    return this.themeExtensionScriptsBaseDir.concat(scriptName);
+  }
+
   async loadThemeExtensionScripts() {
-    const extensionDir = getenv("HOME").concat("/.config/WallWiz/themeExtensionScripts/");
+    const extensionDir = this.themeExtensionScriptsBaseDir;
     ensureDir(extensionDir)
     const scriptNames = readdir(extensionDir)[0]
       .filter((name) => name !== "." && name !== ".." && name.endsWith('.js'));
