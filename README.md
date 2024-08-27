@@ -1,18 +1,18 @@
 # WallWiz
 
-WallWiz is a tool for generating and applying themes from wallpapers to your terminal and window manager.
+WallWiz (wallpaper wizard) let you select a wallpaper from a grid menu displayed in a terminal emulator (Kitty) and apply not only the wallpaper but also dynamically generated themes to various applications, including terminal emulators and window managers.
 
 ## Features
 
-- Generates themes from wallpapers
-- Applies themes to Kitty terminal and Hyprland window manager
-- Sets wallpaper using Hyprpaper (support for swww planned)
+- **Wallpaper Selection**: Choose your wallpaper from a grid menu in the terminal.
+- **Theme Generation and Application**: Automatically generates and applies themes based on the chosen wallpaper to applications such as Kitty terminal and Hyprland window manager.
+- **Extensible with Scripts**: You can write custom scripts in JavaScript for theme generation and wallpaper application, placed in `~/.config/WallWiz/`.
 
 ## Prerequisites
 
-- Kitty terminal (for displaying images in the terminal)
-- ImageMagick (for generating themes)
-- Hyprpaper (for setting wallpaper)
+- **Kitty terminal**: For displaying the wallpaper grid in the terminal.
+- **ImageMagick**: For generating color themes.
+- **Extension scripts**: For setting the wallpaper and themes. You can use your own or download the available script from here 1 2.
 
 ## Installation
 
@@ -48,7 +48,26 @@ You can download the executable binary from the [GitHub releases](https://github
 
 ## Usage
 
-[Add usage instructions here]
+| **Option**         | **Description**                                                                                     |
+|--------------------|-----------------------------------------------------------------------------------------------------|
+| `--wall-dir`, `-d` | Specifies the directory containing wallpapers.                                                      |
+| `--random`, `-r`   | Applies a random wallpaper from the specified directory.                                             |
+| `--img-size`, `-s` | Sets the size of wallpaper previews in `WIDTHxHEIGHT` format (e.g., `60x20`).                        |
+| `--light-theme`, `-l` | Enables a light theme for the generated configuration.                                            |
+| `--padding`, `-p`  | Defines padding around previews in `V_PADDINGxH_PADDING` format (e.g., `2x1`).                       |
+| `--auto-resize`, `-a` | Automatically resizes the terminal window to fit all wallpaper previews.                           |
+
+## Custom Scripts and Extensions
+
+WallWiz's functionality can be extended through user-defined JavaScript scripts:
+
+- **Theme Extension Scripts**: Located in `~/.config/WallWiz/themeExtensionScripts/`, these scripts are responsible for generating and applying themes. Each script should export a default class with a constructor and two methods: 
+  - `setTheme(filepath, execAsync)`: Applies the theme based on the generated configuration file and uses the provided `execAsync` function for asynchronous command execution.
+  - `getThemeConf(colorHexArray)`: Generates a theme configuration file from an array of colors and returns it as a string.
+  
+- **Wallpaper Daemon Handler**: The script located in `~/.config/WallWiz/wallpaperDaemonHandler.js` should also export a default class with a mandatory `setWallpaper(wallpaperPath, execAsync)` method to apply the selected wallpaper. This script also receives the `os` and `std` modules from QuickJS for system-level operations.
+
+Prewritten extensions can be downloaded from the project's GitHub repository.
 
 ## Contributing
 

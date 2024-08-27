@@ -1,8 +1,8 @@
 import { exec as execAsync } from "../justjs/src/process.js";
-import { stat, exec } from "os";
+import { stat } from "os";
 import config from "./config.js";
 import cache from "./cache.js";
-import { exit, loadFile } from "std";
+import { loadFile } from "std";
 
 class Theme {
   constructor(wallpaperDir, wallpaperNames) {
