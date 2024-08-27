@@ -23,7 +23,7 @@ class Config {
     ensureDir(extensionDir)
     const scriptNames = readdir(extensionDir)[0]
       .filter((name) => name !== "." && name !== ".." && name.endsWith('.js'));
-    if (scriptNames.length > 1) throw new Error(`Too many scripts found in the ${extensionDir}. \nP`)
+    if (scriptNames.length > 1) throw new Error(`Too many scripts found in the ${extensionDir}.`);
     if (scriptNames.length) {
       const extensionPath = extensionDir.concat(scriptNames[0]);
       const wallpaperDaemonHandler = (await import(extensionPath)).default;

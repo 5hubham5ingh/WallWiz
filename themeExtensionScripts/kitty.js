@@ -88,6 +88,7 @@ class Kitty {
 
     const theme = `
 # Basic colors
+background                      ${darkestColor}
 foreground                      ${lightestColor}
 selection_foreground            ${darkestColor}
 selection_background            ${midColor}
