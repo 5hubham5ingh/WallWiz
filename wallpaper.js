@@ -1,15 +1,15 @@
 import { readdir } from "os";
 import { exec as execAsync } from "../justjs/src/process.js";
-import { ensureDir } from "../justjs/src/fs.js";
 import { ansi } from "../justjs/src/just-js/helpers/ansiStyle.js";
 import { cursorShow } from "../justjs/src/just-js/helpers/cursor.js";
 import { exit } from "std";
-import { exec } from 'os'
+import cache from "./cache.js";
+import config from "./config.js";
 
 class Wallpaper {
-  constructor(wallpapersDir, picCacheDir) {
+  constructor(wallpapersDir) {
     this.wallpapersDir = wallpapersDir;
-    this.picCacheDir = picCacheDir;
+    this.picCacheDir = cache.picCacheDir;
     this.wallpapers = [];
     this.wallpaperCache = [];
   }
@@ -44,7 +44,6 @@ class Wallpaper {
   }
 
   prepareCache() {
-    ensureDir(this.picCacheDir);
     this.wallpaperCache = readdir(this.picCacheDir)[0].filter(
       (name) => name !== "." && name !== ".." && this.isSupportedImageFormat(name)
     );
@@ -85,11 +84,9 @@ class Wallpaper {
     ]);
   }
 
-  setWallpaper(wallpaperName) {
+  async setWallpaper(wallpaperName) {
     const wallpaperDir = `${this.wallpapersDir}/${wallpaperName}`;
-    exec(["hyprctl", "-q", "hyprpaper unload all"]);
-    exec(["hyprctl", "-q", `hyprpaper preload ${wallpaperDir}`]);
-    exec(["hyprctl", "-q", `hyprpaper wallpaper eDP-1,${wallpaperDir}`]);
+    return config.wallpaperDaemonHandler.setWallpaper(wallpaperDir)
   }
 }
 

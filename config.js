@@ -5,42 +5,55 @@ import cache from "./cache.js";
 import { getenv } from "std";
 import { ensureDir } from "../justjs/src/fs.js";
 
-print("config.js");
-
 class Config {
   constructor() {
-    this.cache = cache;
-    this.apps = {};
+    this.themeExtensionScripts = {};
+    this.wallpaperDaemonHandler;
   }
 
   static async create() {
     const config = new Config();
-    await config.loadApps();
+    await config.loadThemeExtensionScripts();
+    await config.loadWallpaperDaemonHandlerScript();
     return config;
   }
 
-  async loadApps() {
-    const extensionDir = getenv("HOME").concat("/.config/WallWiz/"); // TODO: change the dir to .../themeExtension
-    print('ensured', extensionDir)
+  async loadWallpaperDaemonHandlerScript() {
+    const extensionDir = getenv("HOME").concat("/.config/WallWiz/");
     ensureDir(extensionDir)
-    const themeExtensionApps = readdir(extensionDir)[0]
+    const scriptNames = readdir(extensionDir)[0]
       .filter((name) => name !== "." && name !== ".." && name.endsWith('.js'));
-    for (const fileName of themeExtensionApps) {
-      const extensionPath = extensionDir.concat(fileName);
-      const app = (await import(extensionPath)).default;
-      this.apps[fileName] = app;
-      this.cache.createAppCacheDir(fileName);
+    if (scriptNames.length > 1) throw new Error(`Too many scripts found in the ${extensionDir}. \nP`)
+    if (scriptNames.length) {
+      const extensionPath = extensionDir.concat(scriptNames[0]);
+      const wallpaperDaemonHandler = (await import(extensionPath)).default;
+      this.wallpaperDaemonHandler = new wallpaperDaemonHandler(os, std);
+    } else {
+      throw new Error("Failed to find any wallpaper daemon handler script in " + extensionDir)
     }
   }
 
-  getApps() {
-    return this.apps;
+  async loadThemeExtensionScripts() {
+    const extensionDir = getenv("HOME").concat("/.config/WallWiz/themeExtensionScripts/");
+    ensureDir(extensionDir)
+    const scriptNames = readdir(extensionDir)[0]
+      .filter((name) => name !== "." && name !== ".." && name.endsWith('.js'));
+    for (const fileName of scriptNames) {
+      const extensionPath = extensionDir.concat(fileName);
+      const app = (await import(extensionPath)).default;
+      this.themeExtensionScripts[fileName] = app;
+      cache.createCacheDir(fileName);
+    }
   }
 
-  getApp(appName) {
-    return new this.apps[appName](os, std);
+  getThemeExtensionScripts() {
+    return this.themeExtensionScripts;
+  }
+
+  getThemeHandler(scriptName) {
+    return new this.themeExtensionScripts[scriptName](os, std);
   }
 }
 
-const config = await Config.create()
+const config = await Config.create().catch(e => { print(e); throw e; })
 export default config;

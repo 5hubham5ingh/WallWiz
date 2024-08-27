@@ -1,15 +1,10 @@
-import { exec, readdir } from "os";
-import { exit, getenv } from "std";
-import {
-  cursorShow,
-} from "../justjs/src/just-js/helpers/cursor.js";
-import { ansi } from "../justjs/src/just-js/helpers/ansiStyle.js";
+import { exec } from "os";
+import { exit } from "std";
 import arg from "../justjs/src/arg.js";
-import { exec as execAsync } from "../justjs/src/process.js";
 import { Theme } from "./theme.js";
-import { ensureDir } from "../justjs/src/fs.js";
 import { UiInitializer } from "./ui.js";
 import { Wallpaper } from './wallpaper.js'
+import cache from "./cache.js";
 
 class WallWiz {
   constructor() {
@@ -19,8 +14,8 @@ class WallWiz {
     this.setRandomWallpaper = this.args["--random"];
     [this.imageWidth, this.imageHeight] = this.args["--img-size"];
     [this.paddV, this.paddH] = this.args["--padding"];
-    this.picCacheDir = getenv("HOME").concat("/.cache/WallWiz/pic/");
-    this.wallpaper = new Wallpaper(this.wallpapersDir, this.picCacheDir);
+    this.picCacheDir = cache.picCacheDir;
+    this.wallpaper = new Wallpaper(this.wallpapersDir);
     this.theme = null;
   }
 
@@ -84,7 +79,6 @@ class WallWiz {
 
   async setThemeAndWallpaper(index) {
     const wallpaperName = this.wallpaper.wallpapers[index];
-    const wallpaperDir = `${this.wallpapersDir}/${wallpaperName}`;
     const promises = [
       this.theme.setTheme(wallpaperName, this.enableLightTheme).catch((e) => {
         print(clearTerminal, "Failed to set theme.", e);
