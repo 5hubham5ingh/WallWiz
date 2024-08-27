@@ -6,13 +6,13 @@ WallWiz (wallpaper wizard) let you select a wallpaper from a grid menu displayed
 
 - **Wallpaper Selection**: Choose your wallpaper from a grid menu in the terminal.
 - **Theme Generation and Application**: Automatically generates and applies themes based on the chosen wallpaper to applications such as Kitty terminal and Hyprland window manager.
-- **Extensible with Scripts**: You can write custom scripts in JavaScript for theme generation and wallpaper application, placed in `~/.config/WallWiz/`.
+- **Extensible with Scripts**: You can write custom scripts in JavaScript for theme generation and wallpaper application.
 
 ## Prerequisites
 
 - **Kitty terminal**: For displaying the wallpaper grid in the terminal.
 - **ImageMagick**: For generating color themes.
-- **Extension scripts**: For setting the wallpaper and themes. You can use your own or download the available script from here 1 2.
+- **Extension scripts**: For setting the wallpaper and themes. You can write your own script or download the required it from here [1](https://github.com/5hubham5ingh/WallWiz/tree/main/themeExtensionScripts) [2](https://github.com/5hubham5ingh/WallWiz/tree/main/wallpaperDaemonHandlerScripts).
 
 ## Installation
 
@@ -65,7 +65,8 @@ WallWiz's functionality can be extended through user-defined JavaScript scripts:
   - `setTheme(filepath, execAsync)`: Applies the theme based on the generated configuration file and uses the provided `execAsync` function for asynchronous command execution.
   - `getThemeConf(colorHexArray)`: Generates a theme configuration file from an array of colors and returns it as a string.
   
-- **Wallpaper Daemon Handler**: The script located in `~/.config/WallWiz/wallpaperDaemonHandler.js` should also export a default class with a mandatory `setWallpaper(wallpaperPath, execAsync)` method to apply the selected wallpaper. This script also receives the `os` and `std` modules from QuickJS for system-level operations.
+- **Wallpaper Daemon Handler**: The single script located in `~/.config/WallWiz/` should also export a default class with a mandatory `setWallpaper(wallpaperPath, execAsync)` method to apply the selected wallpaper.
+- All the scripts receives the `os` and `std` modules from [QuickJS](https://bellard.org/quickjs/quickjs.html), in the class's constructor, for system-level operations.
 
 Prewritten extensions can be downloaded from the project's GitHub repository.
 
@@ -75,7 +76,7 @@ Contributions are welcome! Feel free to submit pull requests to extend the funct
 
 ## Future Plans
 
-- Add support for swww as an alternative wallpaper setter
+- Add support for browsing online wallpapers directly from the terminal.
 
 ## License
 
