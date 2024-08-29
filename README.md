@@ -53,7 +53,7 @@ You can download the executable binary from the [GitHub releases](https://github
 | `--wall-dir`, `-d` | Specifies the directory containing wallpapers.                                                      |
 | `--random`, `-r`   | Applies a random wallpaper from the specified directory.                                             |
 | `--img-size`, `-s` | Sets the size of wallpaper previews in `WIDTHxHEIGHT` format (e.g., `60x20`).                        |
-| `--light-theme`, `-l` | Enables a light theme for the generated configuration.                                            |
+| `--light-theme`, `-l` | Apply light theme instead of the default dark theme                                            |
 | `--padding`, `-p`  | Defines padding around previews in `V_PADDINGxH_PADDING` format (e.g., `2x1`).                       |
 | `--auto-resize`, `-a` | Automatically resizes the terminal window to fit all wallpaper previews.                           |
 
