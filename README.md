@@ -55,7 +55,7 @@ You can download the executable binary from the [GitHub releases](https://github
    # For bash terminal
    echo "alias ww='WallWiz'" >> ~/.bashrc
 
-### Create the required scripts
+### Step 2: Get the required extension scripts
 
 #### Option 1: Download prewritten extension scripts
 
