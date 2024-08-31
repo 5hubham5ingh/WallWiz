@@ -12,15 +12,15 @@ WallWiz (wallpaper wizard) let you select a wallpaper from a grid menu displayed
 
 - **Kitty terminal**: For displaying the wallpaper grid in the terminal.
 - **ImageMagick**: For generating color themes.
-- **Extension scripts**: For setting the wallpaper and themes. You can write your own script or download the required it from here [1](https://github.com/5hubham5ingh/WallWiz/tree/main/themeExtensionScripts) [2](https://github.com/5hubham5ingh/WallWiz/tree/main/wallpaperDaemonHandlerScripts).
+- **Extension scripts**: For setting the wallpaper and themes. You can write your own script or download the required ones from here [1](https://github.com/5hubham5ingh/WallWiz/tree/main/themeExtensionScripts) [2](https://github.com/5hubham5ingh/WallWiz/tree/main/wallpaperDaemonHandlerScripts).
 
 ## Installation
-
-### Option 1: Download Executable
+### Step 1: Get the executable binary
+#### Option 1: Download Executable
 
 You can download the executable binary from the [GitHub releases](https://github.com/5hubham5ingh/WallWiz/releases) page.
 
-### Option 2: Build from Source
+#### Option 2: Build from Source
 
 1. Clone the required library:
    ```bash
@@ -42,23 +42,32 @@ You can download the executable binary from the [GitHub releases](https://github
    cd WallWiz
    qjsc main.js -o WallWiz
 
+6. Make the binary executable
+   ```bash
+   sudo chmod +x WallWiz
+
 7. Install WallWiz:
    ```bash
    sudo cp WallWiz /usr/bin/
 
-## Usage
+8. Create alias (optional)
+   ```bash
+   # For bash terminal
+   echo "alias ww='WallWiz'" >> ~/.bashrc
 
-| **Option**         | **Description**                                                                                     |
-|--------------------|-----------------------------------------------------------------------------------------------------|
-| `--wall-dir`, `-d` | Specifies the directory containing wallpapers.                                                      |
-| `--random`, `-r`   | Applies a random wallpaper from the specified directory.                                             |
-| `--img-size`, `-s` | Sets the size of wallpaper previews in `WIDTHxHEIGHT` format (e.g., `60x20`).                        |
-| `--light-theme`, `-l` | Enables a light theme for the generated configuration.                                            |
-| `--padding`, `-p`  | Defines padding around previews in `V_PADDINGxH_PADDING` format (e.g., `2x1`).                       |
-| `--auto-resize`, `-a` | Automatically resizes the terminal window to fit all wallpaper previews.                           |
+### Step 2: Get the required extension scripts
 
-## Custom Scripts and Extensions
+#### Option 1: Download prewritten extension scripts
 
+##### Wallpaper daemon handlers
+
+1. [Hyprpaper](https://github.com/5hubham5ingh/WallWiz/blob/main/wallpaperDaemonHandlerScripts/hyprpaper.js)
+   
+##### Theme extension scripts
+1. [kitty](https://github.com/5hubham5ingh/WallWiz/blob/main/themeExtensionScripts/kitty.js)
+2. [hyprland](https://github.com/5hubham5ingh/WallWiz/blob/main/themeExtensionScripts/hyprland.js)
+
+#### Option 2: Write your own custom scripts
 WallWiz's functionality can be extended through user-defined JavaScript scripts:
 
 - **Theme Extension Scripts**: Located in `~/.config/WallWiz/themeExtensionScripts/`, these scripts are responsible for generating and applying themes. Each script should export a default class with a constructor and two methods: 
@@ -68,7 +77,17 @@ WallWiz's functionality can be extended through user-defined JavaScript scripts:
 - **Wallpaper Daemon Handler**: The single script located in `~/.config/WallWiz/` should also export a default class with a mandatory `setWallpaper(wallpaperPath, execAsync)` method to apply the selected wallpaper.
 - All the scripts receives the `os` and `std` modules from [QuickJS](https://bellard.org/quickjs/quickjs.html), in the class's constructor, for system-level operations.
 
-Prewritten extensions can be downloaded from the project's GitHub repository.
+## Usage
+
+| **Option**         | **Description**                                                                                     |
+|--------------------|-----------------------------------------------------------------------------------------------------|
+| `--wall-dir`, `-d` | Specifies the directory containing wallpapers.                                                      |
+| `--random`, `-r`   | Applies a random wallpaper from the specified directory.                                             |
+| `--img-size`, `-s` | Sets the size of wallpaper previews in `WIDTHxHEIGHT` format (e.g., `60x20`).                        |
+| `--light-theme`, `-l` | Apply light theme instead of the default dark theme                                            |
+| `--padding`, `-p`  | Defines padding around previews in `V_PADDINGxH_PADDING` format (e.g., `2x1`).                       |
+| `--auto-resize`, `-a` | Automatically resizes the terminal window to fit all wallpaper previews.                           |
+
 
 ## Contributing
 
