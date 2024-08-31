@@ -87,7 +87,7 @@ class Wallpaper {
 
   async setWallpaper(wallpaperName) {
     const wallpaperDir = `${this.wallpapersDir}/${wallpaperName}`;
-    return config.wallpaperDaemonHandler.setWallpaper(wallpaperDir)
+    return config.wallpaperDaemonHandler(wallpaperDir); // calling the handler function to set the wallpaper
   }
 }
 
