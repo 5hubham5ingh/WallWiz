@@ -64,16 +64,16 @@ You can download the executable binary from the [GitHub releases](https://github
 1. [Hyprpaper](https://github.com/5hubham5ingh/WallWiz/blob/main/wallpaperDaemonHandlerScripts/hyprpaper.js)
    
 ##### Theme extension scripts
-1. [kitty](https://github.com/5hubham5ingh/WallWiz/blob/main/themeExtensionScripts/kitty.js)
-2. [hyprland](https://github.com/5hubham5ingh/WallWiz/blob/main/themeExtensionScripts/hyprland.js)
+1. [Kitty terminal emulator](https://github.com/5hubham5ingh/WallWiz/blob/main/themeExtensionScripts/kitty.js)
+2. [Hyprland wayland compositor and window manager](https://github.com/5hubham5ingh/WallWiz/blob/main/themeExtensionScripts/hyprland.js)
 
 #### Option 2: Write your own custom scripts
 WallWiz's functionality can be extended through user-defined JavaScript scripts:
 
 - **Theme Extension Scripts**: Located in `~/.config/WallWiz/themeExtensionScripts/`, these scripts are responsible for generating and applying themes. Each script should export the following functions:
-  - `async setTheme(filepath, execAsync)`: This function receives the file path to the cached theme configuration file, then it applies the theme using the configuration file.
+  - `async function setTheme(filepath, execAsync){}`: This function receives the file path to the cached theme configuration file, then it applies the theme using the configuration file.
   
-  - `async getThemeConf(colorHexArray)`: This function generates a theme configuration file from an array of 30 hex color codes derived from the selected wallpaper and returns it as a string. It will only be called when either the cached theme configuration file does not exist or is outdated.
+  - `async function getThemeConf(colorHexArray){}`: This function generates a theme configuration file from an array of 30 hex color codes derived from the selected wallpaper and returns it as a string. It will only be called when either the cached theme configuration file does not exist or is outdated.
   
     **Example Array**:
     ```javascript
@@ -91,7 +91,7 @@ WallWiz's functionality can be extended through user-defined JavaScript scripts:
 
   **Example**:
   ```javascript
-  async setWallpaper(wallpaperPath, execAsync){
+  async function setWallpaper(wallpaperPath, execAsync){
     os.exec(["hyprctl", "-q", "hyprpaper unload all"]);
     os.exec(["hyprctl", "-q", `hyprpaper preload ${wallpaperPath}`]);
     os.exec(["hyprctl", "-q", `hyprpaper wallpaper eDP-1,${wallpaperPath}`]);
