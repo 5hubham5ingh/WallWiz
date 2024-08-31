@@ -2,7 +2,7 @@ import { exec as execAsync } from "../justjs/src/process.js";
 import { stat } from "os";
 import config from "./config.js";
 import cache from "./cache.js";
-import { loadFile } from "std";
+import { loadFile, open } from "std";
 
 class Theme {
   constructor(wallpaperDir, wallpaperNames) {
@@ -34,8 +34,11 @@ class Theme {
         return JSON.parse(loadFile(cachePath));
     }
 
-    const cacheThemeConf = async (content, path) => {
-      return execAsync(["echo", `"${content}"`, ">", path], { useShell: true });
+    const cacheThemeConf = (content, path) => {
+      const fileHandler = open(path, "w+");
+      fileHandler.puts(content);
+      fileHandler.close();
+      // return execAsync(["echo", `"${content}"`, ">", path], { useShell: true });
     }
 
     const isThemeConfCached = (wallpaperName, scriptName) => {
@@ -48,7 +51,7 @@ class Theme {
       return cacheStat.mtime > scriptStat.mtime;
     }
 
-    const promises = [];
+    // const promises = [];
     for (let i = 0; i < this.wallpaperNames.length; i++) {
       const wallpaperName = this.wallpaperNames[i];
       const colours = getCachedColours(wallpaperName);
@@ -61,20 +64,22 @@ class Theme {
         const darkThemeConfig = themeHandler.getThemeConf(colours);
         const lightThemeConfig = themeHandler.getThemeConf(colours.toReversed());
         const cacheDir = cache.getCacheDir(scriptName);
-        promises.push(
-          cacheThemeConf(
-            lightThemeConfig,
-            cacheDir.concat(this.getThemeName(wallpaperName, true))
-          ),
-          cacheThemeConf(
-            darkThemeConfig,
-            cacheDir.concat(this.getThemeName(wallpaperName, false))
-          )
-        );
+        cacheThemeConf(lightThemeConfig, cacheDir.concat(this.getThemeName(wallpaperName, true)))
+        cacheThemeConf(darkThemeConfig, cacheDir.concat(this.getThemeName(wallpaperName, false)))
+        // promises.push(
+        //   cacheThemeConf(
+        //     lightThemeConfig,
+        //     cacheDir.concat(this.getThemeName(wallpaperName, true))
+        //   ),
+        //   cacheThemeConf(
+        //     darkThemeConfig,
+        //     cacheDir.concat(this.getThemeName(wallpaperName, false))
+        //   )
+        // );
       }
     }
 
-    await Promise.all(promises);
+    // await Promise.all(promises);
   }
 
 

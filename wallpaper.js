@@ -52,16 +52,29 @@ class Wallpaper {
   async createCache() {
     const createWallpaperCachePromises = [];
 
+    const makeCache = async (wallpaper) => {
+      return execAsync([
+        "magick",
+        this.wallpapersDir.concat(wallpaper),
+        "-resize",
+        "800x600",
+        "-quality",
+        "50",
+        this.picCacheDir.concat(wallpaper),
+      ])
+        .catch(_ => { print('Failed to create wallpaper cache. Make sure ImageMagick is installed in your system'); exit(2) })
+    }
+
     if (!this.wallpaperCache.length) {
       this.wallpapers.forEach((wallpaper) => {
-        createWallpaperCachePromises.push(this.makeCache(wallpaper));
+        createWallpaperCachePromises.push(makeCache(wallpaper));
         this.wallpaperCache.push(wallpaper);
       });
     } else if (this.wallpapers.length > this.wallpaperCache.length) {
       this.wallpapers.forEach((wallpaper) => {
         const cacheExists = this.wallpaperCache.includes(wallpaper);
         if (!cacheExists) {
-          createWallpaperCachePromises.push(this.makeCache(wallpaper));
+          createWallpaperCachePromises.push(makeCache(wallpaper));
           this.wallpaperCache.push(wallpaper);
         }
       });
@@ -70,18 +83,6 @@ class Wallpaper {
     if (createWallpaperCachePromises.length) {
       await Promise.all(createWallpaperCachePromises);
     }
-  }
-
-  makeCache(wallpaper) {
-    return execAsync([
-      "magick",
-      this.wallpapersDir.concat(wallpaper),
-      "-resize",
-      "800x600",
-      "-quality",
-      "50",
-      this.picCacheDir.concat(wallpaper),
-    ]);
   }
 
   async setWallpaper(wallpaperName) {

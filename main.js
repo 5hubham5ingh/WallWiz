@@ -21,11 +21,11 @@ class WallWiz {
 
 
   async run() {
-    await this.wallpaper.init();
+    await this.wallpaper.init().catch(e => { print('Failed to initialize wallpaper:', e); exit(2) });
     this.theme = new Theme(this.picCacheDir, this.wallpaper.wallpaperCache);
-    await this.theme.init()
+    await this.theme.init().catch(e => { print('Failed to initialize theme:', e); exit(2) })
     await this.handleRandomWallpaper();
-    await this.initializeUI();
+    await this.initializeUI().catch(e => { print('Failed to initialize UI:', e); exit(2) });
   }
 
   parseArguments() {
@@ -106,4 +106,4 @@ class WallWiz {
 }
 
 const wallWiz = new WallWiz();
-await wallWiz.run().catch(print)
+await wallWiz.run().catch(e => print('Failed to initialize WallWiz:', e))
