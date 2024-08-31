@@ -12,7 +12,7 @@ WallWiz (wallpaper wizard) let you select a wallpaper from a grid menu displayed
 
 - **Kitty terminal**: For displaying the wallpaper grid in the terminal.
 - **ImageMagick**: For generating color themes.
-- **Extension scripts**: For setting the wallpaper and themes. You can write your own script or download the required ones from [here](https://github.com/5hubham5ingh/WallWiz/edit/main/README.md#step-2-get-the-required-extension-scripts).
+- **Extension scripts**: For setting the wallpaper and themes. You can write your own script or download the required ones from [here](https://github.com/5hubham5ingh/WallWiz/tree/main?tab=readme-ov-file#step-2-get-the-required-extension-scripts).
 
 ## Installation
 ### Step 1: Get the executable binary
