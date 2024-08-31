@@ -12,7 +12,7 @@ WallWiz (wallpaper wizard) let you select a wallpaper from a grid menu displayed
 
 - **Kitty terminal**: For displaying the wallpaper grid in the terminal.
 - **ImageMagick**: For generating color themes.
-- **Extension scripts**: For setting the wallpaper and themes. You can write your own script or download the required ones from here [1](https://github.com/5hubham5ingh/WallWiz/tree/main/themeExtensionScripts) [2](https://github.com/5hubham5ingh/WallWiz/tree/main/wallpaperDaemonHandlerScripts).
+- **Extension scripts**: For setting the wallpaper and themes. You can write your own script or download the required ones from [here](https://github.com/5hubham5ingh/WallWiz/edit/main/README.md#step-2-get-the-required-extension-scripts).
 
 ## Installation
 ### Step 1: Get the executable binary
@@ -70,12 +70,44 @@ You can download the executable binary from the [GitHub releases](https://github
 #### Option 2: Write your own custom scripts
 WallWiz's functionality can be extended through user-defined JavaScript scripts:
 
-- **Theme Extension Scripts**: Located in `~/.config/WallWiz/themeExtensionScripts/`, these scripts are responsible for generating and applying themes. Each script should export a default class with a constructor and two methods: 
-  - `setTheme(filepath, execAsync)`: Applies the theme based on the generated configuration file and uses the provided `execAsync` function for asynchronous command execution.
-  - `getThemeConf(colorHexArray)`: Generates a theme configuration file from an array of colors and returns it as a string.
+- **Theme Extension Scripts**: Located in `~/.config/WallWiz/themeExtensionScripts/`, these scripts are responsible for generating and applying themes. Each script should export the following functions:
+  - `async setTheme(filepath, execAsync)`: This function receives the file path to the cached theme configuration file, then it applies the theme using the configuration file.
   
-- **Wallpaper Daemon Handler**: The single script located in `~/.config/WallWiz/` should also export a default class with a mandatory `setWallpaper(wallpaperPath, execAsync)` method to apply the selected wallpaper.
-- All the scripts receives the `os` and `std` modules from [QuickJS](https://bellard.org/quickjs/quickjs.html), in the class's constructor, for system-level operations.
+  - `async getThemeConf(colorHexArray)`: This function generates a theme configuration file from an array of 30 hex color codes derived from the selected wallpaper and returns it as a string. It will only be called when either the cached theme configuration file does not exist or is outdated.
+  
+    **Example Array**:
+    ```javascript
+    [
+      "#1a1a1a", "#2e2e2e", "#424242", "#565656", "#6a6a6a",
+      "#7e7e7e", "#929292", "#a6a6a6", "#bababa", "#cecece",
+      "#e2e2e2", "#f6f6f6", "#ff0000", "#ff7f00", "#ffff00",
+      "#7fff00", "#00ff00", "#00ff7f", "#00ffff", "#007fff",
+      "#0000ff", "#7f00ff", "#ff00ff", "#ff007f", "#ffffff",
+      "#000000", "#ffaaaa", "#aaffaa", "#aaaaff", "#ffaa00"
+    ]
+    ```
+
+- **Wallpaper Daemon Handler**: The single script located in `~/.config/WallWiz/` should default export the function `setWallpaper(wallpaperPath, execAsync)`.
+
+  **Example**:
+  ```javascript
+  async setWallpaper(wallpaperPath, execAsync){
+    os.exec(["hyprctl", "-q", "hyprpaper unload all"]);
+    os.exec(["hyprctl", "-q", `hyprpaper preload ${wallpaperPath}`]);
+    os.exec(["hyprctl", "-q", `hyprpaper wallpaper eDP-1,${wallpaperPath}`]);
+  }
+
+  export default setWallpaper;
+  ```
+
+- **System Calls**: The standard modules of QuickJS, such as `std` and `os`, can be imported in the scripts for any necessary system calls.
+
+  If you need to run shell commands, `execAsync` can be used like this:
+  ```javascript
+  const activeWallpaper = await execAsync('hyprctl hyrpaper listactive');
+  // or as an array
+  const activeWallpaper = await execAsync(['hyprctl', 'hyprpaper', 'listactive']);
+  ```
 
 ## Usage
 
