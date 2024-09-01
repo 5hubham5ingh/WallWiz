@@ -3,8 +3,9 @@ import { exit } from "std";
 import arg from "../justjs/src/arg.js";
 import { Theme } from "./theme.js";
 import { UiInitializer } from "./ui.js";
-import { Wallpaper } from './wallpaper.js'
+import { Wallpaper } from "./wallpaper.js";
 import cache from "./cache.js";
+import { clearTerminal } from "../justjs/src/just-js/helpers/cursor.js";
 
 class WallWiz {
   constructor() {
@@ -19,13 +20,24 @@ class WallWiz {
     this.theme = null;
   }
 
-
   async run() {
-    await this.wallpaper.init().catch(e => { print('Failed to initialize wallpaper:', e); exit(2) });
-    this.theme = new Theme(this.picCacheDir, this.wallpaper.wallpaperCache);
-    await this.theme.init().catch(e => { print('Failed to initialize theme:', e); exit(2) })
+    await this.wallpaper.init().catch((e) => {
+      print("Failed to initialize wallpaper:", e);
+      exit(2);
+    });
+    this.theme = new Theme(
+      this.picCacheDir,
+      this.wallpaper.wallpapers,
+    );
+    await this.theme.init().catch((e) => {
+      print("Failed to initialize theme:", e);
+      exit(2);
+    });
     await this.handleRandomWallpaper();
-    await this.initializeUI().catch(e => { print('Failed to initialize UI:', e); exit(2) });
+    await this.initializeUI().catch((e) => {
+      print("Failed to initialize UI:", e);
+      exit(2);
+    });
   }
 
   parseArguments() {
@@ -39,21 +51,23 @@ class WallWiz {
           .str("42x10")
           .reg(/^\d+x\d+$/)
           .desc("Image size in pixel")
-          .err("Invalid size, it should be of WIDTHxHEIGHT format. \n Ex:- 60x20")
+          .err(
+            "Invalid size, it should be of WIDTHxHEIGHT format. \n Ex:- 60x20",
+          )
           .map((size) => size.split("x").map(Number)),
         "--light-theme": arg.flag(true).desc("Enable light theme."),
         "--padding": arg
           .str("1x1")
           .reg(/^\d+x\d+$/)
           .err(
-            "Invalid padding, it should of V_PADDINGxH_PADDING format. \n Ex:- 2x1"
+            "Invalid padding, it should of V_PADDINGxH_PADDING format. \n Ex:- 2x1",
           )
           .map((padding) => padding.split("x").map(Number))
           .desc("Container padding in cells"),
         "--auto-resize": arg
           .flag(true)
           .desc(
-            "Auto resize the kitty terminal when screen is insufficient to show all wallpapers."
+            "Auto resize the kitty terminal when screen is insufficient to show all wallpapers.",
           ),
         "-d": "--wall-dir",
         "-r": "--random",
@@ -72,20 +86,23 @@ class WallWiz {
 
   async handleRandomWallpaper() {
     if (!this.setRandomWallpaper) return;
-    const randomWallpaperIndex = Math.floor(Math.random() * this.wallpaper.wallpapers.length)
+    const randomWallpaperIndex = Math.floor(
+      Math.random() * this.wallpaper.wallpapers.length,
+    );
     await this.setThemeAndWallpaper(randomWallpaperIndex);
-    exit(0)
+    exit(0);
   }
 
   async setThemeAndWallpaper(index) {
-    const wallpaperName = this.wallpaper.wallpapers[index];
+    const { name, uniqueId } = this.wallpaper.wallpapers[index];
+
     const promises = [
-      this.theme.setTheme(wallpaperName, this.enableLightTheme).catch((e) => {
-        print(clearTerminal, "Failed to set theme.", e);
+      this.theme.setTheme(uniqueId, this.enableLightTheme).catch((e) => {
+        print(clearTerminal, "Failed to set theme for ", name, uniqueId, e);
       }),
-      this.wallpaper.setWallpaper(wallpaperName)
+      this.wallpaper.setWallpaper(name),
     ];
-    await Promise.all(promises)
+    await Promise.all(promises);
   }
 
   async initializeUI() {
@@ -96,14 +113,14 @@ class WallWiz {
       paddV: this.paddV,
       wallpapers: this.wallpaper.wallpapers,
       picCacheDir: this.picCacheDir,
-      handleSelection: async (index) => await this.setThemeAndWallpaper(index)
+      handleSelection: async (index) => await this.setThemeAndWallpaper(index),
     });
-    await UI.init().catch(e => {
-      exec(['clear']);
+    await UI.init().catch((e) => {
+      exec(["clear"]);
       print(e);
     });
   }
 }
 
 const wallWiz = new WallWiz();
-await wallWiz.run().catch(e => print('Failed to initialize WallWiz:', e))
+await wallWiz.run().catch((e) => print("Failed to initialize WallWiz:", e));

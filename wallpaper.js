@@ -1,4 +1,4 @@
-import { readdir } from "os";
+import { readdir, stat } from "os";
 import { exec as execAsync } from "../justjs/src/process.js";
 import { ansi } from "../justjs/src/just-js/helpers/ansiStyle.js";
 import { cursorShow } from "../justjs/src/just-js/helpers/cursor.js";
@@ -11,12 +11,10 @@ class Wallpaper {
     this.wallpapersDir = wallpapersDir;
     this.picCacheDir = cache.picCacheDir;
     this.wallpapers = [];
-    this.wallpaperCache = [];
   }
 
   async init() {
     this.loadWallpapers();
-    this.mountCache();
     await this.createCache();
   }
 
@@ -28,24 +26,39 @@ class Wallpaper {
 
   loadWallpapers() {
     this.wallpapers = readdir(this.wallpapersDir)[0].filter(
-      (name) => name !== "." && name !== ".." && this.isSupportedImageFormat(name)
-    );
+      (name) =>
+        name !== "." && name !== ".." && this.isSupportedImageFormat(name),
+    ).map((name) => {
+      const { dev, ino } = stat(this.wallpapersDir.concat(name))[0];
+      return {
+        name,
+        uniqueId: `${dev}${ino}`.concat(name.slice(name.lastIndexOf("."))),
+      };
+    });
 
     if (!this.wallpapers.length) {
       print(
-        `No wallpapers found in "${ansi.styles(["bold", "underline", "red"]) +
-        this.wallpapersDir +
-        ansi.style.reset
-        }".`
+        `No wallpapers found in "${
+          ansi.styles(["bold", "underline", "red"]) +
+          this.wallpapersDir +
+          ansi.style.reset
+        }".`,
       );
       print(cursorShow);
-      exit(1);
+      exit(2);
     }
   }
 
-  mountCache() {
-    this.wallpaperCache = readdir(this.picCacheDir)[0].filter(
-      (name) => name !== "." && name !== ".." && this.isSupportedImageFormat(name)
+  doesWallaperCacheExist() {
+    const [cachedWallpaper, error] = readdir(this.picCacheDir);
+    if (error !== 0) return false;
+    const pics = cachedWallpaper.filter(
+      (name) =>
+        name !== "." && name !== ".." && this.isSupportedImageFormat(name),
+    );
+    if (!pics.length) return false;
+    return pics.every((cacheName) =>
+      this.wallpapers.some((wp) => wp.uniqueId === cacheName)
     );
   }
 
@@ -53,42 +66,41 @@ class Wallpaper {
     const createWallpaperCachePromises = [];
 
     const makeCache = async (wallpaper) => {
+      const cachePicName = this.picCacheDir.concat(
+        wallpaper.uniqueId,
+      );
       return execAsync([
         "magick",
-        this.wallpapersDir.concat(wallpaper),
+        this.wallpapersDir.concat(wallpaper.name),
         "-resize",
         "800x600",
         "-quality",
         "50",
-        this.picCacheDir.concat(wallpaper),
+        cachePicName,
       ])
-        .catch(_ => { print('Failed to create wallpaper cache. Make sure ImageMagick is installed in your system'); exit(2) })
-    }
+        .catch((e) => {
+          print(
+            "Failed to create wallpaper cache. Make sure ImageMagick is installed in your system",
+            e,
+          );
+          exit(2);
+        });
+    };
 
-    if (!this.wallpaperCache.length) {
+    if (!this.doesWallaperCacheExist()) {
+      print("Processing images...");
       this.wallpapers.forEach((wallpaper) => {
         createWallpaperCachePromises.push(makeCache(wallpaper));
-        this.wallpaperCache.push(wallpaper);
-      });
-    } else if (this.wallpapers.length > this.wallpaperCache.length) {
-      this.wallpapers.forEach((wallpaper) => {
-        const cacheExists = this.wallpaperCache.includes(wallpaper);
-        if (!cacheExists) {
-          createWallpaperCachePromises.push(makeCache(wallpaper));
-          this.wallpaperCache.push(wallpaper);
-        }
       });
     }
 
-    if (createWallpaperCachePromises.length) {
-      await Promise.all(createWallpaperCachePromises);
-    }
+    await Promise.all(createWallpaperCachePromises);
   }
 
   async setWallpaper(wallpaperName) {
     const wallpaperDir = `${this.wallpapersDir}/${wallpaperName}`;
-    return config.wallpaperDaemonHandler.setWallpaper(wallpaperDir)
+    return config.wallpaperDaemonHandler.setWallpaper(wallpaperDir);
   }
 }
 
-export { Wallpaper }
+export { Wallpaper };

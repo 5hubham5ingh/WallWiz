@@ -2,12 +2,12 @@ import { exec as execAsync } from "../justjs/src/process.js";
 import { exec, ttyGetWinSize } from "os";
 import { exit } from "std";
 import {
-  cursorTo,
-  cursorMove,
-  cursorHide,
-  eraseDown,
-  cursorShow,
   clearTerminal,
+  cursorHide,
+  cursorMove,
+  cursorShow,
+  cursorTo,
+  eraseDown,
 } from "../justjs/src/just-js/helpers/cursor.js";
 import { ansi } from "../justjs/src/just-js/helpers/ansiStyle.js";
 import {
@@ -23,7 +23,7 @@ class UiInitializer {
     paddV,
     wallpapers,
     picCacheDir,
-    handleSelection
+    handleSelection,
   }) {
     this.imageWidth = imageWidth;
     this.paddH = paddH;
@@ -33,17 +33,17 @@ class UiInitializer {
     this.picCacheDir = picCacheDir;
     this.containerWidth = imageWidth + paddH;
     this.containerHeight = imageHeight + paddV;
-    this.width = 0;
-    this.height = 0;
+    this.terminalWidth = 0;
+    this.terminalHeight = 0;
     this.xy = [];
     this.selection = 0;
-    this.handleSelection = handleSelection
+    this.handleSelection = handleSelection;
   }
 
   async init() {
-    [this.width, this.height] = ttyGetWinSize();
+    [this.terminalWidth, this.terminalHeight] = ttyGetWinSize();
 
-    while (this.containerWidth + 2 > this.width) {
+    while (this.containerWidth + 2 > this.terminalWidth) {
       await this.increaseTerminalSize();
     }
 
@@ -64,24 +64,64 @@ class UiInitializer {
         ansi.styles(["bold", "red"]),
         "Terminal size too small.\n",
         ansi.style.reset,
-        "\bEither set it manually or enable kitty remote control for automatic screen resizing."
+        "\bEither set it manually or enable kitty remote control for automatic screen resizing.",
       );
       exit(1);
     });
     const [w, h] = ttyGetWinSize();
-    if (w === this.width && h === this.height)
+    if (w === this.terminalWidth && h === this.terminalHeight) {
+      exec(["kitty", "@", "set-font-size", "--", "0"]);
       throw new Error(
-        "Maximum screen size reached. \nScreen insufficient, switching pagination on."
+        "Maximum screen size reached. \nScreen insufficient, switching pagination on.",
       );
-    this.width = w;
-    this.height = h;
+    }
+    this.terminalWidth = w;
+    this.terminalHeight = h;
   }
 
   calculateCoordinates() {
     let generatedCount = 0;
     this.xy = [];
-    for (let y = 2; ; y += this.containerHeight) {
-      for (let x = 2; x + this.containerWidth < this.width; x += this.containerWidth) {
+
+    // Calculate the number of images that can fit horizontally
+    const numCols = Math.floor(this.terminalWidth / this.containerWidth);
+
+    // Calculate margins to center the grid horizontally
+    const totalGridWidth = numCols * this.containerWidth;
+    const horizontalMargin = Math.floor(
+      (this.terminalWidth - totalGridWidth) / 2,
+    );
+
+    // Calculate the starting x position
+    const startX = horizontalMargin;
+
+    // Start y position with a top margin of 2 units
+    let y = 2; // Top margin
+
+    while (generatedCount < this.wallpapers.length) {
+      for (
+        let x = startX;
+        x + this.containerWidth <= this.terminalWidth;
+        x += this.containerWidth
+      ) {
+        if (generatedCount < this.wallpapers.length) {
+          this.xy.push([x, y]);
+          generatedCount++;
+        } else return;
+      }
+      y += this.containerHeight; // Move down for the next row of images
+    }
+  }
+
+  calculateCoordinatesOld() {
+    let generatedCount = 0;
+    this.xy = [];
+    for (let y = 2;; y += this.containerHeight) {
+      for (
+        let x = 2;
+        x + this.containerWidth < this.terminalWidth;
+        x += this.containerWidth
+      ) {
         if (generatedCount < this.wallpapers.length) {
           this.xy.push([x, y]);
           generatedCount++;
@@ -92,20 +132,24 @@ class UiInitializer {
 
   isScreenHeightInsufficient() {
     return this.xy.some(
-      ([x, y]) => y + this.containerHeight > this.height || x + this.containerWidth > this.width
+      ([x, y]) =>
+        y + this.containerHeight > this.terminalHeight ||
+        x + this.containerWidth > this.terminalWidth,
     );
   }
 
   drawUI() {
     print(clearTerminal, cursorHide);
-
     this.wallpapers.forEach((wallpaper, i) => {
-      const wallpaperDir = `${this.picCacheDir}/${wallpaper}`;
-      const [x, y] = i < this.xy.length ? this.xy[i] : this.xy[i % this.xy.length];
+      const wallpaperDir = `${this.picCacheDir}/${wallpaper.uniqueId}`;
+      const [x, y] = i < this.xy.length
+        ? this.xy[i]
+        : this.xy[i % this.xy.length];
       const cordinates = `${this.imageWidth}x${this.imageHeight}@${x}x${y}`;
       exec([
         "kitten",
         "icat",
+        "--stdin=no",
         "--scale-up",
         "--transfer-mode=file",
         "--place",
@@ -123,9 +167,11 @@ class UiInitializer {
     const xBorderDown = " ╰" + "─".repeat(this.containerWidth - 1) + "╯";
     const newLine = cursorMove(-1 * (this.containerWidth + 2), 1);
     const yBorder = ` │${" ".repeat(this.containerWidth - 1)}│${newLine}`;
-    const border = `${OO}${xBorderUp}${newLine}${yBorder.repeat(
-      this.containerHeight - 1
-    )}${xBorderDown}${OO}`;
+    const border = `${OO}${xBorderUp}${newLine}${
+      yBorder.repeat(
+        this.containerHeight - 1,
+      )
+    }${xBorderDown}${OO}`;
     print(cursorTo(0, 0), eraseDown, ansi.style.brightWhite, border);
   }
 
@@ -166,12 +212,12 @@ class UiInitializer {
   }
 
   async handleEnter(index = this.selection) {
-    await this.handleSelection(index)
+    await this.handleSelection(index);
   }
 
   handleExit() {
     print(clearTerminal, cursorShow);
-    exit(1);
+    exit(0);
   }
 
   async handleKeysPress() {

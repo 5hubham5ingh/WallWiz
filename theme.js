@@ -5,9 +5,9 @@ import cache from "./cache.js";
 import { loadFile, open } from "std";
 
 class Theme {
-  constructor(wallpaperDir, wallpaperNames) {
+  constructor(wallpaperDir, wallpaper) {
     this.wallpaperDir = wallpaperDir;
-    this.wallpaperNames = wallpaperNames;
+    this.wallpaper = wallpaper;
   }
 
   async init() {
@@ -21,7 +21,6 @@ class Theme {
       : [`${fileName}-light.conf`, `${fileName}-dark.conf`];
   }
 
-
   areColoursCached(cacheName) {
     const cachePath = cache.wallColoursCacheDir.concat(cacheName, ".txt");
     return stat(cachePath)[1] === 0;
@@ -30,93 +29,95 @@ class Theme {
   async createAppThemesFromColours() {
     const getCachedColours = (cacheName) => {
       const cachePath = cache.wallColoursCacheDir.concat(cacheName, ".txt");
-      if (this.areColoursCached(cacheName))
+      if (this.areColoursCached(cacheName)) {
         return JSON.parse(loadFile(cachePath));
-    }
+      }
+    };
 
     const cacheThemeConf = (content, path) => {
       const fileHandler = open(path, "w+");
       fileHandler.puts(content);
       fileHandler.close();
-      // return execAsync(["echo", `"${content}"`, ">", path], { useShell: true });
-    }
+    };
 
     const isThemeConfCached = (wallpaperName, scriptName) => {
-      const cacheDir = cache.getCacheDir(scriptName).concat(this.getThemeName(wallpaperName, true));
-      const scriptDir = config.getThemeExtensionScriptDirByScriptName(scriptName);
+      const cacheDir = cache.getCacheDir(scriptName).concat(
+        this.getThemeName(wallpaperName, true),
+      );
+      const scriptDir = config.getThemeExtensionScriptDirByScriptName(
+        scriptName,
+      );
       const [cacheStat, err1] = stat(cacheDir);
       if (err1 !== 0) return false;
       const [scriptStat, err2] = stat(scriptDir);
-      if (err2 !== 0) throw new Error(`Failed to read script status for: "${scriptName}"`);
+      if (err2 !== 0) {
+        throw new Error(`Failed to read script status for: "${scriptName}"`);
+      }
       return cacheStat.mtime > scriptStat.mtime;
-    }
+    };
 
-    // const promises = [];
-    for (let i = 0; i < this.wallpaperNames.length; i++) {
-      const wallpaperName = this.wallpaperNames[i];
+    for (let i = 0; i < this.wallpaper.length; i++) {
+      const wallpaperName = this.wallpaper[i].uniqueId;
       const colours = getCachedColours(wallpaperName);
-      if (!colours)
+      if (!colours) {
         throw new Error("failed to get cached color for " + wallpaperName);
+      }
 
       for (const scriptName in config.getThemeExtensionScripts()) {
         if (isThemeConfCached(wallpaperName, scriptName)) continue;
         const themeHandler = config.getThemeHandler(scriptName);
         const darkThemeConfig = themeHandler.getThemeConf(colours);
-        const lightThemeConfig = themeHandler.getThemeConf(colours.toReversed());
+        const lightThemeConfig = themeHandler.getThemeConf(
+          colours.toReversed(),
+        );
         const cacheDir = cache.getCacheDir(scriptName);
-        cacheThemeConf(lightThemeConfig, cacheDir.concat(this.getThemeName(wallpaperName, true)))
-        cacheThemeConf(darkThemeConfig, cacheDir.concat(this.getThemeName(wallpaperName, false)))
-        // promises.push(
-        //   cacheThemeConf(
-        //     lightThemeConfig,
-        //     cacheDir.concat(this.getThemeName(wallpaperName, true))
-        //   ),
-        //   cacheThemeConf(
-        //     darkThemeConfig,
-        //     cacheDir.concat(this.getThemeName(wallpaperName, false))
-        //   )
-        // );
+        cacheThemeConf(
+          lightThemeConfig,
+          cacheDir.concat(this.getThemeName(wallpaperName, true)),
+        );
+        cacheThemeConf(
+          darkThemeConfig,
+          cacheDir.concat(this.getThemeName(wallpaperName, false)),
+        );
       }
     }
 
     // await Promise.all(promises);
   }
 
-
   async createColoursCacheFromWallpapers() {
-
     const getColoursFromWallpaper = async (wallpaperPath, wallpaperName) => {
       const getHexCode = (result) =>
         result
           .split("\n")
           .map((line) =>
             line
-              .split(" ") // split lines
+              .split(" ")
               .filter((word) => word[0] === "#")
               .join()
           )
           .filter((color) => color);
 
       return execAsync(
-        `magick ${wallpaperPath} -format %c -depth 8 -colors 30 histogram:info:`
+        `magick ${wallpaperPath} -format %c -depth 8 -colors 30 histogram:info:`,
       ).then((result) => ({ [wallpaperName]: getHexCode(result) }));
-    }
+    };
 
     // generate colours for each wallpaper
     const promises = [];
-    for (let i = 0; i < this.wallpaperNames.length; i++) {
-      const wallpaperName = this.wallpaperNames[i];
+    for (let i = 0; i < this.wallpaper.length; i++) {
+      const wallpaperName = this.wallpaper[i].uniqueId;
       const wallpaperPath = this.wallpaperDir.concat(wallpaperName);
       const doesCacheExist = this.areColoursCached(wallpaperName);
+
       !doesCacheExist &&
         promises.push(
-          getColoursFromWallpaper(wallpaperPath, wallpaperName)
+          getColoursFromWallpaper(wallpaperPath, wallpaperName),
         );
     }
 
     //create colour cache
     await Promise.allSettled(promises).then(async (results) => {
-      const promises = [];
       results.forEach((result) => {
         for (const colourName in result.value) {
           const colours = result.value[colourName];
@@ -127,15 +128,13 @@ class Theme {
               ">",
               cache.wallColoursCacheDir.concat(colourName, ".txt"),
             ],
-            { useShell: true }
-          )
-          )
+            { useShell: true },
+          ));
         }
       });
       await Promise.all(promises);
     });
   }
-
 
   async setTheme(wallpaperName, enableLightTheme) {
     const themeName = this.getThemeName(wallpaperName, enableLightTheme);
@@ -145,9 +144,9 @@ class Theme {
       const currentThemePath = cache.getCacheDir(scriptName).concat(themeName);
       const doesCacheExists = stat(currentThemePath)[1] === 0;
 
-      if (doesCacheExists)
+      if (doesCacheExists) {
         promises.push(themeHandler.setTheme(currentThemePath, execAsync));
-      else throw new Error(`No theme exist in cache for ${wallpaperName}`);
+      } else throw new Error(`No theme exist in cache for ${wallpaperName}`);
     }
     await Promise.all(promises);
   }
