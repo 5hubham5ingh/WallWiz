@@ -1,5 +1,5 @@
 # WallWiz
-
+[out.webm](https://github.com/user-attachments/assets/1eb60c30-6020-4e52-ac7e-19d7282d7700)
 WallWiz (wallpaper wizard) let you select a wallpaper from a grid menu displayed in a terminal emulator (Kitty) and apply not only the wallpaper but also dynamically generated themes to various applications, including terminal emulators and window managers.
 
 ## Features
