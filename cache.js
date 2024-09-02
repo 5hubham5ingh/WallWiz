@@ -1,6 +1,6 @@
 import { ensureDir } from "../justjs/src/fs.js";
 import { getenv } from "std";
-print('cache.js')
+
 class Catch {
   constructor() {
     this.baseDir = getenv("HOME").concat("/.cache/WallWiz");
@@ -17,7 +17,7 @@ class Catch {
 
   createCacheDir(appName) {
     this.appThemeCacheDir[appName] = this.baseDir.concat(
-      `/themes/${appName}/`
+      `/themes/${appName}/`,
     );
     ensureDir(this.getCacheDir(appName));
   }
@@ -26,5 +26,5 @@ class Catch {
     return this.appThemeCacheDir[app];
   }
 }
-const cache = new Catch()
-export default cache
+const cache = new Catch();
+export default cache;

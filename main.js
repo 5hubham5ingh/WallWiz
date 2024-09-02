@@ -10,7 +10,7 @@ import { clearTerminal } from "../justjs/src/just-js/helpers/cursor.js";
 class WallWiz {
   constructor() {
     this.args = this.parseArguments();
-    this.wallpapersDir = this.args["--wall-dir"];
+    this.wallpapersDir = this.args["--wall-dir"].concat("/");
     this.enableLightTheme = this.args["--light-theme"];
     this.setRandomWallpaper = this.args["--random"];
     [this.imageWidth, this.imageHeight] = this.args["--img-size"];
@@ -80,7 +80,7 @@ class WallWiz {
         "-d ~/Pics/wallpaper/wallpaper.jpeg -s 42x10",
         "-l -p 4x4",
       ])
-      .ver("0.0.1")
+      .ver("0.0.1-alpha.1")
       .parse();
   }
 

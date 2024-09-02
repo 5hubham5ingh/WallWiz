@@ -25,17 +25,34 @@ class Wallpaper {
   }
 
   loadWallpapers() {
-    this.wallpapers = readdir(this.wallpapersDir)[0].filter(
+    const [wallpapers, error] = readdir(this.wallpapersDir);
+    if (error !== 0) {
+      print("Failed to read wallpapers directory: ", this.wallpapersDir);
+      exit(error);
+    }
+    this.wallpapers = wallpapers.filter(
       (name) =>
         name !== "." && name !== ".." && this.isSupportedImageFormat(name),
     ).map((name) => {
-      const { dev, ino } = stat(this.wallpapersDir.concat(name))[0];
+      const [stats, error] = stat(
+        this.wallpapersDir.concat(name),
+      );
+
+      if (error) {
+        print(
+          "Failed to read wallpaper stat for :",
+          this.wallpapers.concat(name),
+        );
+        exit(error);
+      }
+      const { dev, ino } = stats;
       return {
         name,
         uniqueId: `${dev}${ino}`.concat(name.slice(name.lastIndexOf("."))),
       };
     });
 
+    print("here");
     if (!this.wallpapers.length) {
       print(
         `No wallpapers found in "${
