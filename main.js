@@ -15,6 +15,8 @@ class WallWiz {
     this.setRandomWallpaper = this.args["--random"];
     [this.imageWidth, this.imageHeight] = this.args["--img-size"];
     [this.paddV, this.paddH] = this.args["--padding"];
+    this.gridSize = this.args["--grid-size"];
+    this.pagination = this.args["--enable-pagination"];
     this.picCacheDir = cache.picCacheDir;
     this.wallpaper = new Wallpaper(this.wallpapersDir);
     this.theme = null;
@@ -41,6 +43,7 @@ class WallWiz {
   }
 
   parseArguments() {
+    const splitNumbersFromString = (str) => str.split("x").map(Number);
     return arg
       .parser({
         "--wall-dir": arg.path(".").check().desc("Wallpaper directory path"),
@@ -48,13 +51,13 @@ class WallWiz {
           .flag(false)
           .desc("Apply random wallpaper from the directory."),
         "--img-size": arg
-          .str("42x10")
+          .str("118x32")
           .reg(/^\d+x\d+$/)
           .desc("Image size in pixel")
           .err(
             "Invalid size, it should be of WIDTHxHEIGHT format. \n Ex:- 60x20",
           )
-          .map((size) => size.split("x").map(Number)),
+          .map(splitNumbersFromString),
         "--light-theme": arg.flag(true).desc("Enable light theme."),
         "--padding": arg
           .str("1x1")
@@ -62,19 +65,28 @@ class WallWiz {
           .err(
             "Invalid padding, it should of V_PADDINGxH_PADDING format. \n Ex:- 2x1",
           )
-          .map((padding) => padding.split("x").map(Number))
+          .map(splitNumbersFromString)
           .desc("Container padding in cells"),
-        "--auto-resize": arg
-          .flag(true)
+        "--enable-pagination": arg
+          .flag(false)
           .desc(
             "Auto resize the kitty terminal when screen is insufficient to show all wallpapers.",
           ),
+        "--grid-size": arg
+          .str("4x4")
+          .reg(/^\d+x\d+$/)
+          .err(
+            "Invalid grid size. \n Ex:- 4x4",
+          )
+          .map(splitNumbersFromString)
+          .desc("Wallpaper grid size"),
         "-d": "--wall-dir",
         "-r": "--random",
         "-s": "--img-size",
         "-p": "--padding",
+        "-e": "--enable-pagination",
+        "-g": "--grid-size",
         "-l": "--light-theme",
-        "-a": "--auto-resize",
       })
       .ex([
         "-d ~/Pics/wallpaper/wallpaper.jpeg -s 42x10",
@@ -93,8 +105,8 @@ class WallWiz {
     exit(0);
   }
 
-  async setThemeAndWallpaper(index) {
-    const { name, uniqueId } = this.wallpaper.wallpapers[index];
+  async setThemeAndWallpaper(wallpaper) {
+    const { name, uniqueId } = wallpaper;
 
     const promises = [
       this.theme.setTheme(uniqueId, this.enableLightTheme).catch((e) => {
@@ -114,6 +126,8 @@ class WallWiz {
       wallpapers: this.wallpaper.wallpapers,
       picCacheDir: this.picCacheDir,
       handleSelection: async (index) => await this.setThemeAndWallpaper(index),
+      pagination: this.pagination,
+      gridSize: this.gridSize,
     });
     await UI.init().catch((e) => {
       exec(["clear"]);
