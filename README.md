@@ -1,5 +1,9 @@
 # WallWiz
-[out.webm](https://github.com/user-attachments/assets/1eb60c30-6020-4e52-ac7e-19d7282d7700)
+
+
+https://github.com/user-attachments/assets/26a494b5-0457-4bbf-b44e-c1f34410b3f2
+
+
 WallWiz (wallpaper wizard) let you select a wallpaper from a grid menu displayed in a terminal emulator (Kitty) and apply not only the wallpaper but also dynamically generated themes to various applications, including terminal emulators and window managers.
 
 ## Features
@@ -91,6 +95,7 @@ WallWiz's functionality can be extended through user-defined JavaScript scripts:
 
   **Example**:
   ```javascript
+  import * as os from 'os'
   async function setWallpaper(wallpaperPath, execAsync){
     os.exec(["hyprctl", "-q", "hyprpaper unload all"]);
     os.exec(["hyprctl", "-q", `hyprpaper preload ${wallpaperPath}`]);
@@ -102,7 +107,7 @@ WallWiz's functionality can be extended through user-defined JavaScript scripts:
 
 - **System Calls**: The standard modules of QuickJS, such as `std` and `os`, can be imported in the scripts for any necessary system calls.
 
-  If you need to run shell commands, `execAsync` can be used like this:
+  If you need to run shell commands asynchronously, `execAsync` callback function can be used like this:
   ```javascript
   const activeWallpaper = await execAsync('hyprctl hyrpaper listactive');
   // or as an array
