@@ -1,14 +1,10 @@
-class Hyprpaper {
-  constructor(os, std) {
-    this.os = os;
-    this.std = std;
-  }
+import { exec } from 'os'
 
-  async setWallpaper(wallpaperPath, execAsync) {
-    this.os.exec(["hyprctl", "-q", "hyprpaper unload all"]);
-    this.os.exec(["hyprctl", "-q", `hyprpaper preload ${wallpaperPath}`]);
-    this.os.exec(["hyprctl", "-q", `hyprpaper wallpaper eDP-1,${wallpaperPath}`]);
-  }
-
+function setWallpaper(wallpaperPath, execAsync) {
+  exec(["hyprctl", "-q", "hyprpaper unload all"]);
+  exec(["hyprctl", "-q", `hyprpaper preload ${wallpaperPath}`]);
+  exec(["hyprctl", "-q", `hyprpaper wallpaper eDP-1,${wallpaperPath}`]);
 }
-export default Hyprpaper;
+
+
+export default setWallpaper;
