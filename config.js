@@ -27,8 +27,12 @@ class Config {
     if (scriptNames.length > 1) throw new Error(`Too many scripts found in the ${extensionDir}.`);
     if (scriptNames.length) {
       const extensionPath = extensionDir.concat(scriptNames[0]);
-      const wallpaperDaemonHandler = (await import(extensionPath)).default;
-      this.wallpaperDaemonHandler = new wallpaperDaemonHandler(os, std);
+      const wallpaperDaemonHandler = await import(extensionPath)
+      if (!wallpaperDaemonHandler.default) {
+        print("No default export found in ", extensionPath);
+        exit(2)
+      }
+      this.wallpaperDaemonHandler = wallpaperDaemonHandler.default;
     } else {
       throw new Error("Failed to find any wallpaper daemon handler script in " + extensionDir)
     }
@@ -45,8 +49,16 @@ class Config {
       .filter((name) => name !== "." && name !== ".." && name.endsWith('.js'));
     for (const fileName of scriptNames) {
       const extensionPath = extensionDir.concat(fileName);
-      const app = (await import(extensionPath)).default;
-      this.themeExtensionScripts[fileName] = app;
+      const script = await import(extensionPath);
+      if (!script.setTheme) {
+        print('No setTheme handler function found in ', extensionPath);
+        exit(2);
+      }
+      if (!script.getThemeConf) {
+        print('No getThemeConf function found in ', extensionPath);
+        exit(2);
+      }
+      this.themeExtensionScripts[fileName] = script;
       cache.createCacheDir(fileName);
     }
   }
@@ -56,7 +68,7 @@ class Config {
   }
 
   getThemeHandler(scriptName) {
-    return new this.themeExtensionScripts[scriptName](os, std);
+    return this.themeExtensionScripts[scriptName];
   }
 }
 
