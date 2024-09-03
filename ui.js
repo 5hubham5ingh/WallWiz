@@ -15,6 +15,8 @@ import {
   keySequences,
 } from "../justjs/src/just-js/helpers/terminal.js";
 
+"use strip";
+
 class UiInitializer {
   constructor({
     imageWidth,
@@ -166,7 +168,7 @@ class UiInitializer {
 
   drawUI() {
     print(clearTerminal, cursorHide);
-    print(this.wallpapers, JSON.stringify(this.wallpaperBatch));
+
     if (!this.wallpapers) exit(2);
     this.wallpapers.forEach((wallpaper, i) => {
       const wallpaperDir = `${this.picCacheDir}/${wallpaper.uniqueId}`;

@@ -6,6 +6,8 @@ import { exit } from "std";
 import cache from "./cache.js";
 import config from "./config.js";
 
+"use strip";
+
 class Wallpaper {
   constructor(wallpapersDir) {
     this.wallpapersDir = wallpapersDir;
@@ -52,7 +54,6 @@ class Wallpaper {
       };
     });
 
-    print("here");
     if (!this.wallpapers.length) {
       print(
         `No wallpapers found in "${

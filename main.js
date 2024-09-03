@@ -7,6 +7,8 @@ import { Wallpaper } from "./wallpaper.js";
 import cache from "./cache.js";
 import { clearTerminal } from "../justjs/src/just-js/helpers/cursor.js";
 
+"use strip";
+
 class WallWiz {
   constructor() {
     this.args = this.parseArguments();
@@ -92,7 +94,7 @@ class WallWiz {
         "-d ~/Pics/wallpaper/wallpaper.jpeg -s 42x10",
         "-l -p 4x4",
       ])
-      .ver("0.0.1-alpha.1")
+      .ver("0.0.1-alpha.2")
       .parse();
   }
 
@@ -101,7 +103,9 @@ class WallWiz {
     const randomWallpaperIndex = Math.floor(
       Math.random() * this.wallpaper.wallpapers.length,
     );
-    await this.setThemeAndWallpaper(randomWallpaperIndex);
+    await this.setThemeAndWallpaper(
+      this.wallpaper.wallpapers[randomWallpaperIndex],
+    );
     exit(0);
   }
 

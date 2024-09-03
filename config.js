@@ -1,15 +1,17 @@
 import { readdir } from "os";
-import * as os from "os";
-import * as std from "std";
 import cache from "./cache.js";
-import { getenv } from "std";
+import { exit, getenv } from "std";
 import { ensureDir } from "../justjs/src/fs.js";
+
+"use strip";
 
 class Config {
   constructor() {
     this.themeExtensionScripts = {};
     this.wallpaperDaemonHandler;
-    this.themeExtensionScriptsBaseDir = getenv("HOME").concat("/.config/WallWiz/themeExtensionScripts/");
+    this.themeExtensionScriptsBaseDir = getenv("HOME").concat(
+      "/.config/WallWiz/themeExtensionScripts/",
+    );
   }
 
   static async create() {
@@ -21,20 +23,24 @@ class Config {
 
   async loadWallpaperDaemonHandlerScript() {
     const extensionDir = getenv("HOME").concat("/.config/WallWiz/");
-    ensureDir(extensionDir)
+    ensureDir(extensionDir);
     const scriptNames = readdir(extensionDir)[0]
-      .filter((name) => name !== "." && name !== ".." && name.endsWith('.js'));
-    if (scriptNames.length > 1) throw new Error(`Too many scripts found in the ${extensionDir}.`);
+      .filter((name) => name !== "." && name !== ".." && name.endsWith(".js"));
+    if (scriptNames.length > 1) {
+      throw new Error(`Too many scripts found in the ${extensionDir}.`);
+    }
     if (scriptNames.length) {
       const extensionPath = extensionDir.concat(scriptNames[0]);
-      const wallpaperDaemonHandler = await import(extensionPath)
+      const wallpaperDaemonHandler = await import(extensionPath);
       if (!wallpaperDaemonHandler.default) {
         print("No default export found in ", extensionPath);
-        exit(2)
+        exit(2);
       }
       this.wallpaperDaemonHandler = wallpaperDaemonHandler.default;
     } else {
-      throw new Error("Failed to find any wallpaper daemon handler script in " + extensionDir)
+      throw new Error(
+        "Failed to find any wallpaper daemon handler script in " + extensionDir,
+      );
     }
   }
 
@@ -44,18 +50,18 @@ class Config {
 
   async loadThemeExtensionScripts() {
     const extensionDir = this.themeExtensionScriptsBaseDir;
-    ensureDir(extensionDir)
+    ensureDir(extensionDir);
     const scriptNames = readdir(extensionDir)[0]
-      .filter((name) => name !== "." && name !== ".." && name.endsWith('.js'));
+      .filter((name) => name !== "." && name !== ".." && name.endsWith(".js"));
     for (const fileName of scriptNames) {
       const extensionPath = extensionDir.concat(fileName);
       const script = await import(extensionPath);
       if (!script.setTheme) {
-        print('No setTheme handler function found in ', extensionPath);
+        print("No setTheme handler function found in ", extensionPath);
         exit(2);
       }
       if (!script.getThemeConf) {
-        print('No getThemeConf function found in ', extensionPath);
+        print("No getThemeConf function found in ", extensionPath);
         exit(2);
       }
       this.themeExtensionScripts[fileName] = script;
@@ -72,5 +78,8 @@ class Config {
   }
 }
 
-const config = await Config.create().catch(e => { print(e); throw e; })
+const config = await Config.create().catch((e) => {
+  print(e);
+  throw e;
+});
 export default config;

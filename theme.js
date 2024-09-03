@@ -4,6 +4,8 @@ import config from "./config.js";
 import cache from "./cache.js";
 import { loadFile, open } from "std";
 
+"use strip";
+
 class Theme {
   constructor(wallpaperDir, wallpaper) {
     this.wallpaperDir = wallpaperDir;

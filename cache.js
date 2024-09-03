@@ -1,6 +1,8 @@
 import { ensureDir } from "../justjs/src/fs.js";
 import { getenv } from "std";
 
+"use strip";
+
 class Catch {
   constructor() {
     this.baseDir = getenv("HOME").concat("/.cache/WallWiz");
