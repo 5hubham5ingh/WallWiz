@@ -1,6 +1,15 @@
+/*
+ For:            Hyprland, https://hyprland.org
+ Author:         https://github.com/5hubham5ingh
+ Prerequisite:   Edit the ~/.config/hypr/hyprland.conf file to add this line-
+                 source = "WallWizTheme.conf"
+
+ Note: Sourcing the file on top will not overide the predefined colours in hyprland.conf.
+       So, to override the default theme colours, source the WallWizTheme.conf at the bottom.
+*/
 function setTheme(themeConfPath, execAsync) {
   return execAsync(
-    ["cat", themeConfPath, ">", "~/.config/hypr/myColors.conf"],
+    ["cat", themeConfPath, ">", "~/.config/hypr/WallWizTheme.conf"],
     { useShell: true }
   );
 }
