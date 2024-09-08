@@ -112,7 +112,7 @@ class WallWiz {
         "-d ~/Pics/wallpaper/wallpaper.jpeg -s 42x10",
         "-l -p 4x4",
       ])
-      .ver("0.0.1-alpha.2")
+      .ver("0.0.1-alpha.3")
       .parse();
   }
 
