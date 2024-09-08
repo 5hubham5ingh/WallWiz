@@ -1,11 +1,11 @@
 import { ensureDir } from "../justjs/src/fs.js";
-import { getenv } from "std";
-
+import { std } from "./quickJs.js";
 "use strip";
 
 class Catch {
   constructor() {
-    this.baseDir = getenv("HOME").concat("/.cache/WallWiz");
+    this.homeDir = std.getenv("HOME");
+    this.baseDir = this.homeDir.concat("/.cache/WallWiz");
     this.wallColoursCacheDir = this.baseDir.concat("/colours/");
     this.picCacheDir = this.baseDir.concat("/pic/");
     this.ensureCacheDir();
@@ -17,14 +17,14 @@ class Catch {
     ensureDir(this.picCacheDir);
   }
 
-  createCacheDir(appName) {
+  createCacheDirrectoryForAppThemeConfigFileFromAppName(appName) {
     this.appThemeCacheDir[appName] = this.baseDir.concat(
       `/themes/${appName}/`,
     );
-    ensureDir(this.getCacheDir(appName));
+    ensureDir(this.getCacheDirectoryOfThemeConfigFileFromAppName(appName));
   }
 
-  getCacheDir(app) {
+  getCacheDirectoryOfThemeConfigFileFromAppName(app) {
     return this.appThemeCacheDir[app];
   }
 }

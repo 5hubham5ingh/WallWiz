@@ -1,15 +1,15 @@
-import { readdir } from "os";
 import cache from "./cache.js";
-import { exit, getenv } from "std";
 import { ensureDir } from "../justjs/src/fs.js";
+import { os, std } from "./quickJs.js";
 
 "use strip";
 
 class Config {
   constructor() {
+    this.homeDir = std.getenv("HOME");
     this.themeExtensionScripts = {};
     this.wallpaperDaemonHandler;
-    this.themeExtensionScriptsBaseDir = getenv("HOME").concat(
+    this.themeExtensionScriptsBaseDir = this.homeDir.concat(
       "/.config/WallWiz/themeExtensionScripts/",
     );
   }
@@ -22,9 +22,9 @@ class Config {
   }
 
   async loadWallpaperDaemonHandlerScript() {
-    const extensionDir = getenv("HOME").concat("/.config/WallWiz/");
+    const extensionDir = std.getenv("HOME").concat("/.config/WallWiz/");
     ensureDir(extensionDir);
-    const scriptNames = readdir(extensionDir)[0]
+    const scriptNames = os.readdir(extensionDir)[0]
       .filter((name) => name !== "." && name !== ".." && name.endsWith(".js"));
     if (scriptNames.length > 1) {
       throw new Error(`Too many scripts found in the ${extensionDir}.`);
@@ -34,7 +34,7 @@ class Config {
       const wallpaperDaemonHandler = await import(extensionPath);
       if (!wallpaperDaemonHandler.default) {
         print("No default export found in ", extensionPath);
-        exit(2);
+        std.exit(2);
       }
       this.wallpaperDaemonHandler = wallpaperDaemonHandler.default;
     } else {
@@ -51,21 +51,21 @@ class Config {
   async loadThemeExtensionScripts() {
     const extensionDir = this.themeExtensionScriptsBaseDir;
     ensureDir(extensionDir);
-    const scriptNames = readdir(extensionDir)[0]
+    const scriptNames = os.readdir(extensionDir)[0]
       .filter((name) => name !== "." && name !== ".." && name.endsWith(".js"));
     for (const fileName of scriptNames) {
       const extensionPath = extensionDir.concat(fileName);
       const script = await import(extensionPath);
       if (!script.setTheme) {
         print("No setTheme handler function found in ", extensionPath);
-        exit(2);
+        std.exit(2);
       }
       if (!script.getThemeConf) {
         print("No getThemeConf function found in ", extensionPath);
-        exit(2);
+        std.exit(2);
       }
       this.themeExtensionScripts[fileName] = script;
-      cache.createCacheDir(fileName);
+      cache.createCacheDirrectoryForAppThemeConfigFileFromAppName(fileName);
     }
   }
 

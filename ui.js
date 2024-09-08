@@ -95,7 +95,7 @@ class UiInitializer {
     if (w === this.terminalWidth && h === this.terminalHeight) {
       exec(["kitty", "@", "set-font-size", "--", "0"]);
       throw new Error(
-        "Maximum screen size reached. \nScreen insufficient, switching pagination on.",
+        "Maximum screen size reached. Insufficient screen size. \n You can use pagination, or reduce the image preview size.",
       );
     }
     this.terminalWidth = w;

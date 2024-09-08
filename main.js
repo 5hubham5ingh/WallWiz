@@ -1,5 +1,4 @@
-import { exec } from "os";
-import { exit } from "std";
+import { os, std } from "./quickJs.js";
 import arg from "../justjs/src/arg.js";
 import { Theme } from "./theme.js";
 import { UiInitializer } from "./ui.js";
@@ -27,7 +26,7 @@ class WallWiz {
   async run() {
     await this.wallpaper.init().catch((e) => {
       print("Failed to initialize wallpaper:", e);
-      exit(2);
+      std.exit(2);
     });
     this.theme = new Theme(
       this.picCacheDir,
@@ -35,12 +34,12 @@ class WallWiz {
     );
     await this.theme.init().catch((e) => {
       print("Failed to initialize theme:", e);
-      exit(2);
+      std.exit(2);
     });
     await this.handleRandomWallpaper();
     await this.initializeUI().catch((e) => {
       print("Failed to initialize UI:", e);
-      exit(2);
+      std.exit(2);
     });
   }
 
@@ -72,7 +71,7 @@ class WallWiz {
         "--enable-pagination": arg
           .flag(false)
           .desc(
-            "Auto resize the kitty terminal when screen is insufficient to show all wallpapers.",
+            "Display wallpapers in a grid.",
           ),
         "--grid-size": arg
           .str("4x4")
@@ -106,7 +105,7 @@ class WallWiz {
     await this.setThemeAndWallpaper(
       this.wallpaper.wallpapers[randomWallpaperIndex],
     );
-    exit(0);
+    std.exit(0);
   }
 
   async setThemeAndWallpaper(wallpaper) {
@@ -134,7 +133,7 @@ class WallWiz {
       gridSize: this.gridSize,
     });
     await UI.init().catch((e) => {
-      exec(["clear"]);
+      os.exec(["clear"]);
       print(e);
     });
   }

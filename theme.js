@@ -1,8 +1,7 @@
 import { exec as execAsync } from "../justjs/src/process.js";
-import { stat } from "os";
 import config from "./config.js";
 import cache from "./cache.js";
-import { loadFile, open } from "std";
+import { os, std } from "./quickJs.js";
 
 "use strip";
 
@@ -25,33 +24,35 @@ class Theme {
 
   areColoursCached(cacheName) {
     const cachePath = cache.wallColoursCacheDir.concat(cacheName, ".txt");
-    return stat(cachePath)[1] === 0;
+    return os.stat(cachePath)[1] === 0;
   }
 
   async createAppThemesFromColours() {
     const getCachedColours = (cacheName) => {
       const cachePath = cache.wallColoursCacheDir.concat(cacheName, ".txt");
       if (this.areColoursCached(cacheName)) {
-        return JSON.parse(loadFile(cachePath));
+        return JSON.parse(std.loadFile(cachePath));
       }
     };
 
     const cacheThemeConf = (content, path) => {
-      const fileHandler = open(path, "w+");
+      const fileHandler = std.open(path, "w+");
       fileHandler.puts(content);
       fileHandler.close();
     };
 
     const isThemeConfCached = (wallpaperName, scriptName) => {
-      const cacheDir = cache.getCacheDir(scriptName).concat(
+      const cacheDir = cache.getCacheDirectoryOfThemeConfigFileFromAppName(
+        scriptName,
+      ).concat(
         this.getThemeName(wallpaperName, true),
       );
       const scriptDir = config.getThemeExtensionScriptDirByScriptName(
         scriptName,
       );
-      const [cacheStat, err1] = stat(cacheDir);
+      const [cacheStat, err1] = os.stat(cacheDir);
       if (err1 !== 0) return false;
-      const [scriptStat, err2] = stat(scriptDir);
+      const [scriptStat, err2] = os.stat(scriptDir);
       if (err2 !== 0) {
         throw new Error(`Failed to read script status for: "${scriptName}"`);
       }
@@ -72,7 +73,9 @@ class Theme {
         const lightThemeConfig = themeHandler.getThemeConf(
           colours.toReversed(),
         );
-        const cacheDir = cache.getCacheDir(scriptName);
+        const cacheDir = cache.getCacheDirectoryOfThemeConfigFileFromAppName(
+          scriptName,
+        );
         cacheThemeConf(
           lightThemeConfig,
           cacheDir.concat(this.getThemeName(wallpaperName, true)),
@@ -143,8 +146,11 @@ class Theme {
     const promises = [];
     for (const scriptName in config.getThemeExtensionScripts()) {
       const themeHandler = config.getThemeHandler(scriptName);
-      const currentThemePath = cache.getCacheDir(scriptName).concat(themeName);
-      const doesCacheExists = stat(currentThemePath)[1] === 0;
+      const currentThemePath = cache
+        .getCacheDirectoryOfThemeConfigFileFromAppName(scriptName).concat(
+          themeName,
+        );
+      const doesCacheExists = os.stat(currentThemePath)[1] === 0;
 
       if (doesCacheExists) {
         promises.push(themeHandler.setTheme(currentThemePath, execAsync));

@@ -67,23 +67,24 @@ class Wallpaper {
     }
   }
 
-  doesWallaperCacheExist() {
-    const [cachedWallpaper, error] = readdir(this.picCacheDir);
-    if (error !== 0) return false;
-    const pics = cachedWallpaper.filter(
-      (name) =>
-        name !== "." && name !== ".." && this.isSupportedImageFormat(name),
-    );
-    if (!pics.length) return false;
-    return pics.every((cacheName) =>
-      this.wallpapers.some((wp) => wp.uniqueId === cacheName)
-    );
-  }
-
   async createCache() {
+    const [cacheNames, error] = readdir(this.picCacheDir);
+    const doesWallaperCacheExist = () => {
+      if (error !== 0) return false;
+      const cachedWallpaper = cacheNames.filter(
+        (name) =>
+          name !== "." && name !== ".." && this.isSupportedImageFormat(name),
+      );
+      if (!cachedWallpaper.length) return false;
+      return this.wallpapers.every((cacheName) =>
+        cachedWallpaper.some((wp) => wp.uniqueId === cacheName)
+      );
+    };
+
     const createWallpaperCachePromises = [];
 
     const makeCache = async (wallpaper) => {
+      // add a check if see it the wallpaper cache already exits, then do not cache it again.
       const cachePicName = this.picCacheDir.concat(
         wallpaper.uniqueId,
       );
@@ -105,10 +106,12 @@ class Wallpaper {
         });
     };
 
-    if (!this.doesWallaperCacheExist()) {
+    if (!doesWallaperCacheExist()) {
       print("Processing images...");
       this.wallpapers.forEach((wallpaper) => {
-        createWallpaperCachePromises.push(makeCache(wallpaper));
+        if (!cacheNames.includes(wallpaper.uniqueId)) {
+          createWallpaperCachePromises.push(makeCache(wallpaper));
+        }
       });
     }
 
