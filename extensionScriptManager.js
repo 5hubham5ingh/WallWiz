@@ -2,6 +2,7 @@ import { curlRequest } from "../justjs/src/curl.js";
 import { ProcessSync } from "../justjs/src/process.js";
 import Download from "./downloadManager.js";
 import config from "./config.js";
+import { std } from "./quickJs.js";
 
 class ExtensionScriptsDownloader extends Download {
   constructor(...all) {
@@ -16,7 +17,7 @@ class ExtensionScriptsDownloader extends Download {
     const fetchScriptHead = async (url) => {
       return curlRequest(url, {
         headers: {
-          "Range": "bytes=0-499",
+          "Range": "bytes=0-500",
         },
       }).catch((e) => print("Failed to fetch script head for: ", url, "\n", e));
     };
@@ -51,6 +52,19 @@ class ExtensionScriptsDownloader extends Download {
       return;
     }
     this.downloadItemList = filter.stdout.split("\n");
+  }
+
+  writeTempItemInTempDir() {
+    for (const item of this.downloadItemMenu) {
+      const currFile = this.tempDir.concat(item.name);
+      const tmpFile = std.open(currFile, "w+");
+      const start = item.about.indexOf("/*") + 2;
+      const end = item.about.lastIndexOf("*/") - 1;
+      const about = item.about.slice(start, end);
+      tmpFile.puts(about);
+      tmpFile.close();
+      item.tmpFile = currFile;
+    }
   }
 }
 

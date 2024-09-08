@@ -1,6 +1,6 @@
 import { curlRequest } from "../justjs/src/curl.js";
 import { ensureDir } from "../justjs/src/fs.js";
-import { os, std } from "./quickJs.js";
+import { os } from "./quickJs.js";
 
 export default class Download {
   constructor(sourceRepoUrl, destinationDir) {
@@ -27,19 +27,6 @@ export default class Download {
       });
 
     await this.prepareMenu(response);
-  }
-
-  writeTempItemInTempDir() {
-    for (const item of this.downloadItemMenu) {
-      const currFile = this.tempDir.concat(item.name);
-      const tmpFile = std.open(currFile, "w+");
-      const start = item.about.indexOf("/*") + 2;
-      const end = item.about.lastIndexOf("*/") - 2;
-      const about = item.about.slice(start, end);
-      tmpFile.puts(about);
-      tmpFile.close();
-      item.tmpFile = currFile;
-    }
   }
 
   async downloadItemInDestinationDir() {

@@ -5,6 +5,10 @@ import { UiInitializer } from "./ui.js";
 import { Wallpaper } from "./wallpaper.js";
 import cache from "./cache.js";
 import { clearTerminal } from "../justjs/src/just-js/helpers/cursor.js";
+import {
+  ThemeExtensionScriptsDownloadManager,
+  WallpaperDaemonHandlerScriptDownloadManager,
+} from "./extensionScriptManager.js";
 
 "use strip";
 
@@ -18,12 +22,18 @@ class WallWiz {
     [this.paddV, this.paddH] = this.args["--padding"];
     this.gridSize = this.args["--grid-size"];
     this.pagination = this.args["--enable-pagination"];
+    this.downloadThemeExtensionScripts = this.args["--dte"];
+    this.downloadWallpaperDaemonHandlerScript = this.args["--dwh"];
+    this.browseWallpaperOnline = this.args["--browse"];
     this.picCacheDir = cache.picCacheDir;
-    this.wallpaper = new Wallpaper(this.wallpapersDir);
     this.theme = null;
   }
 
   async run() {
+    await this.handleThemeExtensionScriptDownload();
+    await this.handleWallpaperHandlerScriptDownload();
+
+    this.wallpaper = new Wallpaper(this.wallpapersDir);
     await this.wallpaper.init().catch((e) => {
       print("Failed to initialize wallpaper:", e);
       std.exit(2);
@@ -71,7 +81,7 @@ class WallWiz {
         "--enable-pagination": arg
           .flag(false)
           .desc(
-            "Display wallpapers in a grid.",
+            "Display wallpapers in a fixed size grid. Remaining wallpapers will be displayed in the next grid upon navigation",
           ),
         "--grid-size": arg
           .str("4x4")
@@ -81,6 +91,15 @@ class WallWiz {
           )
           .map(splitNumbersFromString)
           .desc("Wallpaper grid size"),
+        "--dte": arg
+          .flag(false)
+          .desc("Download theme extension scripts"),
+        "--dwh": arg
+          .flag(false)
+          .desc("Download wallpaper handler script."),
+        "--browse": arg
+          .flag(false)
+          .desc("Browse wallpapers online."),
         "-d": "--wall-dir",
         "-r": "--random",
         "-s": "--img-size",
@@ -95,6 +114,40 @@ class WallWiz {
       ])
       .ver("0.0.1-alpha.2")
       .parse();
+  }
+
+  async handleThemeExtensionScriptDownload() {
+    if (!this.downloadThemeExtensionScripts) return;
+    print(
+      "Starting theme extension download manager.\n",
+      "\bFetching list of exteniosn scripts...",
+    );
+    const downloadManager = new ThemeExtensionScriptsDownloadManager();
+    await downloadManager.start().catch((e) => {
+      print(
+        "Failed to start downloadManager for theme extension scripts.\n",
+        e,
+      );
+      std.exit(1);
+    });
+    std.exit(0);
+  }
+
+  async handleWallpaperHandlerScriptDownload() {
+    if (!this.downloadWallpaperDaemonHandlerScript) return;
+    print(
+      "Starting wallpaper daemon handler script download manager.\n",
+      "\bFetching list of available scripts...",
+    );
+    const downloadManager = new WallpaperDaemonHandlerScriptDownloadManager();
+    await downloadManager.start().catch((e) => {
+      print(
+        "Failed to start downloadManager for wallpaper daemon handle script.",
+        e,
+      );
+      std.exit(1);
+    });
+    std.exit(0);
   }
 
   async handleRandomWallpaper() {

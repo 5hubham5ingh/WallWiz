@@ -1,6 +1,5 @@
 import { exec as execAsync } from "../justjs/src/process.js";
-import { exec, ttyGetWinSize } from "os";
-import { exit } from "std";
+import { os, std } from "./quickJs.js";
 import {
   clearTerminal,
   cursorHide,
@@ -55,7 +54,7 @@ class UiInitializer {
   }
 
   async init() {
-    [this.terminalWidth, this.terminalHeight] = ttyGetWinSize();
+    [this.terminalWidth, this.terminalHeight] = os.ttyGetWinSize();
 
     while (this.containerWidth > this.terminalWidth) {
       await this.increaseTerminalSize();
@@ -82,18 +81,18 @@ class UiInitializer {
   }
 
   async increaseTerminalSize() {
-    await execAsync(["kitty", "@", "set-font-size", "--", "-1"]).catch((e) => {
+    await execAsync(["kitty", "@", "set-font-size", "--", "-1"]).catch((_e) => {
       print(
         ansi.styles(["bold", "red"]),
         "Terminal size too small.\n",
         ansi.style.reset,
         "\bEither set it manually or enable kitty remote control for automatic screen resizing.",
       );
-      exit(1);
+      std.exit(1);
     });
-    const [w, h] = ttyGetWinSize();
+    const [w, h] = os.ttyGetWinSize();
     if (w === this.terminalWidth && h === this.terminalHeight) {
-      exec(["kitty", "@", "set-font-size", "--", "0"]);
+      os.exec(["kitty", "@", "set-font-size", "--", "0"]);
       throw new Error(
         "Maximum screen size reached. Insufficient screen size. \n You can use pagination, or reduce the image preview size.",
       );
@@ -169,14 +168,14 @@ class UiInitializer {
   drawUI() {
     print(clearTerminal, cursorHide);
 
-    if (!this.wallpapers) exit(2);
+    if (!this.wallpapers) std.exit(2);
     this.wallpapers.forEach((wallpaper, i) => {
       const wallpaperDir = `${this.picCacheDir}/${wallpaper.uniqueId}`;
       const [x, y] = i < this.xy.length
         ? this.xy[i]
         : this.xy[i % this.xy.length];
       const cordinates = `${this.imageWidth}x${this.imageHeight}@${x}x${y}`;
-      exec([
+      os.exec([
         "kitten",
         "icat",
         "--stdin=no",
@@ -269,8 +268,9 @@ class UiInitializer {
   }
 
   handleExit() {
+    os.exec(["kitty", "@", "set-font-size", "--", "0"]);
     print(clearTerminal, cursorShow);
-    exit(0);
+    std.exit(0);
   }
 
   async handleKeysPress() {
