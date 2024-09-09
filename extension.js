@@ -1,8 +1,7 @@
-//fzf - m--preview = "head -n 20 {}" --preview - window="right:20%,wrap"
 import { curlRequest } from '../justjs/src/curl.js'
 import { ProcessSync } from '../justjs/src/process.js'
-import { exit, open, getenv } from 'std'
-import { remove } from 'os'
+import { getenv } from 'std'
+import { os, std } from './quickJs.js'
 
 class ThemeExtension {
   constructor(themeExtensionScriptsBaseDir) {
@@ -67,7 +66,7 @@ class ThemeExtension {
 
     for (const script of this.scriptsMenu) {
       const currFile = this.tmpDir.concat(script.name);
-      const tmpFile = open(currFile, "w+");
+      const tmpFile = std.open(currFile, "w+");
       const start = script.about.indexOf('/*') + 2;
       const end = script.about.lastIndexOf('*/') - 2;
       const about = script.about.slice(start, end);
@@ -112,7 +111,7 @@ class ThemeExtension {
 
   removeFilesInTempDir(tempScriptsPaths) {
     tempScriptsPaths.split('\n')
-      .forEach(path => remove(path))
+      .forEach(path => os.remove(path))
   }
 }
 

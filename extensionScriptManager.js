@@ -79,15 +79,14 @@ class ThemeExtensionScriptsDownloadManager extends ExtensionScriptsDownloader {
   }
 
   async start() {
-    await this.fetchItemListFromRepoAndPrepareMenu();
+    const response = await this.fetchItemListFromRepo();
+    await this.prepareMenu(response)
     this.writeTempItemInTempDir();
     this.promptUserToChooseScriptsToDownload("Theme extension scripts");
     await this.downloadItemInDestinationDir();
   }
 }
 
-// const themeExtScriptManager = new ThemeExtensionScripts();
-// await themeExtScriptManager.start();
 
 class WallpaperDaemonHandlerScriptDownloadManager
   extends ExtensionScriptsDownloader {
@@ -101,7 +100,8 @@ class WallpaperDaemonHandlerScriptDownloadManager
   }
 
   async start() {
-    await this.fetchItemListFromRepoAndPrepareMenu();
+    const response = await this.fetchItemListFromRepo();
+    await this.prepareMenu(response)
     this.writeTempItemInTempDir();
     this.promptUserToChooseScriptsToDownload(
       "Wallpaper daemon handler script.",
@@ -110,8 +110,6 @@ class WallpaperDaemonHandlerScriptDownloadManager
   }
 }
 
-// const wallpaperDaemonHandler = new WallpaperDaemonHandlerScript();
-// await wallpaperDaemonHandler.start();
 
 export {
   ThemeExtensionScriptsDownloadManager,

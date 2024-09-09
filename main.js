@@ -9,6 +9,7 @@ import {
   ThemeExtensionScriptsDownloadManager,
   WallpaperDaemonHandlerScriptDownloadManager,
 } from "./extensionScriptManager.js";
+import WallpaperDownloadManager from "./browseWallpaper.js";
 
 "use strip";
 
@@ -32,6 +33,7 @@ class WallWiz {
   async run() {
     await this.handleThemeExtensionScriptDownload();
     await this.handleWallpaperHandlerScriptDownload();
+    await this.handleWallpaperBrowsing();
 
     this.wallpaper = new Wallpaper(this.wallpapersDir);
     await this.wallpaper.init().catch((e) => {
@@ -150,6 +152,11 @@ class WallWiz {
     std.exit(0);
   }
 
+  async handleWallpaperBrowsing() {
+    if (!this.browseWallpaperOnline) return;
+    const wallpaperDownloadManager = new WallpaperDownloadManager(this.wallpapersDir);
+    await wallpaperDownloadManager.start();
+  }
   async handleRandomWallpaper() {
     if (!this.setRandomWallpaper) return;
     const randomWallpaperIndex = Math.floor(

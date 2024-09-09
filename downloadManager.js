@@ -14,11 +14,11 @@ export default class Download {
   }
 
   // @abstract
-  prepareMenu() {
-    throw new Error("Method 'prepareMenu' must be implimented.");
-  }
+  // prepareMenu() {
+  //   throw new Error("Method 'prepareMenu' must be implimented.");
+  // }
 
-  async fetchItemListFromRepoAndPrepareMenu() {
+  async fetchItemListFromRepo() {
     const response = await curlRequest(this.sourceRepoUrl, {
       parseJson: true,
     })
@@ -26,7 +26,8 @@ export default class Download {
         print("Failed to fetch list of theme extension scripts.", error);
       });
 
-    await this.prepareMenu(response);
+    return response;
+    // await this.prepareMenu(response);
   }
 
   async downloadItemInDestinationDir() {
