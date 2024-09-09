@@ -116,15 +116,18 @@ WallWiz's functionality can be extended through user-defined JavaScript scripts:
 
 ## Usage
 
-| **Option**         | **Description**                                                                                     |
-|--------------------|-----------------------------------------------------------------------------------------------------|
-| `--wall-dir`, `-d` | Specifies the directory containing wallpapers.                                                      |
-| `--random`, `-r`   | Applies a random wallpaper from the specified directory.                                             |
-| `--img-size`, `-s` | Sets the size of wallpaper previews in `WIDTHxHEIGHT` format (e.g., `60x20`).                        |
-| `--light-theme`, `-l` | Apply light theme instead of the default dark theme                                            |
-| `--padding`, `-p`  | Defines padding around previews in `V_PADDINGxH_PADDING` format (e.g., `2x1`).                       |
-| `--auto-resize`, `-a` | Automatically resizes the terminal window to fit all wallpaper previews.                           |
-
+| Option               | Shortcut | Default   | Description                                                                                                       | Example                              |
+|----------------------|----------|-----------|-------------------------------------------------------------------------------------------------------------------|--------------------------------------|
+| `--wall-dir`         | `-d`     | `.`       | Specifies the wallpaper directory path.                                                                           | `--wall-dir /path/to/wallpapers`     |
+| `--random`           | `-r`     | `false`   | Apply a random wallpaper from the specified directory.                                                            | `--random`                           |
+| `--img-size`         | `-s`     | `118x32`  | Image size in pixels. Format: `WIDTHxHEIGHT`.                                                                     | `--img-size 1920x1080`               |
+| `--light-theme`      | `-l`     | `true`    | Enables light theme mode.                                                                                         | `--light-theme`                      |
+| `--padding`          | `-p`     | `1x1`     | Container padding in cells. Format: `V_PADDINGxH_PADDING`.                                                        | `--padding 2x3`                      |
+| `--enable-pagination`| `-e`     | `false`   | Display wallpapers in a fixed-size grid. Remaining wallpapers will be displayed in the next grid upon navigation.  | `--enable-pagination`                |
+| `--grid-size`        | `-g`     | `4x4`     | Wallpaper grid size. Format: `WIDTHxHEIGHT`.                                                                      | `--grid-size 5x3`                    |
+| `--dte`              |          | `false`   | Download theme extension scripts.                                                                                 | `--dte`                              |
+| `--dwh`              |          | `false`   | Download wallpaper handler script.                                                                                | `--dwh`                              |
+| `--browse`           |          | `false`   | Browse wallpapers online.                                                                                         | `--browse`                           |
 
 ## Contributing
 
