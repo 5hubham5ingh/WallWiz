@@ -1,4 +1,4 @@
-import Download from "./downloadManager";
+import Download from "./downloadManager.js";
 
 export default class WallpaperDownloadManager extends Download {
   constructor(wallpaperDir) {
