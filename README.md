@@ -65,12 +65,18 @@ You can download the executable binary from the [GitHub releases](https://github
 
 ##### Wallpaper daemon handlers
 
-1. [Hyprpaper](https://github.com/5hubham5ingh/WallWiz/blob/main/wallpaperDaemonHandlerScripts/hyprpaper.js)
-   
+- Download it from [here](https://github.com/5hubham5ingh/WallWiz/tree/main/wallpaperDaemonHandlerScripts).
+- Or, run
+  ```bash
+  WallWiz -dwh
+  ```
 ##### Theme extension scripts
-1. [Kitty terminal emulator](https://github.com/5hubham5ingh/WallWiz/blob/main/themeExtensionScripts/kitty.js)
-2. [Hyprland wayland compositor and window manager](https://github.com/5hubham5ingh/WallWiz/blob/main/themeExtensionScripts/hyprland.js)
-
+- Download it from [here](https://github.com/5hubham5ingh/WallWiz/tree/main/themeExtensionScripts).
+- Or, run
+  ```bash
+  WallWiz -dte
+  ```
+***Note:*** [curl](https://github.com/curl/curl) and [fzf](https://github.com/junegunn/fzf) are required to download and filter script from command line.
 #### Option 2: Write your own custom scripts
 WallWiz's functionality can be extended through user-defined JavaScript scripts:
 
