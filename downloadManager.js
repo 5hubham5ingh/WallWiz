@@ -5,18 +5,10 @@ import { os } from "./quickJs.js";
 export default class Download {
   constructor(sourceRepoUrl, destinationDir) {
     this.destinationDir = destinationDir;
-    this.sourceRepoUrl = sourceRepoUrl;
-    this.tempDir = "/tmp/WallWiz/";
-    this.downloadItemMenu;
+    this.sourceRepoUrl = Download.ensureGitHubApiUrl(sourceRepoUrl);
     this.downloadItemList;
-    ensureDir(this.tempDir);
     ensureDir(this.destinationDir);
   }
-
-  // @abstract
-  // prepareMenu() {
-  //   throw new Error("Method 'prepareMenu' must be implimented.");
-  // }
 
   async fetchItemListFromRepo() {
     const response = await curlRequest(this.sourceRepoUrl, {
@@ -27,20 +19,18 @@ export default class Download {
       });
 
     return response;
-    // await this.prepareMenu(response);
   }
 
   async downloadItemInDestinationDir() {
+    print('downloadItemList: ', JSON.stringify(this.downloadItemList)
+    )
     if (!this.downloadItemList) {
-      this.#cleanUp();
       return;
     }
-    const itemsToDownload = this.downloadItemMenu
-      .filter((script) => this.downloadItemList.includes(script.tmpFile));
     print("Downloading...");
 
     const promises = [];
-    for (const item of itemsToDownload) {
+    for (const item of this.downloadItemList) {
       print(item.name);
       promises.push(
         curlRequest(item.download_url, {
@@ -51,15 +41,31 @@ export default class Download {
           }),
       );
     }
-    this.#cleanUp();
     await Promise.all(promises);
     print("Scripts downloaded.");
   }
 
-  #cleanUp() {
-    const tempItemPaths = this.downloadItemMenu.map((script) => script.tmpFile)
-      .join("\n");
-    tempItemPaths.split("\n")
-      .forEach((path) => os.remove(path));
+  static ensureGitHubApiUrl(gitHubUrl) {
+    // Check if the URL is already a GitHub API URL
+    const apiUrlRegex = /^https:\/\/api\.github\.com\/repos\/([^\/]+)\/([^\/]+)\/contents\/(.+)(\?ref=.+)?$/;
+    if (apiUrlRegex.test(gitHubUrl)) {
+      return gitHubUrl;  // It's already a GitHub API URL
+    }
+
+    // Ensure the input is a valid GitHub URL
+    const githubRegex = /https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/tree\/([^\/]+)\/(.+)/;
+    const match = gitHubUrl.match(githubRegex);
+
+    if (!match) {
+      throw new Error("Invalid GitHub URL format.");
+    }
+
+    const [_, owner, repo, branch, directoryPath] = match;
+
+    // Construct the GitHub API URL
+    const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${directoryPath}?ref=${branch}`;
+
+    return apiUrl;
   }
+
 }

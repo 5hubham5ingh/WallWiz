@@ -3,10 +3,14 @@ import { ProcessSync } from "../justjs/src/process.js";
 import Download from "./downloadManager.js";
 import config from "./config.js";
 import { std } from "./quickJs.js";
+import { ensureDir } from "../justjs/src/fs.js";
 
 class ExtensionScriptsDownloader extends Download {
   constructor(...all) {
     super(...all);
+    this.tempDir = "/tmp/WallWiz/";
+    this.downloadItemMenu;
+    ensureDir(this.tempDir);
   }
 
   async prepareMenu(res) {
@@ -51,7 +55,9 @@ class ExtensionScriptsDownloader extends Download {
     if (!filter.run()) {
       return;
     }
-    this.downloadItemList = filter.stdout.split("\n");
+
+    const filteredItem = filter.stdout.split("\n");
+    this.downloadItemList = this.downloadItemMenu.filter(item => filteredItem.includes(item.tmpFile))
   }
 
   writeTempItemInTempDir() {

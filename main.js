@@ -155,7 +155,8 @@ class WallWiz {
   async handleWallpaperBrowsing() {
     if (!this.browseWallpaperOnline) return;
     const wallpaperDownloadManager = new WallpaperDownloadManager(this.wallpapersDir);
-    await wallpaperDownloadManager.start();
+    await wallpaperDownloadManager.start()
+      .catch(e => { print('Failed to initialize WallpaperDownloadManager.', e); std.exit(2) })
   }
   async handleRandomWallpaper() {
     if (!this.setRandomWallpaper) return;

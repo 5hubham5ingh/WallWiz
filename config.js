@@ -38,7 +38,7 @@ class Config {
       }
       this.wallpaperDaemonHandler = wallpaperDaemonHandler.default;
     } else {
-      throw new Error(
+      print(
         "Failed to find any wallpaper daemon handler script in " + extensionDir,
       );
     }
