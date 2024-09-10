@@ -1,6 +1,6 @@
 import { curlRequest } from "../justjs/src/curl.js";
 import { ensureDir } from "../justjs/src/fs.js";
-import { os } from "./quickJs.js";
+import { os, std } from "./quickJs.js";
 
 export default class Download {
   constructor(sourceRepoUrl, destinationDir) {
@@ -22,9 +22,8 @@ export default class Download {
   }
 
   async downloadItemInDestinationDir() {
-    print('downloadItemList: ', JSON.stringify(this.downloadItemList)
-    )
     if (!this.downloadItemList) {
+      print('No item selected.')
       return;
     }
     print("Downloading...");
@@ -33,7 +32,7 @@ export default class Download {
     for (const item of this.downloadItemList) {
       print(item.name);
       promises.push(
-        curlRequest(item.download_url, {
+        curlRequest(item.downloadUrl, {
           outputFile: this.destinationDir.concat("/", item.name),
         })
           .catch((e) => {

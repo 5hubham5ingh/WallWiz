@@ -6,6 +6,7 @@ export default class WallpaperDownloadManager extends Download {
     const downloadDestinationDirectory = wallpaperDir;
     const wallpaperSourceUrl = 'https://github.com/D3Ext/aesthetic-wallpapers/tree/main/images'
     super(wallpaperSourceUrl, downloadDestinationDirectory)
+    this.downloadItemMenu = [];
   }
 
   async start() {
@@ -44,7 +45,8 @@ export default class WallpaperDownloadManager extends Download {
     }
 
     // for now, download the wallpaper from filtered list.
-    this.downloadItemList = filter.stdout.split('\n')
+    const filterdWallpapers = filter.stdout.split('\n')
+    this.downloadItemList = this.downloadItemMenu.filter(wallpaper => filterdWallpapers.includes(wallpaper.name))
   }
 }
 

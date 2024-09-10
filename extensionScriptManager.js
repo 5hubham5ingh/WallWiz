@@ -31,7 +31,7 @@ class ExtensionScriptsDownloader extends Download {
         .then((head) => ({
           name: script.name,
           about: head,
-          download_url: script.download_url,
+          downloadUrl: script.download_url,
         }));
 
       promises.push(getScriptPromise);
