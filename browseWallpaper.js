@@ -34,7 +34,7 @@ export default class WallpaperDownloadManager extends Download {
     const availableWallpaperNames = this.downloadItemMenu.map(wallpaper => wallpaper.name).join('\n');
 
     const filter = new ProcessSync(
-      `fzf -m --bind 'enter:select-all+accept' --layout="reverse" --header="Type wallpaper name or category to search for matching wallpaper." --header-first --border=double --border-label=" Wallpapers "`,
+      `fzf -m --bind 'enter:select-all+accept' --layout="reverse" --prompt="\b" --marker="\b" --pointer="\b" --header="Type wallpaper name or category to search for matching wallpaper." --header-first --border=double --border-label=" Wallpapers "`,
       {
         input: availableWallpaperNames,
         useShell: true,
@@ -45,8 +45,8 @@ export default class WallpaperDownloadManager extends Download {
     }
 
     // for now, download the wallpaper from filtered list.
-    const filterdWallpapers = filter.stdout.split('\n')
-    this.downloadItemList = this.downloadItemMenu.filter(wallpaper => filterdWallpapers.includes(wallpaper.name))
+    const filterdWallpapers = filter.stdout.split('\n');
+    this.downloadItemList = this.downloadItemMenu.filter(wallpaper => filterdWallpapers.includes(wallpaper.name));
   }
 }
 

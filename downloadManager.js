@@ -41,7 +41,7 @@ export default class Download {
       );
     }
     await Promise.all(promises);
-    print("Scripts downloaded.");
+    print("Items downloaded:", promises.length);
   }
 
   static ensureGitHubApiUrl(gitHubUrl) {
