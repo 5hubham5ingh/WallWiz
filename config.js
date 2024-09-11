@@ -12,6 +12,7 @@ class Config {
     this.themeExtensionScriptsBaseDir = this.homeDir.concat(
       "/.config/WallWiz/themeExtensionScripts/",
     );
+    this.threads; // = await execAsync(['nproc']).map(Number)
   }
 
   static async create() {
