@@ -49,7 +49,7 @@ class WallWiz {
       std.exit(2);
     });
     await this.handleRandomWallpaper();
-    await this.initializeUI().catch((e) => {
+    await this.handleWallpaperSelection().catch((e) => {
       print("Failed to initialize UI:", e);
       std.exit(2);
     });
@@ -189,7 +189,7 @@ class WallWiz {
     await Promise.all(promises);
   }
 
-  async initializeUI() {
+  async handleWallpaperSelection() {
     const UI = new UiInitializer({
       imageWidth: this.imageWidth,
       paddH: this.paddH,
