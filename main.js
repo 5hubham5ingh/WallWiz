@@ -9,7 +9,7 @@ import {
   ThemeExtensionScriptsDownloadManager,
   WallpaperDaemonHandlerScriptDownloadManager,
 } from "./extensionScriptManager.js";
-import WallpaperDownloadManager from "./browseWallpaper.js";
+import WallpaperDownloadManager from "./browseWallpaperOnline.js";
 
 "use strip";
 
@@ -154,7 +154,15 @@ class WallWiz {
 
   async handleWallpaperBrowsing() {
     if (!this.browseWallpaperOnline) return;
-    const wallpaperDownloadManager = new WallpaperDownloadManager(this.wallpapersDir);
+    const wallpaperDownloadManager = new WallpaperDownloadManager({
+      imageWidth: this.imageWidth,
+      paddH: this.paddH,
+      imageHeight: this.imageHeight,
+      paddV: this.paddV,
+      pagination: this.pagination,
+      wallpapersDir: this.wallpapersDir,
+      gridSize: this.gridSize,
+    });
     await wallpaperDownloadManager.start()
       .catch(e => { print('Failed to initialize WallpaperDownloadManager.', e); std.exit(2) })
   }
@@ -195,7 +203,7 @@ class WallWiz {
     });
     await UI.init().catch((e) => {
       os.exec(["clear"]);
-      print(e);
+      print('Failed to initialize UI for wallpaper setter.', e);
     });
   }
 }

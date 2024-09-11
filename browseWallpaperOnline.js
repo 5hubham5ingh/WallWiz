@@ -1,21 +1,26 @@
 import { ProcessSync } from "../justjs/src/process.js";
 import Download from "./downloadManager.js";
+import { UiInitializer } from "./ui.js";
+import { os } from './quickJs.js'
 
 export default class WallpaperDownloadManager extends Download {
-  constructor(wallpaperDir) {
-    const downloadDestinationDirectory = wallpaperDir;
+  constructor(params) {
+    const downloadDestinationDirectory = '/tmp/WallWiz/Wallpapers/';
     const wallpaperSourceUrl = 'https://github.com/D3Ext/aesthetic-wallpapers/tree/main/images'
     super(wallpaperSourceUrl, downloadDestinationDirectory)
     this.downloadItemMenu = [];
+    this.downloadItemFilteredMenu = [];
+    this.uiParams = params;
   }
 
   async start() {
     // check if response is 302, if yes then use the cached downloadItemMenu, else reassign it and update cache
     this.availableWallpapersInTheRepo = await this.fetchItemListFromRepo();
     this.prepareMenu()
-    this.promptUserToFilterWallpapersToDownloadAndPreview();
+    this.promptUserToFilterWallpapersFromAvailableWallpapersInTheRepoForPreview();
     // preview the wallpaper before downloading, pressing d in the preview windoe will download the wallpaper.
     await this.downloadItemInDestinationDir();
+    await this.previewWallpapersForDownload()
   }
 
   prepareMenu() {
@@ -29,8 +34,25 @@ export default class WallpaperDownloadManager extends Download {
     }
   }
 
+  async previewWallpapersForDownload() {
+    // provide wallpapers and handleSelection to the Ui class.
+    const [tempDownloadedWallpapers, error] = os.readdir(this.destinationDir)
+    if (error !== 0) throw new Error('Failed to read temporary download files from ', this.destinationDir);
+    if (!tempDownloadedWallpapers.length) return;
+    const handleSelection = (wallpaper) => {
+      const sourceWallpaperPath = this.destinationDir.concat(wallpaper.uniqueId);
+      const destinationWallapaperPath = this.uiParams.wallpapersDir.concat(wallpaper.uniqueId);
+      os.rename(sourceWallpaperPath, destinationWallapaperPath);
+    }
 
-  promptUserToFilterWallpapersToDownloadAndPreview() {
+    this.uiParams.picCacheDir = this.destinationDir;
+    this.uiParams.handleSelection = handleSelection;
+    this.uiParams.wallpapers = tempDownloadedWallpapers.map(wallpaper => ({ uniqueId: wallpaper }))
+    const UI = new UiInitializer(this.uiParams);
+    await UI.init().catch(e => print('Failed to initialize UI for downloading wallpapers.', e))
+  }
+
+  promptUserToFilterWallpapersFromAvailableWallpapersInTheRepoForPreview() {
     const availableWallpaperNames = this.downloadItemMenu.map(wallpaper => wallpaper.name).join('\n');
 
     const filter = new ProcessSync(
@@ -46,6 +68,7 @@ export default class WallpaperDownloadManager extends Download {
 
     // for now, download the wallpaper from filtered list.
     const filterdWallpapers = filter.stdout.split('\n');
+    if (!filterdWallpapers.length) return;
     this.downloadItemList = this.downloadItemMenu.filter(wallpaper => filterdWallpapers.includes(wallpaper.name));
   }
 }
