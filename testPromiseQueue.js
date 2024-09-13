@@ -1,6 +1,7 @@
 import { curlRequest } from "../justjs/src/curl.js";
 import { wait } from "../justjs/src/timers.js";
 import Queue from "./promiseQueue.js";
+import { exec as execAsync } from "../justjs/src/process.js"
 
 // Create a queue with concurrency of 3, meaning only 3 fetch requests will run simultaneously
 const queue = new Queue(3);
@@ -34,4 +35,8 @@ urls.forEach(url => {
 queue.done().then(() => {
   console.log('All fetch operations completed');
 });
+
+const result = await execAsync(['nproc']).then(threads => parseInt(threads))
+
+print('core: ', result)
 

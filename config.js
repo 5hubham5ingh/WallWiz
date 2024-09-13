@@ -12,14 +12,24 @@ class Config {
     this.themeExtensionScriptsBaseDir = this.homeDir.concat(
       "/.config/WallWiz/themeExtensionScripts/",
     );
-    this.threads; // = await execAsync(['nproc']).map(Number)
+    this.processLimit;
   }
 
   static async create() {
     const config = new Config();
     await config.loadThemeExtensionScripts();
     await config.loadWallpaperDaemonHandlerScript();
+    await config.getProcessLimit();
     return config;
+  }
+
+  async getProcessLimit() {
+    this.processLimit = await execAsync(['nproc'])
+      .then(threads => parseInt(threads, 10))
+      .catch(e => {
+        print('Failed to get process limit. \nUsing default value of 4.', e);
+        return 4;
+      })
   }
 
   async loadWallpaperDaemonHandlerScript() {
