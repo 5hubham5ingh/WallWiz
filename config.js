@@ -1,6 +1,7 @@
 import cache from "./cache.js";
 import { ensureDir } from "../justjs/src/fs.js";
 import { os, std } from "./quickJs.js";
+import { exec as execAsync } from "../justjs/src/process.js";
 
 "use strip";
 
@@ -24,12 +25,12 @@ class Config {
   }
 
   async getProcessLimit() {
-    this.processLimit = await execAsync(['nproc'])
-      .then(threads => parseInt(threads, 10))
-      .catch(e => {
-        print('Failed to get process limit. \nUsing default value of 4.', e);
+    this.processLimit = await execAsync(["nproc"])
+      .then((threads) => parseInt(threads, 10))
+      .catch((e) => {
+        print("Failed to get process limit. \nUsing default value of 4.", e);
         return 4;
-      })
+      });
   }
 
   async loadWallpaperDaemonHandlerScript() {
