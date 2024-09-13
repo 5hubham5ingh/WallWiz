@@ -1,6 +1,8 @@
+import config from "./config.js";
+
 class Queue {
-  constructor(concurrency) {
-    this.concurrency = concurrency;
+  constructor() {
+    this.concurrency = config.processLimit;
     this.active = 0;
     this.size = 0;
     this.head = null;
@@ -111,4 +113,3 @@ class Queue {
 }
 
 export default Queue;
-

@@ -1,10 +1,10 @@
 import { UiInitializer } from "./ui.js";
 import cache from "./cache.js";
-import { Theme } from "./theme";
+import { Theme } from "./theme.js";
 
-class WallpaperSetter extends UiInitializer {
+export default class WallpaperSetter extends UiInitializer {
   constructor(params) {
-    super(params)
+    super(params);
     this.wallpapersDir = params.wallpapersDir;
     this.picCacheDir = cache.picCacheDir;
     this.wallpapers = [];
@@ -66,9 +66,10 @@ class WallpaperSetter extends UiInitializer {
 
     if (!this.wallpapers.length) {
       print(
-        `No wallpapers found in "${ansi.styles(["bold", "underline", "red"]) +
-        this.wallpapersDir +
-        ansi.style.reset
+        `No wallpapers found in "${
+          ansi.styles(["bold", "underline", "red"]) +
+          this.wallpapersDir +
+          ansi.style.reset
         }".`,
       );
       print(cursorShow);
@@ -132,4 +133,3 @@ class WallpaperSetter extends UiInitializer {
     return config.wallpaperDaemonHandler(wallpaperDir); // calling the handler function to set the wallpaper
   }
 }
-

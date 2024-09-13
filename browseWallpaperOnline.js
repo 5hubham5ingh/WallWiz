@@ -24,7 +24,6 @@ export default class WallpaperDownloadManager extends Download {
     this.prepareMenu();
     this
       .promptUserToFilterWallpapersFromAvailableWallpapersInTheRepoForPreview();
-    // preview the wallpaper before downloading, pressing d in the preview windoe will download the wallpaper.
     await this.downloadItemInDestinationDir();
     await this.previewWallpapersForDownload();
   }
