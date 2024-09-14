@@ -1,10 +1,6 @@
 import { os, std } from "./quickJs.js";
 import arg from "../justjs/src/arg.js";
-import { Theme } from "./theme.js";
-import { UiInitializer } from "./ui.js";
-import { Wallpaper } from "./wallpaper.js";
 import cache from "./cache.js";
-import { clearTerminal } from "../justjs/src/just-js/helpers/cursor.js";
 import {
   ThemeExtensionScriptsDownloadManager,
   WallpaperDaemonHandlerScriptDownloadManager,
@@ -35,26 +31,7 @@ class WallWiz {
     await this.handleThemeExtensionScriptDownload();
     await this.handleWallpaperHandlerScriptDownload();
     await this.handleWallpaperBrowsing();
-
     await this.handleWallpaperSetter();
-    // this.wallpaper = new Wallpaper(this.wallpapersDir);
-    // await this.wallpaper.init().catch((e) => {
-    //   print("Failed to initialize wallpaper:", e);
-    //   std.exit(2);
-    // });
-    // this.theme = new Theme(
-    //   this.picCacheDir,
-    //   this.wallpaper.wallpapers,
-    // );
-    // await this.theme.init().catch((e) => {
-    //   print("Failed to initialize theme:", e);
-    //   std.exit(2);
-    // });
-    // await this.handleRandomWallpaper();
-    // await this.handleWallpaperSelection().catch((e) => {
-    //   print("Failed to initialize UI:", e);
-    //   std.exit(2);
-    // });
   }
 
   parseArguments() {
@@ -187,47 +164,6 @@ class WallWiz {
     });
 
     await wallpaperSetter.init();
-  }
-
-  async handleRandomWallpaper() {
-    if (!this.setRandomWallpaper) return;
-    const randomWallpaperIndex = Math.floor(
-      Math.random() * this.wallpaper.wallpapers.length,
-    );
-    await this.setThemeAndWallpaper(
-      this.wallpaper.wallpapers[randomWallpaperIndex],
-    );
-    std.exit(0);
-  }
-
-  async setThemeAndWallpaper(wallpaper) {
-    const { name, uniqueId } = wallpaper;
-
-    const promises = [
-      this.theme.setTheme(uniqueId, this.enableLightTheme).catch((e) => {
-        print(clearTerminal, "Failed to set theme for ", name, uniqueId, e);
-      }),
-      this.wallpaper.setWallpaper(name),
-    ];
-    await Promise.all(promises);
-  }
-
-  async handleWallpaperSelection() {
-    const UI = new UiInitializer({
-      imageWidth: this.imageWidth,
-      paddH: this.paddH,
-      imageHeight: this.imageHeight,
-      paddV: this.paddV,
-      wallpapers: this.wallpaper.wallpapers,
-      picCacheDir: this.picCacheDir,
-      handleSelection: async (index) => await this.setThemeAndWallpaper(index),
-      pagination: this.pagination,
-      gridSize: this.gridSize,
-    });
-    await UI.init().catch((e) => {
-      os.exec(["clear"]);
-      print("Failed to initialize UI for wallpaper setter.", e);
-    });
   }
 }
 
