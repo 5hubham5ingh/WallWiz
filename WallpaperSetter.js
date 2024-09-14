@@ -23,7 +23,17 @@ export default class WallpaperSetter {
       .catch((e) => {
         print("Failed to initialize themeManager:\n", e);
       });
+    await this.handleSettingRandomWallpaper();
     await this.handleSettingWallpaper();
+  }
+
+  async handleSettingRandomWallpaper() {
+    if (!this.params.setRandomWallpaper) return;
+    const randomWallpaperIndex = Math.floor(
+      Math.random() * this.wallpapers.length,
+    );
+    await this.handleSelection(this.wallpapers[randomWallpaperIndex]);
+    std.exit(0);
   }
 
   async handleSettingWallpaper() {

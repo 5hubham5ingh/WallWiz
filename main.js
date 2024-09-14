@@ -183,6 +183,7 @@ class WallWiz {
       gridSize: this.gridSize,
       wallpapersDir: this.wallpapersDir,
       enableLightTheme: this.enableLightTheme,
+      setRandomWallpaper: this.setRandomWallpaper,
     });
 
     await wallpaperSetter.init();
