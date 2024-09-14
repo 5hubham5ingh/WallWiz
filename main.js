@@ -10,6 +10,7 @@ import {
   WallpaperDaemonHandlerScriptDownloadManager,
 } from "./extensionScriptManager.js";
 import WallpaperDownloadManager from "./browseWallpaperOnline.js";
+import WallpaperSetter from "./WallpaperSetter.js";
 
 "use strip";
 
@@ -35,24 +36,25 @@ class WallWiz {
     await this.handleWallpaperHandlerScriptDownload();
     await this.handleWallpaperBrowsing();
 
-    this.wallpaper = new Wallpaper(this.wallpapersDir);
-    await this.wallpaper.init().catch((e) => {
-      print("Failed to initialize wallpaper:", e);
-      std.exit(2);
-    });
-    this.theme = new Theme(
-      this.picCacheDir,
-      this.wallpaper.wallpapers,
-    );
-    await this.theme.init().catch((e) => {
-      print("Failed to initialize theme:", e);
-      std.exit(2);
-    });
-    await this.handleRandomWallpaper();
-    await this.handleWallpaperSelection().catch((e) => {
-      print("Failed to initialize UI:", e);
-      std.exit(2);
-    });
+    await this.handleWallpaperSetter();
+    // this.wallpaper = new Wallpaper(this.wallpapersDir);
+    // await this.wallpaper.init().catch((e) => {
+    //   print("Failed to initialize wallpaper:", e);
+    //   std.exit(2);
+    // });
+    // this.theme = new Theme(
+    //   this.picCacheDir,
+    //   this.wallpaper.wallpapers,
+    // );
+    // await this.theme.init().catch((e) => {
+    //   print("Failed to initialize theme:", e);
+    //   std.exit(2);
+    // });
+    // await this.handleRandomWallpaper();
+    // await this.handleWallpaperSelection().catch((e) => {
+    //   print("Failed to initialize UI:", e);
+    //   std.exit(2);
+    // });
   }
 
   parseArguments() {
@@ -164,8 +166,28 @@ class WallWiz {
       gridSize: this.gridSize,
     });
     await wallpaperDownloadManager.start()
-      .catch(e => { print('Failed to initialize WallpaperDownloadManager.', e); std.exit(2) })
+      .catch((e) => {
+        print("Failed to initialize WallpaperDownloadManager.", e);
+        std.exit(2);
+      });
   }
+
+  async handleWallpaperSetter() {
+    const wallpaperSetter = new WallpaperSetter({
+      imageWidth: this.imageWidth,
+      paddH: this.paddH,
+      imageHeight: this.imageHeight,
+      paddV: this.paddV,
+      picCacheDir: this.picCacheDir,
+      pagination: this.pagination,
+      gridSize: this.gridSize,
+      wallpapersDir: this.wallpapersDir,
+      enableLightTheme: this.enableLightTheme,
+    });
+
+    await wallpaperSetter.init();
+  }
+
   async handleRandomWallpaper() {
     if (!this.setRandomWallpaper) return;
     const randomWallpaperIndex = Math.floor(
@@ -203,7 +225,7 @@ class WallWiz {
     });
     await UI.init().catch((e) => {
       os.exec(["clear"]);
-      print('Failed to initialize UI for wallpaper setter.', e);
+      print("Failed to initialize UI for wallpaper setter.", e);
     });
   }
 }

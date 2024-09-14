@@ -3,6 +3,7 @@ import config from "./config.js";
 import cache from "./cache.js";
 import { os, std } from "./quickJs.js";
 import Queue from "./promiseQueue.js";
+import { clearTerminal } from "../justjs/src/just-js/helpers/cursor.js";
 
 "use strip";
 
@@ -145,7 +146,11 @@ class Theme {
 
       if (doesCacheExists) {
         promises.push(themeHandler.setTheme(currentThemePath, execAsync));
-      } else throw new Error(`No theme exist in cache for ${wallpaperName}`);
+      } else {
+        print(clearTerminal, "cache miss: ", currentThemePath, ":end");
+        std.exit();
+        throw new Error(`No theme exist in cache for ${wallpaperName}`);
+      }
     }
     await Promise.all(promises);
   }

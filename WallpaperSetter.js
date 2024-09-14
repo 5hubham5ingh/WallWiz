@@ -1,30 +1,50 @@
-import { UiInitializer } from "./ui.js";
 import cache from "./cache.js";
 import { Theme } from "./theme.js";
+import { os, std } from "./quickJs.js";
+import { UiInitializer } from "./ui.js";
+import { clearTerminal } from "../justjs/src/just-js/helpers/cursor.js";
+import { exec as execAsync } from "../justjs/src/process.js";
+import config from "./config.js";
 
-export default class WallpaperSetter extends UiInitializer {
+export default class WallpaperSetter {
   constructor(params) {
-    super(params);
     this.wallpapersDir = params.wallpapersDir;
+    this.params = params;
     this.picCacheDir = cache.picCacheDir;
     this.wallpapers = [];
+    this.isRandom;
   }
 
   async init() {
     this.loadWallpapers();
     await this.createCache();
-    this.themeManager = new Theme(this.wallpapersDir, this.wallpapers);
-    await this.themeManager.init();
+    this.themeManager = new Theme(this.picCacheDir, this.wallpapers);
+    await this.themeManager.init()
+      .catch((e) => {
+        print("Failed to initialize themeManager:\n", e);
+      });
+    await this.handleSettingWallpaper();
   }
 
-  // abstract function of UI getting overwritten here
+  async handleSettingWallpaper() {
+    this.params.wallpapers = this.wallpapers;
+    const ui = new UiInitializer({
+      ...this.params,
+      handleSelection: async (wallpaper) =>
+        await this.handleSelection(wallpaper),
+    });
+    await ui.init();
+  }
+
   async handleSelection(wallpaper) {
     const { name, uniqueId } = wallpaper;
 
     const promises = [ // this.enableLightTheme should be passed in the themes constructor, not here.
-      this.themeManager.setTheme(uniqueId, this.enableLightTheme).catch((e) => {
-        print(clearTerminal, "Failed to set theme for ", name, uniqueId, e);
-      }),
+      this.themeManager.setTheme(uniqueId, this.params.enableLightTheme).catch(
+        (e) => {
+          print(clearTerminal, "Failed to set theme for ", name, uniqueId, e);
+        },
+      ),
       this.setWallpaper(name),
     ];
     await Promise.all(promises);
@@ -37,16 +57,16 @@ export default class WallpaperSetter extends UiInitializer {
   }
 
   loadWallpapers() {
-    const [wallpapers, error] = readdir(this.wallpapersDir);
+    const [wallpapers, error] = os.readdir(this.wallpapersDir);
     if (error !== 0) {
       print("Failed to read wallpapers directory: ", this.wallpapersDir);
-      exit(error);
+      std.exit(error);
     }
     this.wallpapers = wallpapers.filter(
       (name) =>
         name !== "." && name !== ".." && this.isSupportedImageFormat(name),
     ).map((name) => {
-      const [stats, error] = stat(
+      const [stats, error] = os.stat(
         this.wallpapersDir.concat(name),
       );
 
@@ -55,7 +75,7 @@ export default class WallpaperSetter extends UiInitializer {
           "Failed to read wallpaper stat for :",
           this.wallpapers.concat(name),
         );
-        exit(error);
+        std.exit(error);
       }
       const { dev, ino } = stats;
       return {
@@ -73,12 +93,12 @@ export default class WallpaperSetter extends UiInitializer {
         }".`,
       );
       print(cursorShow);
-      exit(2);
+      std.exit(2);
     }
   }
 
   async createCache() {
-    const [cacheNames, error] = readdir(this.picCacheDir);
+    const [cacheNames, error] = os.readdir(this.picCacheDir);
     const doesWallaperCacheExist = () => {
       if (error !== 0) return false;
       const cachedWallpaper = cacheNames.filter(
@@ -86,8 +106,8 @@ export default class WallpaperSetter extends UiInitializer {
           name !== "." && name !== ".." && this.isSupportedImageFormat(name),
       );
       if (!cachedWallpaper.length) return false;
-      return this.wallpapers.every((cacheName) =>
-        cachedWallpaper.some((wp) => wp.uniqueId === cacheName)
+      return this.wallpapers.every((wallpaperName) =>
+        cachedWallpaper.some((cacheId) => cacheId === wallpaperName.uniqueId)
       );
     };
 
@@ -112,7 +132,7 @@ export default class WallpaperSetter extends UiInitializer {
             "Failed to create wallpaper cache. Make sure ImageMagick is installed in your system",
             e,
           );
-          exit(2);
+          std.exit(2);
         });
     };
 
