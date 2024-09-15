@@ -1,5 +1,6 @@
 import { curlRequest } from "../justjs/src/curl.js";
 import { ensureDir } from "../justjs/src/fs.js";
+import { exec as execAsync } from "../justjs/src/process.js";
 
 export default class Download {
   constructor(sourceRepoUrl, destinationDir) {
@@ -25,22 +26,36 @@ export default class Download {
       print("No item selected.");
       return;
     }
-    print("Downloading...");
 
-    const promises = [];
+    const fileListForCurl = [];
+
     for (const item of this.downloadItemList) {
       print(item.name);
-      promises.push(
-        curlRequest(item.downloadUrl, {
-          outputFile: this.destinationDir.concat("/", item.name),
-        })
-          .catch((e) => {
-            print("Failed to download script ", item.name, "\n", e);
-          }),
-      );
+      fileListForCurl.push([
+        item.downloadUrl,
+        this.destinationDir.concat("/", item.name),
+      ]);
     }
-    await Promise.all(promises);
-    print("Items downloaded:", promises.length);
+
+    print("Downloading...");
+
+    await execAsync(Download.generateCurlParallelCommand(fileListForCurl))
+      .catch((e) => print("Download failed:", e));
+
+    print("Items downloaded:", fileListForCurl.length);
+  }
+
+  static generateCurlParallelCommand(fileList) {
+    let curlCommand = "curl --parallel --parallel-immediate";
+
+    fileList.forEach(([sourceUrl, destPath]) => {
+      const escapedSourceUrl = sourceUrl.replace(/(["\s'$`\\])/g, "\\$1");
+      const escapedDestPath = destPath.replace(/(["\s'$`\\])/g, "\\$1");
+
+      curlCommand += ` -o "${escapedDestPath}" "${escapedSourceUrl}"`;
+    });
+
+    return curlCommand;
   }
 
   static ensureGitHubApiUrl(gitHubUrl) {

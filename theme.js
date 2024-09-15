@@ -2,8 +2,8 @@ import { exec as execAsync } from "../justjs/src/process.js";
 import config from "./config.js";
 import cache from "./cache.js";
 import { os, std } from "./quickJs.js";
-import Queue from "./promiseQueue.js";
 import { clearTerminal } from "../justjs/src/just-js/helpers/cursor.js";
+import { promiseQueueWithLimit } from "./utils.js";
 
 "use strip";
 
@@ -110,14 +110,14 @@ class Theme {
     };
 
     // generate colours for each wallpaper
-    const queue = new Queue();
+    const queue = [];
     for (let i = 0; i < this.wallpaper.length; i++) {
       const wallpaperName = this.wallpaper[i].uniqueId;
       const wallpaperPath = this.wallpaperDir.concat(wallpaperName);
       const doesCacheExist = this.areColoursCached(wallpaperName);
 
       if (doesCacheExist) continue;
-      queue.add(
+      queue.push(
         () =>
           getColoursFromWallpaper(wallpaperPath, wallpaperName).then(
             (colours) => {
@@ -130,7 +130,7 @@ class Theme {
       );
     }
 
-    await queue.done();
+    await promiseQueueWithLimit(queue, config.processLimit);
   }
 
   async setTheme(wallpaperName, enableLightTheme) {

@@ -68,13 +68,13 @@ You can download the executable binary from the [GitHub releases](https://github
 - Download it from [here](https://github.com/5hubham5ingh/WallWiz/tree/main/wallpaperDaemonHandlerScripts).
 - Or, run
   ```bash
-  WallWiz -dwh
+  WallWiz --dwh
   ```
 ##### Theme extension scripts
 - Download it from [here](https://github.com/5hubham5ingh/WallWiz/tree/main/themeExtensionScripts).
 - Or, run
   ```bash
-  WallWiz -dte
+  WallWiz --dte
   ```
 ***Note:*** [curl](https://github.com/curl/curl) and [fzf](https://github.com/junegunn/fzf) are required to download and filter script from command line.
 #### Option 2: Write your own custom scripts

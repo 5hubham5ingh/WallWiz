@@ -4,90 +4,118 @@ import cache from "./cache.js";
 import {
   ThemeExtensionScriptsDownloadManager,
   WallpaperDaemonHandlerScriptDownloadManager,
-} from "./extensionScriptManager.js";
-import WallpaperDownloadManager from "./browseWallpaperOnline.js";
-import WallpaperSetter from "./WallpaperSetter.js";
+} from "./extensionScriptDownloadManager.js";
+import WallpaperDownloadManager from "./wallpaperDownloadManager.js";
+import WallpaperSetter from "./wallpapersManager.js";
 
 "use strip";
 
 class WallWiz {
   constructor() {
-    this.args = this.parseArguments();
-    this.wallpapersDir = this.args["--wall-dir"].concat("/");
-    this.enableLightTheme = this.args["--light-theme"];
-    this.setRandomWallpaper = this.args["--random"];
-    [this.imageWidth, this.imageHeight] = this.args["--img-size"];
-    [this.paddV, this.paddH] = this.args["--padding"];
-    this.gridSize = this.args["--grid-size"];
-    this.pagination = this.args["--enable-pagination"];
-    this.downloadThemeExtensionScripts = this.args["--dte"];
-    this.downloadWallpaperDaemonHandlerScript = this.args["--dwh"];
-    this.browseWallpaperOnline = this.args["--browse"];
+    this.userArguments = this.parseArguments();
     this.picCacheDir = cache.picCacheDir;
-    this.theme = null;
   }
 
   async run() {
+    os.ttySetRaw();
     await this.handleThemeExtensionScriptDownload();
     await this.handleWallpaperHandlerScriptDownload();
     await this.handleWallpaperBrowsing();
     await this.handleWallpaperSetter();
+    std.exit(0);
   }
 
   parseArguments() {
     const splitNumbersFromString = (str) => str.split("x").map(Number);
-    return arg
+
+    const argNames = {
+      wallpapersDirectory: "--wall-dir",
+      setRandomWallpaper: "--random",
+      imageSize: "--img-size",
+      enableLightTheme: "--light-theme",
+      padding: "--padding",
+      enablePagination: "--enable-pagination",
+      gridSize: "--grid-size",
+      downloadThemeExtensionScripts: "--dte",
+      downloadWallpaperDaemonHandlerScript: "--dwh",
+      browseWallpaperOnline: "--browse",
+      wallpaperRepositoryUrls: "--repo-url",
+      githubApiKey: "--api-key",
+    };
+
+    const userArguments = arg
       .parser({
-        "--wall-dir": arg.path(".").check().desc("Wallpaper directory path"),
-        "--random": arg
+        [argNames.wallpapersDirectory]: arg
+          .path(".")
+          .check()
+          .map((path) => path.concat("/"))
+          .desc("Wallpaper directory path"),
+        [argNames.setRandomWallpaper]: arg
           .flag(false)
           .desc("Apply random wallpaper from the directory."),
-        "--img-size": arg
+        [argNames.imageSize]: arg
           .str("118x32")
           .reg(/^\d+x\d+$/)
           .desc("Image size in pixel")
+          .val("WIDTHxHEIGHT")
           .err(
             "Invalid size, it should be of WIDTHxHEIGHT format. \n Ex:- 60x20",
           )
           .map(splitNumbersFromString),
-        "--light-theme": arg.flag(true).desc("Enable light theme."),
-        "--padding": arg
+        [argNames.enableLightTheme]: arg.flag(true).desc("Enable light theme."),
+        [argNames.padding]: arg
           .str("1x1")
           .reg(/^\d+x\d+$/)
           .err(
-            "Invalid padding, it should of V_PADDINGxH_PADDING format. \n Ex:- 2x1",
+            "Invalid padding, it should of VERTICLE_PADDINGxHORIZONTAL_PADDING format. \n Ex:- 2x1",
           )
           .map(splitNumbersFromString)
-          .desc("Container padding in cells"),
-        "--enable-pagination": arg
+          .desc("Container padding in cells")
+          .val("VERTICLExHORIZONTAL"),
+        [argNames.enablePagination]: arg
           .flag(false)
           .desc(
             "Display wallpapers in a fixed size grid. Remaining wallpapers will be displayed in the next grid upon navigation",
           ),
-        "--grid-size": arg
+        [argNames.gridSize]: arg
           .str("4x4")
           .reg(/^\d+x\d+$/)
           .err(
             "Invalid grid size. \n Ex:- 4x4",
           )
           .map(splitNumbersFromString)
-          .desc("Wallpaper grid size"),
-        "--dte": arg
+          .desc("Wallpaper grid size")
+          .val("WIDTHxHEIGHT"),
+        [argNames.downloadThemeExtensionScripts]: arg
           .flag(false)
           .desc("Download theme extension scripts"),
-        "--dwh": arg
+        [argNames.downloadWallpaperDaemonHandlerScript]: arg
           .flag(false)
           .desc("Download wallpaper handler script."),
-        "--browse": arg
+        [argNames.browseWallpaperOnline]: arg
           .flag(false)
           .desc("Browse wallpapers online."),
-        "-d": "--wall-dir",
-        "-r": "--random",
-        "-s": "--img-size",
-        "-p": "--padding",
-        "-e": "--enable-pagination",
-        "-g": "--grid-size",
-        "-l": "--light-theme",
+        [argNames.wallpaperRepositoryUrls]: arg
+          .str("https://github.com/D3Ext/aesthetic-wallpapers/tree/main/images")
+          .env("WALLPAPER_REPO_URLS")
+          .reg(
+            /^(https:\/\/github\.com\/[^\/]+\/[^\/]+\/tree\/[^\/]+\/[^,]+)(\s*,\s*https:\/\/github\.com\/[^\/]+\/[^\/]+\/tree\/[^\/]+\/[^,]+)*$/,
+          )
+          .map((urls) => urls.split(","))
+          .err("Invalid repository url(s)")
+          .desc("Wallpaper repository github url(s).")
+          .val("URL(s)"),
+        [argNames.githubApiKey]: arg
+          .str()
+          .env("GITHUB_API_KEY")
+          .desc("Github API key."),
+        "-d": argNames.wallpapersDirectory,
+        "-r": argNames.setRandomWallpaper,
+        "-s": argNames.imageSize,
+        "-p": argNames.padding,
+        "-e": argNames.enablePagination,
+        "-g": argNames.gridSize,
+        "-l": argNames.enableLightTheme,
       })
       .ex([
         "-d ~/Pics/wallpaper/wallpaper.jpeg -s 42x10",
@@ -95,6 +123,12 @@ class WallWiz {
       ])
       .ver("0.0.1-alpha.3")
       .parse();
+
+    const argumentDictionary = {};
+    for (const argName in argNames) {
+      argumentDictionary[argName] = userArguments[argNames[argName]];
+    }
+    return argumentDictionary;
   }
 
   async handleThemeExtensionScriptDownload() {
@@ -104,7 +138,7 @@ class WallWiz {
       "\bFetching list of exteniosn scripts...",
     );
     const downloadManager = new ThemeExtensionScriptsDownloadManager();
-    await downloadManager.start().catch((e) => {
+    await downloadManager.init().catch((e) => {
       print(
         "Failed to start downloadManager for theme extension scripts.\n",
         e,
@@ -121,7 +155,7 @@ class WallWiz {
       "\bFetching list of available scripts...",
     );
     const downloadManager = new WallpaperDaemonHandlerScriptDownloadManager();
-    await downloadManager.start().catch((e) => {
+    await downloadManager.init().catch((e) => {
       print(
         "Failed to start downloadManager for wallpaper daemon handle script.",
         e,
@@ -132,17 +166,11 @@ class WallWiz {
   }
 
   async handleWallpaperBrowsing() {
-    if (!this.browseWallpaperOnline) return;
-    const wallpaperDownloadManager = new WallpaperDownloadManager({
-      imageWidth: this.imageWidth,
-      paddH: this.paddH,
-      imageHeight: this.imageHeight,
-      paddV: this.paddV,
-      pagination: this.pagination,
-      wallpapersDir: this.wallpapersDir,
-      gridSize: this.gridSize,
-    });
-    await wallpaperDownloadManager.start()
+    if (!this.userArguments.browseWallpaperOnline) return;
+    const wallpaperDownloadManager = new WallpaperDownloadManager(
+      this.userArguments,
+    );
+    await wallpaperDownloadManager.init()
       .catch((e) => {
         print("Failed to initialize WallpaperDownloadManager.", e);
         std.exit(2);
@@ -150,20 +178,12 @@ class WallWiz {
   }
 
   async handleWallpaperSetter() {
-    const wallpaperSetter = new WallpaperSetter({
-      imageWidth: this.imageWidth,
-      paddH: this.paddH,
-      imageHeight: this.imageHeight,
-      paddV: this.paddV,
-      picCacheDir: this.picCacheDir,
-      pagination: this.pagination,
-      gridSize: this.gridSize,
-      wallpapersDir: this.wallpapersDir,
-      enableLightTheme: this.enableLightTheme,
-      setRandomWallpaper: this.setRandomWallpaper,
-    });
-
-    await wallpaperSetter.init();
+    const wallpaperSetter = new WallpaperSetter(this.userArguments);
+    await wallpaperSetter.init()
+      .catch((e) => {
+        print("Failed to initialize WallpaperSetter.", e);
+        std.exit(1);
+      });
   }
 }
 
