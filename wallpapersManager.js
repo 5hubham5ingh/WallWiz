@@ -6,6 +6,7 @@ import { clearTerminal } from "../justjs/src/just-js/helpers/cursor.js";
 import { exec as execAsync } from "../justjs/src/process.js";
 import config from "./config.js";
 import { promiseQueueWithLimit } from "./utils.js";
+import { ensureDir } from "../justjs/src/fs.js";
 
 export default class WallpaperSetter {
   constructor(userArguments) {
@@ -16,6 +17,7 @@ export default class WallpaperSetter {
   }
 
   async init() {
+    await this.loadWallpaperDaemonHandlerScript();
     await this.handleWallpaperCacheCreation();
     await this.themeManager.init()
       .catch((e) => {
@@ -70,6 +72,32 @@ export default class WallpaperSetter {
     }
 
     return wallpapers;
+  }
+
+
+  async loadWallpaperDaemonHandlerScript() {
+    const extensionDir = std.getenv("HOME").concat("/.config/WallWiz/");
+    ensureDir(extensionDir);
+    const scriptNames = os.readdir(extensionDir)[0]
+      .filter((name) => name !== "." && name !== ".." && name.endsWith(".js"));
+    if (scriptNames.length > 1) {
+      throw new Error(`Too many scripts found in the ${extensionDir}.`);
+    }
+    if (scriptNames.length) {
+      const extensionPath = extensionDir.concat(scriptNames[0]);
+      const wallpaperDaemonHandler = await import(extensionPath);
+      if (!wallpaperDaemonHandler.default) {
+        print("No default export found in ", extensionPath);
+        std.exit(2);
+      }
+      this.wallpaperDaemonHandler = wallpaperDaemonHandler.default;
+    } else {
+      print(
+        "Failed to find any wallpaper daemon handler script in " + extensionDir,
+        '\n Run "WallWiz --dwh" to download it if you do not have a wallpaper daemon handler script.'
+      );
+      std.exit(2)
+    }
   }
 
   async handleWallpaperCacheCreation() {
@@ -169,6 +197,7 @@ export default class WallpaperSetter {
   async setWallpaper(wallpaperName) {
     const wallpaperDir =
       `${this.userArguments.wallpapersDirectory}/${wallpaperName}`;
-    return config.wallpaperDaemonHandler(wallpaperDir); // calling the handler function to set the wallpaper
+    // return config.wallpaperDaemonHandler(wallpaperDir); // calling the handler function to set the wallpaper
+    return this.wallpaperDaemonHandler(wallpaperDir);
   }
 }
