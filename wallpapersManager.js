@@ -1,5 +1,5 @@
 import cache from "./cache.js";
-import { Theme } from "./theme.js";
+import { Theme } from "./themeManager.js";
 import { os, std } from "./quickJs.js";
 import { UserInterface } from "./userInterface.js";
 import { clearTerminal } from "../justjs/src/just-js/helpers/cursor.js";
@@ -60,10 +60,9 @@ export default class WallpaperSetter {
 
     if (!wallpapers.length) {
       print(
-        `No wallpapers found in "${
-          ansi.styles(["bold", "underline", "red"]) +
-          this.userArguments.wallpapersDirectory +
-          ansi.style.reset
+        `No wallpapers found in "${ansi.styles(["bold", "underline", "red"]) +
+        this.userArguments.wallpapersDirectory +
+        ansi.style.reset
         }".`,
       );
       print(cursorShow);
