@@ -47,6 +47,7 @@ class WallWiz {
       .parser({
         [argNames.wallpapersDirectory]: arg
           .path(".")
+          .env('WALLPAPER_DIR')
           .check()
           .map((path) => path.concat("/"))
           .desc("Wallpaper directory path"),

@@ -5,7 +5,7 @@ import { exec as execAsync } from "../justjs/src/process.js";
 
 "use strip";
 
-class Config {
+class Config { // theme extension script manager
   constructor() {
     this.homeDir = std.getenv("HOME");
     this.themeExtensionScripts = {};
