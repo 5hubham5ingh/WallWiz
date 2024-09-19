@@ -34,8 +34,8 @@ async function promiseQueueWithLimit(tasks, concurrencyLimit = processLimit) {
  */
 async function notify(title, message) {
   let command = `notify-send "${title}" "${message}"`;
-  return execAsync(command)
-    .catch(e => print('Failed to send notification. \nStderr', e, '\n\n\nNotification:\n', title, '\n', message))
+  const handleError = (e) => print('Failed to send notification. \nStderr', e, '\n\n\nNotification:\n', title, '\n', message);
+  return execAsync(command).catch(handleError)
 }
 
 // Example usage

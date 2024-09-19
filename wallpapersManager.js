@@ -2,11 +2,12 @@ import cache from "./cache.js";
 import { Theme } from "./themeManager.js";
 import { os, std } from "./quickJs.js";
 import { UserInterface } from "./userInterface.js";
-import { clearTerminal } from "../justjs/src/just-js/helpers/cursor.js";
+import { clearTerminal, cursorShow } from "../justjs/src/just-js/helpers/cursor.js";
 import { exec as execAsync } from "../justjs/src/process.js";
 import config from "./config.js";
 import { promiseQueueWithLimit } from "./utils.js";
 import { ensureDir } from "../justjs/src/fs.js";
+import { ansi } from "../justjs/src/just-js/helpers/ansiStyle.js";
 
 export default class WallpaperSetter {
   constructor(userArguments) {
