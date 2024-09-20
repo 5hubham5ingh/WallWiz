@@ -1,8 +1,6 @@
 # WallWiz
 
-
 https://github.com/user-attachments/assets/26a494b5-0457-4bbf-b44e-c1f34410b3f2
-
 
 WallWiz (wallpaper wizard) let you select a wallpaper from a grid menu displayed in a terminal emulator (Kitty) and apply not only the wallpaper but also dynamically generated themes to various applications, including terminal emulators and window managers.
 
@@ -54,10 +52,6 @@ You can download the executable binary from the [GitHub releases](https://github
    ```bash
    sudo cp WallWiz /usr/bin/
 
-8. Create alias (optional)
-   ```bash
-   # For bash terminal
-   echo "alias ww='WallWiz'" >> ~/.bashrc
 
 ### Step 2: Get the required extension scripts
 
@@ -97,7 +91,7 @@ WallWiz's functionality can be extended through user-defined JavaScript scripts:
     ]
     ```
 
-- **Wallpaper Daemon Handler**: The single script located in `~/.config/WallWiz/` should default export the function `setWallpaper(wallpaperPath, execAsync)`.
+- **Wallpaper Daemon Handler**: The single script located in `~/.config/WallWiz/` should default export a function for applying wallpaper.
 
   **Example**:
   ```javascript
@@ -127,7 +121,7 @@ WallWiz's functionality can be extended through user-defined JavaScript scripts:
 |-----------------------|----------|-----------|-------------------------------------------------------------------------------------------------|
 | `--wall-dir`           | `-d`     | `.`       | Specifies the wallpaper directory path. Can also be set using the `WALLPAPER_DIR` environment variable. |
 | `--random`             | `-r`     | `false`   | Apply a random wallpaper from the specified directory.                                           |
-| `--img-size`           | `-s`     | `118x32`  | Image size in pixels. Format: `WIDTHxHEIGHT`.                                                   |
+| `--img-size`           | `-s`     | `118x32`  | Image size in cell. Format: `WIDTHxHEIGHT`.                                                   |
 | `--light-theme`        | `-l`     | `true`    | Enables light theme mode.                                                                       |
 | `--padding`            | `-p`     | `1x1`     | Container padding in cells. Format: `V_PADDINGxH_PADDING`.                                       |
 | `--enable-pagination`  | `-e`     | `false`   | Display wallpapers in a fixed-size grid. Remaining wallpapers will be displayed in the next grid upon navigation. |
@@ -135,7 +129,7 @@ WallWiz's functionality can be extended through user-defined JavaScript scripts:
 | `--dte`                |          | `false`   | Download theme extension scripts.                                                               |
 | `--dwh`                |          | `false`   | Download wallpaper handler script.                                                              |
 | `--browse`             |          | `false`   | Browse wallpapers online.                                                                       |
-| `--repo-url`           |          | "https://github.com/D3Ext/aesthetic-wallpapers/tree/main/images" | Specifies the wallpaper repository GitHub URL(s). Can also be set using the `WALLPAPER_REPO_URLS` environment variable. |
+| `--repo-url`           |          | `https://github.com/D3Ext/aesthetic-wallpapers/tree/main/images` | Specifies the wallpaper repository GitHub URL(s). Can also be set using the `WALLPAPER_REPO_URLS` environment variable. |
 | `--api-key`            |          | `None`    | Specify the GitHub API key for accessing private repositories. Can also be set using the `GITHUB_API_KEY` environment variable. |
 | `-h, --help`           |          |           | Print help.                                                                                     |
 | `--version`            |          |           | Print the program version.                                                                      |
@@ -148,7 +142,7 @@ Contributions are welcome! Feel free to submit pull requests to extend the funct
 
 ## Future Plans
 
-- Add support for browsing online wallpapers directly from the terminal.
+- Support for other terminal emulators that supports kitty graphic protocol.
 
 ## License
 
