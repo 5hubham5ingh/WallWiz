@@ -133,7 +133,7 @@ class WallWiz {
   }
 
   async handleThemeExtensionScriptDownload() {
-    if (!this.downloadThemeExtensionScripts) return;
+    if (!this.userArguments.downloadThemeExtensionScripts) return;
     print(
       "Starting theme extension download manager.\n",
       "\bFetching list of exteniosn scripts...",
@@ -150,7 +150,7 @@ class WallWiz {
   }
 
   async handleWallpaperHandlerScriptDownload() {
-    if (!this.downloadWallpaperDaemonHandlerScript) return;
+    if (!this.userArguments.downloadWallpaperDaemonHandlerScript) return;
     print(
       "Starting wallpaper daemon handler script download manager.\n",
       "\bFetching list of available scripts...",
