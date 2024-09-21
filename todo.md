@@ -1,0 +1,10 @@
+- Refactor config.js
+- Refactor cache.js
+- Notification handler.
+- Use default repo url from userParam or the provided ones.
+- Use multiple github repos.
+- Set header for repeated request.
+- Cache api responses accept the images.
+- Calculate required font size for screen at once before setting it.
+- Auto enable grid mode when screen size insufficient.
+- Use workers for theme handler scripts for parallelism.
