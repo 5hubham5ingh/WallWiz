@@ -3,7 +3,7 @@ import config from "./config.js";
 import cache from "./cache.js";
 import { os, std } from "./quickJs.js";
 import { clearTerminal } from "../justjs/src/just-js/helpers/cursor.js";
-import { promiseQueueWithLimit } from "./utils.js";
+import { promiseQueueWithLimit, writeFile } from "./utils.js";
 
 "use strip";
 
@@ -29,12 +29,6 @@ class Theme {
     return os.stat(cachePath)[1] === 0;
   }
 
-  writeFile(content, path) {
-    if (typeof content !== "string") return;
-    const fileHandler = std.open(path, "w+");
-    fileHandler.puts(content);
-    fileHandler.close();
-  }
 
   async createAppThemesFromColours() {
     const getCachedColours = (cacheName) => {
@@ -79,11 +73,11 @@ class Theme {
         const cacheDir = cache.getCacheDirectoryOfThemeConfigFileFromAppName(
           scriptName,
         );
-        this.writeFile(
+        writeFile(
           lightThemeConfig,
           cacheDir.concat(this.getThemeName(wallpaperName, true)),
         );
-        this.writeFile(
+        writeFile(
           darkThemeConfig,
           cacheDir.concat(this.getThemeName(wallpaperName, false)),
         );
@@ -121,7 +115,7 @@ class Theme {
         () =>
           getColoursFromWallpaper(wallpaperPath, wallpaperName).then(
             (colours) => {
-              this.writeFile(
+              writeFile(
                 JSON.stringify(colours),
                 cache.wallColoursCacheDir.concat(wallpaperName, ".txt"),
               );

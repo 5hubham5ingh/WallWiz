@@ -41,4 +41,11 @@ async function notify(title, message) {
 // Example usage
 // await notify("Test Notification", "This is the notification body.")
 
-export { notify, promiseQueueWithLimit };
+function writeFile(content, path) {
+  if (typeof content !== "string") return;
+  const fileHandler = std.open(path, "w+");
+  fileHandler.puts(content);
+  fileHandler.close();
+}
+
+export { notify, writeFile, promiseQueueWithLimit };
