@@ -29,7 +29,7 @@ export default class WallpaperSetter {
   }
 
   loadWallpapers() {
-    const [imgFile, error] = os.readdir(
+    const [imgFiles, error] = os.readdir(
       this.userArguments.wallpapersDirectory,
     );
     if (error !== 0) {
@@ -39,7 +39,7 @@ export default class WallpaperSetter {
       );
       std.exit(error);
     }
-    const wallpapers = imgFile.filter(
+    const wallpapers = imgFiles.filter(
       (name) =>
         name !== "." && name !== ".." && this.isSupportedImageFormat(name),
     ).map((name) => {
