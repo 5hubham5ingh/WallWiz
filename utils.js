@@ -1,4 +1,5 @@
-import { exec as execAsync } from "../justjs/src/process.js"
+import { exec as execAsync } from "../justjs/src/process.js";
+import { std } from "./quickJs.js";
 
 const processLimit = await execAsync(["nproc"])
   .then((threads) => parseInt(threads, 10))
@@ -8,34 +9,35 @@ const processLimit = await execAsync(["nproc"])
   });
 
 async function promiseQueueWithLimit(tasks, concurrencyLimit = processLimit) {
-  const results = [];
   const executing = new Set();
 
-  for (let i = 0; i < tasks.length; i++) {
-    const taskPromise = tasks[i]().then((result) => (results[i] = result));
-    executing.add(taskPromise);
-
-    if (executing.size >= concurrencyLimit) {
-      await Promise.race(executing);
-    }
-
-    taskPromise.finally(() => executing.delete(taskPromise));
+  for (const task of tasks) {
+    const promise = task().finally(() => executing.delete(promise));
+    executing.add(promise);
+    if (executing.size >= concurrencyLimit) await Promise.race(executing);
   }
 
   await Promise.all(executing);
-  return results;
 }
 
 /**
  * Sends a desktop notification using the notify-send command.
- * 
+ *
  * @param {string} title - The title of the notification.
  * @param {string} message - The body message of the notification.
  */
 async function notify(title, message) {
   let command = `notify-send "${title}" "${message}"`;
-  const handleError = (e) => print('Failed to send notification. \nStderr', e, '\n\n\nNotification:\n', title, '\n', message);
-  return execAsync(command).catch(handleError)
+  const handleError = (e) =>
+    print(
+      "Failed to send notification. \nStderr",
+      e,
+      "\n\n\nNotification:\n",
+      title,
+      "\n",
+      message,
+    );
+  return execAsync(command).catch(handleError);
 }
 
 // Example usage
@@ -48,4 +50,4 @@ function writeFile(content, path) {
   fileHandler.close();
 }
 
-export { notify, writeFile, promiseQueueWithLimit };
+export { notify, promiseQueueWithLimit, writeFile };

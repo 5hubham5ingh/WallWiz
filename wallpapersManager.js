@@ -2,7 +2,10 @@ import cache from "./cache.js";
 import { Theme } from "./themeManager.js";
 import { os, std } from "./quickJs.js";
 import { UserInterface } from "./userInterface.js";
-import { clearTerminal, cursorShow } from "../justjs/src/just-js/helpers/cursor.js";
+import {
+  clearTerminal,
+  cursorShow,
+} from "../justjs/src/just-js/helpers/cursor.js";
 import { exec as execAsync } from "../justjs/src/process.js";
 import config from "./config.js";
 import { promiseQueueWithLimit } from "./utils.js";
@@ -23,6 +26,7 @@ export default class WallpaperSetter {
     await this.themeManager.init()
       .catch((e) => {
         print("Failed to initialize themeManager:\n", e);
+        throw e;
       });
     await this.handleSettingRandomWallpaper();
     await this.handleSettingWallpaper();
@@ -63,9 +67,10 @@ export default class WallpaperSetter {
 
     if (!wallpapers.length) {
       print(
-        `No wallpapers found in "${ansi.styles(["bold", "underline", "red"]) +
-        this.userArguments.wallpapersDirectory +
-        ansi.style.reset
+        `No wallpapers found in "${
+          ansi.styles(["bold", "underline", "red"]) +
+          this.userArguments.wallpapersDirectory +
+          ansi.style.reset
         }".`,
       );
       print(cursorShow);
@@ -74,7 +79,6 @@ export default class WallpaperSetter {
 
     return wallpapers;
   }
-
 
   async loadWallpaperDaemonHandlerScript() {
     const extensionDir = std.getenv("HOME").concat("/.config/WallWiz/");
@@ -95,9 +99,9 @@ export default class WallpaperSetter {
     } else {
       print(
         "Failed to find any wallpaper daemon handler script in " + extensionDir,
-        '\n Run "WallWiz --dwh" to download it if you do not have a wallpaper daemon handler script.'
+        '\n Run "WallWiz --dwh" to download it if you do not have a wallpaper daemon handler script.',
       );
-      std.exit(2)
+      std.exit(2);
     }
   }
 
@@ -150,7 +154,6 @@ export default class WallpaperSetter {
 
     await promiseQueueWithLimit(
       createWallpaperCachePromisesQueue,
-      config.processLimit,
     );
     print("Done");
   }

@@ -29,7 +29,6 @@ class Theme {
     return os.stat(cachePath)[1] === 0;
   }
 
-
   async createAppThemesFromColours() {
     const getCachedColours = (cacheName) => {
       const cachePath = cache.wallColoursCacheDir.concat(cacheName, ".txt");
@@ -124,7 +123,7 @@ class Theme {
       );
     }
 
-    await promiseQueueWithLimit(queue, config.processLimit);
+    await promiseQueueWithLimit(queue);
   }
 
   async setTheme(wallpaperName, enableLightTheme) {
