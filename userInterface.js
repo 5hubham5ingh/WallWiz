@@ -43,9 +43,6 @@ class UserInterface {
       this.getWallpaperBatch(batchSize);
       this.pageNo = 0;
       this.wallpapers = this.wallpaperBatch[this.pageNo];
-    } else {
-      print("pagination failed:", JSON.stringify(uiConfig));
-      std.exit();
     }
   }
 

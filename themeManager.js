@@ -18,15 +18,47 @@ class Theme {
     await this.createAppThemesFromColours();
   }
 
-  getThemeName(fileName, type) {
-    return type !== undefined
-      ? `${fileName}-${type ? "light" : "dark"}.conf`
-      : [`${fileName}-light.conf`, `${fileName}-dark.conf`];
-  }
+  async createColoursCacheFromWallpapers() {
+    const getColoursFromWallpaper = async (wallpaperPath) => {
+      const getHexCode = (result) =>
+        result
+          .split("\n")
+          .map((line) =>
+            line
+              .split(" ")
+              .filter((word) => word[0] === "#")
+              .join()
+          )
+          .filter((color) => color);
 
-  areColoursCached(cacheName) {
-    const cachePath = cache.wallColoursCacheDir.concat(cacheName, ".txt");
-    return os.stat(cachePath)[1] === 0;
+      return execAsync(
+        `magick ${wallpaperPath} -format %c -depth 8 -colors 30 histogram:info:`,
+      ).then((result) => getHexCode(result));
+    };
+
+    const queue = [];
+    for (let i = 0; i < this.wallpaper.length; i++) {
+      const wallpaperName = this.wallpaper[i].uniqueId;
+      const wallpaperPath = this.wallpaperDir.concat(wallpaperName);
+      const doesCacheExist = this.areColoursCached(wallpaperName);
+
+      if (doesCacheExist) continue;
+      queue.push(
+        () =>
+          getColoursFromWallpaper(wallpaperPath).then(
+            (colours) => {
+              writeFile(
+                JSON.stringify(colours),
+                cache.wallColoursCacheDir.concat(wallpaperName, ".txt"),
+              );
+            },
+          ),
+      );
+    }
+
+    print("Extracting colours from wallpapers...");
+    await promiseQueueWithLimit(queue);
+    print("Done");
   }
 
   async createAppThemesFromColours() {
@@ -55,6 +87,7 @@ class Theme {
       return cacheStat.mtime > scriptStat.mtime;
     };
 
+    print("Generating theme configuration files...");
     for (let i = 0; i < this.wallpaper.length; i++) {
       const wallpaperName = this.wallpaper[i].uniqueId;
       const colours = getCachedColours(wallpaperName);
@@ -65,8 +98,8 @@ class Theme {
       for (const scriptName in config.getThemeExtensionScripts()) {
         if (isThemeConfCached(wallpaperName, scriptName)) continue;
         const themeHandler = config.getThemeHandler(scriptName);
-        const darkThemeConfig = themeHandler.getThemeConf(colours);
-        const lightThemeConfig = themeHandler.getThemeConf(
+        const darkThemeConfig = await themeHandler.getThemeConf(colours);
+        const lightThemeConfig = await themeHandler.getThemeConf(
           colours.toReversed(),
         );
         const cacheDir = cache.getCacheDirectoryOfThemeConfigFileFromAppName(
@@ -82,48 +115,7 @@ class Theme {
         );
       }
     }
-  }
-
-  async createColoursCacheFromWallpapers() {
-    const getColoursFromWallpaper = async (wallpaperPath, wallpaperName) => {
-      const getHexCode = (result) =>
-        result
-          .split("\n")
-          .map((line) =>
-            line
-              .split(" ")
-              .filter((word) => word[0] === "#")
-              .join()
-          )
-          .filter((color) => color);
-
-      return execAsync(
-        `magick ${wallpaperPath} -format %c -depth 8 -colors 30 histogram:info:`,
-      ).then((result) => getHexCode(result));
-    };
-
-    // generate colours for each wallpaper
-    const queue = [];
-    for (let i = 0; i < this.wallpaper.length; i++) {
-      const wallpaperName = this.wallpaper[i].uniqueId;
-      const wallpaperPath = this.wallpaperDir.concat(wallpaperName);
-      const doesCacheExist = this.areColoursCached(wallpaperName);
-
-      if (doesCacheExist) continue;
-      queue.push(
-        () =>
-          getColoursFromWallpaper(wallpaperPath, wallpaperName).then(
-            (colours) => {
-              writeFile(
-                JSON.stringify(colours),
-                cache.wallColoursCacheDir.concat(wallpaperName, ".txt"),
-              );
-            },
-          ),
-      );
-    }
-
-    await promiseQueueWithLimit(queue);
+    print("Done");
   }
 
   async setTheme(wallpaperName, enableLightTheme) {
@@ -146,6 +138,17 @@ class Theme {
       }
     }
     await Promise.all(promises);
+  }
+
+  getThemeName(fileName, type) {
+    return type !== undefined
+      ? `${fileName}-${type ? "light" : "dark"}.conf`
+      : [`${fileName}-light.conf`, `${fileName}-dark.conf`];
+  }
+
+  areColoursCached(cacheName) {
+    const cachePath = cache.wallColoursCacheDir.concat(cacheName, ".txt");
+    return os.stat(cachePath)[1] === 0;
   }
 }
 

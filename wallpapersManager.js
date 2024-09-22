@@ -144,7 +144,7 @@ export default class WallpaperSetter {
 
     const createWallpaperCachePromisesQueue = [];
     if (!doesWallaperCacheExist()) {
-      print("Processing images...");
+      print("Caching images...");
       this.wallpapers.forEach((wallpaper) => {
         if (!cacheNames.includes(wallpaper.uniqueId)) {
           createWallpaperCachePromisesQueue.push(() => makeCache(wallpaper));
