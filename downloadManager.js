@@ -68,18 +68,19 @@ export default class Download {
 
     // Ensure the input is a valid GitHub URL
     const githubRegex =
-      /https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/tree\/([^\/]+)\/(.+)/;
+      /https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/tree\/([^\/]+)(\/(.+))?/;
     const match = gitHubUrl.match(githubRegex);
 
     if (!match) {
-      throw new Error("Invalid GitHub URL format.");
+      throw new Error("Invalid GitHub URL format. " + gitHubUrl);
     }
 
-    const [_, owner, repo, branch, directoryPath] = match;
+    const [_, owner, repo, branch, , directoryPath] = match;
 
     // Construct the GitHub API URL
-    const apiUrl =
-      `https://api.github.com/repos/${owner}/${repo}/contents/${directoryPath}?ref=${branch}`;
+    const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${
+      directoryPath || ""
+    }?ref=${branch}`;
 
     return apiUrl;
   }

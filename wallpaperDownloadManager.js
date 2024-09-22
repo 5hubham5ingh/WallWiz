@@ -10,9 +10,10 @@ export default class WallpaperDownloadManager extends Download {
     const downloadDestinationDirectory = config.homeDir.concat(
       "/.cache/WallWiz/.temp/",
     );
-    const wallpaperSourceUrl =
-      "https://github.com/D3Ext/aesthetic-wallpapers/tree/main/images";
-    super(wallpaperSourceUrl, downloadDestinationDirectory);
+    super(
+      userArguments.wallpaperRepositoryUrls[0],
+      downloadDestinationDirectory,
+    );
     this.downloadItemMenu = [];
     this.downloadItemFilteredMenu = [];
     this.userArguments = userArguments;
@@ -37,6 +38,36 @@ export default class WallpaperDownloadManager extends Download {
         },
       );
     }
+  }
+
+  promptUserToFilterWallpapersFromAvailableWallpapersInTheRepoForPreview() {
+    const availableWallpaperNames = this.downloadItemMenu.map((wallpaper) =>
+      wallpaper.name
+    ).join("\n");
+
+    const filter = new ProcessSync(
+      `fzf -m --bind 'enter:select-all+accept' --layout="reverse" --prompt="\b" --marker="\b" --pointer="\b" --header="Type wallpaper name or category to search for matching wallpaper." --header-first --border=double --border-label=" Wallpapers "`,
+      {
+        input: availableWallpaperNames,
+        useShell: true,
+      },
+    );
+    if (!filter.run()) {
+      return;
+    }
+
+    // for now, download the wallpaper from filtered list.
+    const filterdWallpapers = filter.stdout.split("\n");
+    if (!filterdWallpapers.length) return;
+    this.downloadItemList = this.downloadItemMenu.filter((wallpaper) =>
+      filterdWallpapers.includes(wallpaper.name)
+    );
+  }
+
+  removeTempWallpapers(wallpapers) {
+    wallpapers.forEach((wallpaperName) =>
+      os.remove(this.destinationDir.concat(wallpaperName))
+    );
   }
 
   async previewWallpapersForDownload() {
@@ -89,35 +120,5 @@ export default class WallpaperDownloadManager extends Download {
     );
 
     this.removeTempWallpapers(tempDownloadedWallpapers);
-  }
-
-  promptUserToFilterWallpapersFromAvailableWallpapersInTheRepoForPreview() {
-    const availableWallpaperNames = this.downloadItemMenu.map((wallpaper) =>
-      wallpaper.name
-    ).join("\n");
-
-    const filter = new ProcessSync(
-      `fzf -m --bind 'enter:select-all+accept' --layout="reverse" --prompt="\b" --marker="\b" --pointer="\b" --header="Type wallpaper name or category to search for matching wallpaper." --header-first --border=double --border-label=" Wallpapers "`,
-      {
-        input: availableWallpaperNames,
-        useShell: true,
-      },
-    );
-    if (!filter.run()) {
-      return;
-    }
-
-    // for now, download the wallpaper from filtered list.
-    const filterdWallpapers = filter.stdout.split("\n");
-    if (!filterdWallpapers.length) return;
-    this.downloadItemList = this.downloadItemMenu.filter((wallpaper) =>
-      filterdWallpapers.includes(wallpaper.name)
-    );
-  }
-
-  removeTempWallpapers(wallpapers) {
-    wallpapers.forEach((wallpaperName) =>
-      os.remove(this.destinationDir.concat(wallpaperName))
-    );
   }
 }

@@ -1,4 +1,3 @@
-import { throws } from "assert";
 import { Curl, curlRequest } from "../justjs/src/curl.js";
 import { ensureDir } from "../justjs/src/fs.js";
 import { exec as execAsync } from "../justjs/src/process.js";
@@ -14,19 +13,21 @@ export default class Download {
     this.apiCacheDir = config.homeDir.concat("/.cache/WallWiz/api/");
     this.apiCacheFilePath = this.apiCacheDir.concat("apiCache.json");
     this.apiCacheFile = std.loadFile(this.apiCacheFilePath);
-    this.apiCache = this.apiCacheFile ? std.parseExtJSON(this.apiCacheFile) : null;
+    this.apiCache = this.apiCacheFile
+      ? std.parseExtJSON(this.apiCacheFile)
+      : null;
 
     ensureDir(this.destinationDir);
     ensureDir(this.apiCacheDir);
   }
 
   async fetchItemListFromRepo() {
-
     let currentCache;
     if (this.apiCache) {
-      currentCache = this.apiCache.find(cache => cache.url === this.sourceRepoUrl);
-    }
-    else {
+      currentCache = this.apiCache.find((cache) =>
+        cache.url === this.sourceRepoUrl
+      );
+    } else {
       // initialise api cache
       this.apiCache = [{ url: this.sourceRepoUrl }];
     }
@@ -34,9 +35,9 @@ export default class Download {
     const curl = new Curl(this.sourceRepoUrl, {
       parseJson: true,
       headers: {
-        eTag: currentCache?.eTag
-      }
-    })
+        eTag: currentCache?.eTag,
+      },
+    });
 
     await curl.run()
       .catch((error) => {
@@ -46,7 +47,7 @@ export default class Download {
     if (curl.statusCode !== 304 && !curl.failed) {
       currentCache.eTag = curl.headers.eTag;
       currentCache.data = curl.body;
-      this.updateCache(currentCache)
+      this.updateCache(currentCache);
       return curl.body;
     }
 
@@ -54,21 +55,21 @@ export default class Download {
       currentCache = {
         url: this.sourceRepoUrl,
         eTag: curl.headers.eTag,
-        data: curl.body
-      }
-      this.updateCache(currentCache)
+        data: curl.body,
+      };
+      this.updateCache(currentCache);
       return currentCache.data;
     }
-    throw new Error("Something went wrong.")
-
+    throw new Error("Something went wrong.");
   }
 
   updateCache(updatedData) {
-    this.apiCache.forEach(cache => {
-      if (cache.url === updatedData.url)
+    this.apiCache.forEach((cache) => {
+      if (cache.url === updatedData.url) {
         cache = updatedData;
-    })
-    writeFile(JSON.stringify(this.apiCache), this.apiCacheDir)
+      }
+    });
+    writeFile(JSON.stringify(this.apiCache), this.apiCacheDir);
   }
 
   async downloadItemInDestinationDir() {

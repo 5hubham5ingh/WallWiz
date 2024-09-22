@@ -47,8 +47,8 @@ class WallWiz {
       .parser({
         [argNames.wallpapersDirectory]: arg
           .path(".")
-          .env('WALLPAPER_DIR')
           .check()
+          .env("WALLPAPER_DIR")
           .map((path) => path.concat("/"))
           .desc("Wallpaper directory path"),
         [argNames.setRandomWallpaper]: arg
@@ -97,12 +97,12 @@ class WallWiz {
           .flag(false)
           .desc("Browse wallpapers online."),
         [argNames.wallpaperRepositoryUrls]: arg
-          .str("https://github.com/D3Ext/aesthetic-wallpapers/tree/main/images")
+          .str("https://github.com/5hubham5ingh/WallWiz/tree/wallpapers/")
           .env("WALLPAPER_REPO_URLS")
           .reg(
-            /^(https:\/\/github\.com\/[^\/]+\/[^\/]+\/tree\/[^\/]+\/[^,]+)(\s*,\s*https:\/\/github\.com\/[^\/]+\/[^\/]+\/tree\/[^\/]+\/[^,]+)*$/,
+            /^https:\/\/github\.com\/[a-zA-Z0-9.-]+\/[a-zA-Z0-9.-]+(\/tree\/[a-zA-Z0-9.-]+(\/.*)?)?(\s*;\s*https:\/\/github\.com\/[a-zA-Z0-9.-]+\/[a-zA-Z0-9.-]+(\/tree\/[a-zA-Z0-9.-]+(\/.*)?)?)*$/,
           )
-          .map((urls) => urls.split(","))
+          .map((urls) => urls.split(";").map((url) => url.trim()))
           .err("Invalid repository url(s)")
           .desc("Wallpaper repository github url(s).")
           .val("URL(s)"),
