@@ -11,7 +11,7 @@ export default class WallpaperDownloadManager extends Download {
       "/.cache/WallWiz/.temp/",
     );
     super(
-      userArguments.wallpaperRepositoryUrls[0],
+      userArguments.wallpaperRepositoryUrls,
       downloadDestinationDirectory,
     );
     this.downloadItemMenu = [];

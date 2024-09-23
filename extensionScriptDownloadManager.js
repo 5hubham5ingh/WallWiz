@@ -83,7 +83,7 @@ class ThemeExtensionScriptsDownloadManager extends ExtensionScriptsDownloader {
     const themeExtensionScriptDestinationDir = config.homeDir.concat(
       "/.config/WallWiz/themeExtensionScripts/",
     );
-    super(themeExtensionSourceRepoUrl, themeExtensionScriptDestinationDir);
+    super([themeExtensionSourceRepoUrl], themeExtensionScriptDestinationDir);
   }
 
   async init() {
@@ -103,7 +103,7 @@ class WallpaperDaemonHandlerScriptDownloadManager
     const themeExtensionScriptDestinationDir = config.homeDir.concat(
       "/.config/WallWiz/",
     );
-    super(themeExtensionSourceRepoUrl, themeExtensionScriptDestinationDir);
+    super([themeExtensionSourceRepoUrl], themeExtensionScriptDestinationDir);
   }
 
   async init() {
