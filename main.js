@@ -36,8 +36,8 @@ class WallWiz {
       padding: "--padding",
       enablePagination: "--enable-pagination",
       gridSize: "--grid-size",
-      downloadThemeExtensionScripts: "--dte",
-      downloadWallpaperDaemonHandlerScript: "--dwh",
+      downloadThemeExtensionScripts: "--theme-extensions",
+      downloadWallpaperDaemonHandlerScript: "--wallpaper-handlers",
       browseWallpaperOnline: "--browse",
       wallpaperRepositoryUrls: "--repo-url",
       githubApiKey: "--api-key",
@@ -117,6 +117,11 @@ class WallWiz {
         "-e": argNames.enablePagination,
         "-g": argNames.gridSize,
         "-l": argNames.enableLightTheme,
+        "-t": argNames.downloadThemeExtensionScripts,
+        "-w": argNames.downloadWallpaperDaemonHandlerScript,
+        "-b": argNames.browseWallpaperOnline,
+        "-u": argNames.wallpaperRepositoryUrls,
+        "-k": argNames.githubApiKey
       })
       .ex([
         "-d ~/Pics/wallpaper/wallpaper.jpeg -s 42x10",
