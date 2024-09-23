@@ -8,6 +8,7 @@ WallWiz (wallpaper wizard) let you select a wallpaper from a grid menu displayed
 
 - **Wallpaper Selection**: Choose your wallpaper from a grid menu in the terminal.
 - **Theme Generation and Application**: Automatically generates and applies themes based on the chosen wallpaper to applications such as Kitty terminal and Hyprland window manager.
+- **Wallpaper Browsing**: Browse wallpapers online directly from your terminal and download them to the specified wallpaper directory.
 - **Extensible with Scripts**: You can write custom scripts in JavaScript for theme generation and wallpaper application.
 
 ## Prerequisites
@@ -119,7 +120,7 @@ WallWiz's functionality can be extended through user-defined JavaScript scripts:
 
 | Option                | Shortcut | Default   | Description                                                                                     |
 |-----------------------|----------|-----------|-------------------------------------------------------------------------------------------------|
-| `--wall-dir`           | `-d`     | `.`       | Specifies the wallpaper directory path. Can also be set using the `WALLPAPER_DIR` environment variable. |
+| `--wall-dir`           | `-d`     | `Current directory` | Specifies the wallpaper directory path. Can also be set using the `WALLPAPER_DIR` environment variable. |
 | `--random`             | `-r`     | `false`   | Apply a random wallpaper from the specified directory.                                           |
 | `--img-size`           | `-s`     | `118x32`  | Image size in cell. Format: `WIDTHxHEIGHT`.                                                   |
 | `--light-theme`        | `-l`     | `true`    | Enables light theme mode.                                                                       |
@@ -134,11 +135,16 @@ WallWiz's functionality can be extended through user-defined JavaScript scripts:
 | `-h, --help`           |          |           | Print help.                                                                                     |
 | `--version`            |          |           | Print the program version.                                                                      |
 
-
-
 ## Contributing
 
-Contributions are welcome! Feel free to submit pull requests to extend the functionality of WallWiz.
+Contributions are welcome! Feel free to submit pull requests.
+
+- For extension scripts, name the script after the program for which it is intended, followed by your GitHub username to ensure uniqueness.  
+  **Syntax**: `programName@userName.js`  
+  **Example**: `kittyTerminalEmulator@5hubham5ngh.js`
+- The beginning of the script should contain information about it. For reference, check out the [existing scripts](https://github.com/5hubham5ingh/WallWiz/tree/main/themeExtensionScripts).
+  
+- To contribute wallpapers, visit the [wallpapers repository](https://github.com/5hubham5ingh/WallWiz/tree/wallpapers).
 
 ## Future Plans
 
