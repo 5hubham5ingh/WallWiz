@@ -122,5 +122,3 @@ export {
   WallpaperDaemonHandlerScriptDownloadManager,
 };
 
-// For selecting all the visible wallpapers after query, for preview.
-//fzf --multi --bind 'enter:select-all+accept'

@@ -2,7 +2,6 @@
 - Refactor cache.js
 - Notification handler.
 - Use default repo url from userParam or the provided ones.
-- **Use multiple github repos.**
 - **Set header for repeated request.**
 - Cache api responses accept the images.
 - Auto enable grid mode when screen size insufficient.
