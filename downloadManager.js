@@ -5,21 +5,26 @@ import { exec as execAsync } from "../justjs/src/process.js";
 export default class Download {
   constructor(sourceRepoUrls, destinationDir) {
     this.destinationDir = destinationDir;
-    this.sourceRepoUrls = sourceRepoUrls.map(url => Download.ensureGitHubApiUrl(url))
+    this.sourceRepoUrls = sourceRepoUrls.map((url) =>
+      Download.ensureGitHubApiUrl(url)
+    );
     this.downloadItemList;
     ensureDir(this.destinationDir);
   }
 
   async fetchItemListFromRepo() {
-    const responses = await Promise.all(this.sourceRepoUrls.map(sourceRepoUrl => curlRequest(sourceRepoUrl, {
-      parseJson: true,
-    })
-      .catch((error) => {
-        print("Failed to fetch list of theme extension scripts.", error);
-      }))
-    )
-    return responses.reduce((acc, arr) => {
-      Array.prototype.push.apply(acc, arr);
+    const responses = await Promise.all(
+      this.sourceRepoUrls.map((sourceRepoUrl) =>
+        curlRequest(sourceRepoUrl, {
+          parseJson: true,
+        })
+          .catch((error) => {
+            print("Failed to fetch list of theme extension scripts.", error);
+          })
+      ),
+    );
+    return responses.reduce((acc, itemList) => {
+      Array.prototype.push.apply(acc, itemList);
       return acc;
     }, []);
   }
@@ -81,8 +86,9 @@ export default class Download {
     const [_, owner, repo, branch, , directoryPath] = match;
 
     // Construct the GitHub API URL
-    const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${directoryPath || ""
-      }?ref=${branch}`;
+    const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${
+      directoryPath || ""
+    }?ref=${branch}`;
 
     return apiUrl;
   }

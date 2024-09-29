@@ -20,7 +20,6 @@ export default class WallpaperDownloadManager extends Download {
   }
 
   async init() {
-    // send a search query instead based on the value of --brouse userArgument instead of fetching all the available wallpapers
     this.availableWallpapersInTheRepo = await this.fetchItemListFromRepo();
     this.prepareMenu();
     this

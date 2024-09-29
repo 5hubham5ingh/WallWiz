@@ -20,14 +20,8 @@ async function promiseQueueWithLimit(tasks, concurrencyLimit = processLimit) {
   await Promise.all(executing);
 }
 
-/**
- * Sends a desktop notification using the notify-send command.
- *
- * @param {string} title - The title of the notification.
- * @param {string} message - The body message of the notification.
- */
-async function notify(title, message) {
-  let command = `notify-send "${title}" "${message}"`;
+async function notify(title, message, urgency = "normal") {
+  const command = `notify-send -u ${urgency} "${title}" "${message}"`;
   const handleError = (e) =>
     print(
       "Failed to send notification. \nStderr",
@@ -41,7 +35,7 @@ async function notify(title, message) {
 }
 
 // Example usage
-// await notify("Test Notification", "This is the notification body.")
+// await notify("Test Notification", "This is the notification body.");
 
 function writeFile(content, path) {
   if (typeof content !== "string") return;

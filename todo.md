@@ -6,3 +6,5 @@
 - Cache api responses accept the images.
 - Auto enable grid mode when screen size insufficient.
 - Use workers for theme handler scripts for parallelism.
+- update readme: for --dte and --dwh
+- Key bind to change page, H for prev page and L for next page.
