@@ -129,7 +129,7 @@ class WallWiz {
         "-d ~/Pics/wallpaper/wallpaper.jpeg -s 42x10",
         "-l -p 4x4",
       ])
-      .ver("0.0.1-alpha.4")
+      .ver("0.0.1-alpha.5")
       .parse();
 
     const argumentDictionary = {};

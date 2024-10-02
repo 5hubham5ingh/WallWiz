@@ -196,35 +196,57 @@ class UserInterface {
     print(cursorTo(0, 0), eraseDown, ansi.style.brightWhite, border);
   }
 
+  changePage(direction, selectStart) {
+    const newPageNo = this.pageNo + direction;
+    if (
+      this.pagination && newPageNo >= 0 &&
+      newPageNo < this.wallpaperBatch.length
+    ) {
+      this.pageNo = newPageNo;
+      this.wallpapers = this.wallpaperBatch[this.pageNo];
+      this.selection = direction > 0 || selectStart
+        ? 0
+        : this.wallpapers.length - 1;
+      this.drawUI();
+      return true;
+    }
+    return false;
+  }
+
+  wrapSelection(direction) {
+    this.selection = direction > 0 ? 0 : this.wallpapers.length - 1;
+  }
+
+  moveSelection(direction) {
+    const newSelection = this.selection + direction;
+    if (newSelection >= 0 && newSelection < this.wallpapers.length) {
+      this.selection = newSelection;
+      return true;
+    }
+    return false;
+  }
+
+  // Main navigation functions
   moveLeft() {
-    if (!this.selection) { // if currently on the first wallpaper of the grid
-      if (this.pagination) {
-        if (this.pageNo - 1 < 0) return; // if currently on the first page then do nothinga.
-        this.wallpapers = this.wallpaperBatch[--this.pageNo]; // set the previous batch to display
-        this.selection = this.wallpapers.length - 1; // select first wallpaper of the new batch.
-        this.drawUI();
-        return;
-      } else this.selection = this.wallpapers.length - 1; // select last wallpaper on the grid.
-    } else if (this.selection > 0) {
-      this.selection--;
+    if (!this.moveSelection(-1) && !this.changePage(-1)) {
+      this.wrapSelection(-1);
     }
     this.drawContainerBorder(this.xy[this.selection]);
   }
 
   moveRight() {
-    if (this.selection + 1 === this.xy.length) { // if currently on the last wallpaper
-      if (this.pagination) { // set next page if pagination enabled
-        if (this.pageNo + 1 === this.wallpaperBatch.length) return; // if currently on the last page then do nothing.
-        this.wallpapers = this.wallpaperBatch[++this.pageNo]; // set the next batch to display
-        this.selection = 0; // select the first wallpaper of the new batch
-        this.drawUI();
-        return;
-      } else this.selection = 0; // select first wallpaper
-    } else if (this.selection + 1 < this.wallpapers.length) { // check if the next wallpaper in the grid exist
-      this.selection++; // select next wallpaper in the grid
+    if (!this.moveSelection(1) && !this.changePage(1)) {
+      this.wrapSelection(1);
     }
-
     this.drawContainerBorder(this.xy[this.selection]);
+  }
+
+  nextPage() {
+    this.changePage(1, true);
+  }
+
+  prevPage() {
+    this.changePage(-1, true);
   }
 
   moveUp() {
@@ -275,8 +297,12 @@ class UserInterface {
       [keySequences.ArrowDown]: () => this.moveDown(),
       h: () => this.moveLeft(),
       [keySequences.ArrowLeft]: () => this.moveLeft(),
-      [keySequences.Enter]: () => this.handleEnter(),
+      L: () => this.nextPage(),
+      [keySequences.PageDown]: () => this.nextPage(),
+      H: () => this.prevPage(),
+      [keySequences.PageUp]: () => this.prevPage(),
       q: (_, quit) => this.handleExit(quit),
+      [keySequences.Enter]: () => this.handleEnter(),
       [keySequences.Escape]: () => this.handleExit(),
     };
 
