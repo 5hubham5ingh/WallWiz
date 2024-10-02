@@ -188,4 +188,6 @@ theme[process_end]="${blueColor}"`
   return theme;
 }
 
-export { getThemeConf, setTheme };
+const getDarkThemeConf = getThemeConf;
+const getLightThemeConf = getThemeConf;
+export { getDarkThemeConf, getLightThemeConf, setTheme };

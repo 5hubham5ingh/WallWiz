@@ -10,7 +10,7 @@
 function setTheme(themeConfPath, execAsync) {
   return execAsync(
     ["cat", themeConfPath, ">", "~/.config/hypr/WallWizTheme.conf"],
-    { useShell: true }
+    { useShell: true },
   );
 }
 
@@ -73,7 +73,7 @@ function getThemeConf(colors) {
   function findColorByHue(startHue, endHue, fallback) {
     return (
       colorPool.find((color) => {
-        const [h, ,] = hexToHSL(color);
+        const [h] = hexToHSL(color);
         return startHue <= endHue
           ? h >= startHue && h < endHue
           : h >= startHue || h < endHue;
@@ -90,9 +90,11 @@ function getThemeConf(colors) {
 
   const hyprlandConf = `
 general {
-    col.active_border = rgba(${greenColor.slice(1)}ee) rgba(${blueColor.slice(
-    1
-  )}ee) 45deg
+    col.active_border = rgba(${greenColor.slice(1)}ee) rgba(${
+    blueColor.slice(
+      1,
+    )
+  }ee) 45deg
     col.inactive_border = rgba(${midColor.slice(1)}aa)
 
 }
@@ -114,5 +116,6 @@ windowrulev2 = bordercolor rgba(${blueColor.slice(1)}ee), floating:1
   return hyprlandConf.trim();
 }
 
-
-export { setTheme, getThemeConf }
+const getDarkThemeConf = getThemeConf;
+const getLightThemeConf = getThemeConf;
+export { getDarkThemeConf, getLightThemeConf, setTheme };

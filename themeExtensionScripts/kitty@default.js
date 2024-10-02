@@ -73,7 +73,7 @@ function getThemeConf(colors) {
   function findColorByHue(startHue, endHue, fallback) {
     return (
       colorPool.find((color) => {
-        const [h, ,] = hexToHSL(color);
+        const [h] = hexToHSL(color);
         return startHue <= endHue
           ? h >= startHue && h < endHue
           : h >= startHue || h < endHue;
@@ -149,4 +149,6 @@ color15 ${lightestColor}
   return theme.trim();
 }
 
-export { setTheme, getThemeConf }
+const getDarkThemeConf = getThemeConf;
+const getLightThemeConf = getThemeConf;
+export { getDarkThemeConf, getLightThemeConf, setTheme };

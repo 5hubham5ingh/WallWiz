@@ -7,8 +7,7 @@ import {
   cursorShow,
 } from "../justjs/src/just-js/helpers/cursor.js";
 import { exec as execAsync } from "../justjs/src/process.js";
-import config from "./config.js";
-import { promiseQueueWithLimit } from "./utils.js";
+import { notify, promiseQueueWithLimit } from "./utils.js";
 import { ensureDir } from "../justjs/src/fs.js";
 import { ansi } from "../justjs/src/just-js/helpers/ansiStyle.js";
 
@@ -17,7 +16,11 @@ export default class WallpaperSetter {
     this.userArguments = userArguments;
     this.picCacheDir = cache.picCacheDir;
     this.wallpapers = this.loadWallpapers();
-    this.themeManager = new Theme(this.picCacheDir, this.wallpapers);
+    this.themeManager = new Theme(
+      this.picCacheDir,
+      this.wallpapers,
+      userArguments.enableLightTheme,
+    );
   }
 
   async init() {
@@ -144,14 +147,14 @@ export default class WallpaperSetter {
 
     const createWallpaperCachePromisesQueue = [];
     if (!doesWallaperCacheExist()) {
-      print("Caching images...");
       this.wallpapers.forEach((wallpaper) => {
         if (!cacheNames.includes(wallpaper.uniqueId)) {
           createWallpaperCachePromisesQueue.push(() => makeCache(wallpaper));
         }
       });
-    }
+    } else return;
 
+    print("Caching images...");
     await promiseQueueWithLimit(
       createWallpaperCachePromisesQueue,
     );
@@ -181,7 +184,7 @@ export default class WallpaperSetter {
     const { name, uniqueId } = wallpaper;
 
     const promises = [ // this.enableLightTheme should be passed in the themes constructor, not here.
-      this.themeManager.setTheme(uniqueId, this.userArguments.enableLightTheme)
+      this.themeManager.setTheme(uniqueId)
         .catch(
           (e) => {
             print(clearTerminal, "Failed to set theme for ", name, uniqueId, e);
@@ -201,7 +204,11 @@ export default class WallpaperSetter {
   async setWallpaper(wallpaperName) {
     const wallpaperDir =
       `${this.userArguments.wallpapersDirectory}/${wallpaperName}`;
-    // return config.wallpaperDaemonHandler(wallpaperDir); // calling the handler function to set the wallpaper
-    return this.wallpaperDaemonHandler(wallpaperDir);
+    try {
+      await this.wallpaperDaemonHandler(wallpaperDir);
+      await notify("Wallpaper changed:", wallpaperName);
+    } catch (error) {
+      notify("Error wallpaper daemon handler script.", error);
+    }
   }
 }

@@ -47,15 +47,15 @@ class WallWiz {
       .parser({
         [argNames.wallpapersDirectory]: arg
           .path(".")
-          .check()
           .env("WALLPAPER_DIR")
+          .check()
           .map((path) => path.concat("/"))
-          .desc("Wallpaper directory path"),
+          .desc("Wallpaper directory path."),
         [argNames.setRandomWallpaper]: arg
           .flag(false)
           .desc("Apply random wallpaper from the directory."),
         [argNames.imageSize]: arg
-          .str("118x32")
+          .str("100x30")
           .reg(/^\d+x\d+$/)
           .desc("Image size in pixel")
           .val("WIDTHxHEIGHT")
@@ -63,7 +63,9 @@ class WallWiz {
             "Invalid size, it should be of WIDTHxHEIGHT format. \n Ex:- 60x20",
           )
           .map(splitNumbersFromString),
-        [argNames.enableLightTheme]: arg.flag(true).desc("Enable light theme."),
+        [argNames.enableLightTheme]: arg.flag(false).desc(
+          "Enable light theme.",
+        ),
         [argNames.padding]: arg
           .str("1x1")
           .reg(/^\d+x\d+$/)
@@ -121,7 +123,7 @@ class WallWiz {
         "-w": argNames.downloadWallpaperDaemonHandlerScript,
         "-b": argNames.browseWallpaperOnline,
         "-u": argNames.wallpaperRepositoryUrls,
-        "-k": argNames.githubApiKey
+        "-k": argNames.githubApiKey,
       })
       .ex([
         "-d ~/Pics/wallpaper/wallpaper.jpeg -s 42x10",
@@ -146,7 +148,7 @@ class WallWiz {
     const downloadManager = new ThemeExtensionScriptsDownloadManager();
     await downloadManager.init().catch((e) => {
       print(
-        "Failed to start downloadManager for theme extension scripts.\n",
+        "Failed to start Download manager for theme extension scripts.\n",
         e,
       );
       std.exit(1);

@@ -3,14 +3,15 @@ import config from "./config.js";
 import cache from "./cache.js";
 import { os, std } from "./quickJs.js";
 import { clearTerminal } from "../justjs/src/just-js/helpers/cursor.js";
-import { promiseQueueWithLimit, writeFile } from "./utils.js";
+import { notify, promiseQueueWithLimit, writeFile } from "./utils.js";
 
 "use strip";
 
 class Theme {
-  constructor(wallpaperDir, wallpaper) {
+  constructor(wallpaperDir, wallpaper, enableLightTheme) {
     this.wallpaperDir = wallpaperDir;
     this.wallpaper = wallpaper;
+    this.enableLightTheme = enableLightTheme;
   }
 
   async init() {
@@ -56,6 +57,8 @@ class Theme {
       );
     }
 
+    if (!queue.length) return;
+
     print("Extracting colours from wallpapers...");
     await promiseQueueWithLimit(queue);
     print("Done");
@@ -88,6 +91,7 @@ class Theme {
     };
 
     print("Generating theme configuration files...");
+
     for (let i = 0; i < this.wallpaper.length; i++) {
       const wallpaperName = this.wallpaper[i].uniqueId;
       const colours = getCachedColours(wallpaperName);
@@ -98,28 +102,32 @@ class Theme {
       for (const scriptName in config.getThemeExtensionScripts()) {
         if (isThemeConfCached(wallpaperName, scriptName)) continue;
         const themeHandler = config.getThemeHandler(scriptName);
-        const darkThemeConfig = await themeHandler.getThemeConf(colours);
-        const lightThemeConfig = await themeHandler.getThemeConf(
-          colours.toReversed(),
-        );
-        const cacheDir = cache.getCacheDirectoryOfThemeConfigFileFromAppName(
-          scriptName,
-        );
-        writeFile(
-          lightThemeConfig,
-          cacheDir.concat(this.getThemeName(wallpaperName, true)),
-        );
-        writeFile(
-          darkThemeConfig,
-          cacheDir.concat(this.getThemeName(wallpaperName, false)),
-        );
+        try {
+          const darkThemeConfig = await themeHandler.getDarkThemeConf(colours);
+          const lightThemeConfig = await themeHandler.getLightThemeConf(
+            colours,
+          );
+          const cacheDir = cache.getCacheDirectoryOfThemeConfigFileFromAppName(
+            scriptName,
+          );
+          writeFile(
+            lightThemeConfig,
+            cacheDir.concat(this.getThemeName(wallpaperName, true)),
+          );
+          writeFile(
+            darkThemeConfig,
+            cacheDir.concat(this.getThemeName(wallpaperName, false)),
+          );
+        } catch (error) {
+          await notify("Error in: " + scriptName, error);
+        }
       }
     }
     print("Done");
   }
 
-  async setTheme(wallpaperName, enableLightTheme) {
-    const themeName = this.getThemeName(wallpaperName, enableLightTheme);
+  async setTheme(wallpaperName) {
+    const themeName = this.getThemeName(wallpaperName);
     const promises = [];
     for (const scriptName in config.getThemeExtensionScripts()) {
       const themeHandler = config.getThemeHandler(scriptName);
@@ -137,13 +145,14 @@ class Theme {
         throw new Error(`No theme exist in cache for ${wallpaperName}`);
       }
     }
+    promises.push(notify("WallWiz", "Theme applied"));
     await Promise.all(promises);
   }
 
   getThemeName(fileName, type) {
-    return type !== undefined
-      ? `${fileName}-${type ? "light" : "dark"}.conf`
-      : [`${fileName}-light.conf`, `${fileName}-dark.conf`];
+    return type === undefined
+      ? `${fileName}-${this.enableLightTheme ? "light" : "dark"}.conf`
+      : `${fileName}-${type ? "light" : "dark"}.conf`;
   }
 
   areColoursCached(cacheName) {

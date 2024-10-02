@@ -8,3 +8,5 @@
 - Use workers for theme handler scripts for parallelism.
 - update readme: for --dte and --dwh
 - Key bind to change page, H for prev page and L for next page.
+- Custom error handling. Custom error class and error handler function in utils.
+- Reimplement the logic for light vs dark theme.

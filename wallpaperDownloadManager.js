@@ -4,6 +4,7 @@ import { UserInterface } from "./userInterface.js";
 import { os, std } from "./quickJs.js";
 import { clearTerminal } from "../justjs/src/just-js/helpers/cursor.js";
 import config from "./config.js";
+import { notify } from "./utils.js";
 
 export default class WallpaperDownloadManager extends Download {
   constructor(userArguments) {
@@ -58,6 +59,7 @@ export default class WallpaperDownloadManager extends Download {
     // for now, download the wallpaper from filtered list.
     const filterdWallpapers = filter.stdout.split("\n");
     if (!filterdWallpapers.length) return;
+    print("Fetching wallpaper for preview");
     this.downloadItemList = this.downloadItemMenu.filter((wallpaper) =>
       filterdWallpapers.includes(wallpaper.name)
     );
@@ -79,7 +81,7 @@ export default class WallpaperDownloadManager extends Download {
       );
     }
     if (!tempDownloadedWallpapers.length) return;
-    const handleSelection = (wallpaper) => {
+    const handleSelection = async (wallpaper) => {
       try {
         const sourceWallpaperPath = this.destinationDir.concat(
           wallpaper.uniqueId,
@@ -96,6 +98,7 @@ export default class WallpaperDownloadManager extends Download {
           print(clearTerminal, error);
           std.exit(error);
         }
+        await notify("Download complete:", destinationWallapaperPath);
       } catch (e) {
         print(clearTerminal, "HandleSelection:", e);
       }

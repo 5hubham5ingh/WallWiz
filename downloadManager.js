@@ -44,13 +44,8 @@ export default class Download {
         this.destinationDir.concat("/", item.name),
       ]);
     }
-
-    print("Downloading...");
-
     await execAsync(Download.generateCurlParallelCommand(fileListForCurl))
       .catch((e) => print("Download failed:", e));
-
-    print("Items downloaded:", fileListForCurl.length);
   }
 
   static generateCurlParallelCommand(fileList) {

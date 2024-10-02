@@ -19,7 +19,6 @@ class Config { // theme extension script manager
     return config;
   }
 
-
   getThemeExtensionScriptDirByScriptName(scriptName) {
     return this.themeExtensionScriptsBaseDir.concat(scriptName);
   }
@@ -36,7 +35,7 @@ class Config { // theme extension script manager
         print("No setTheme handler function found in ", extensionPath);
         std.exit(2);
       }
-      if (!script.getThemeConf) {
+      if (!script.getDarkThemeConf || !script.getLightThemeConf) {
         print("No getThemeConf function found in ", extensionPath);
         std.exit(2);
       }
