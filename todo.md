@@ -4,5 +4,5 @@
 - Cache api responses accept the images.
 - Auto enable grid mode when screen size insufficient.
 - Use workers for theme handler scripts for parallelism.
-- update readme: for --dte and --dwh
+- update readme: for --dte and --dwh, theme extension script changes for seperate light and dark theme, and mention the colour array is in descending order of their occurance in the wallpaper.
 - Custom error handling. Custom error class and error handler function in utils.

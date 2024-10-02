@@ -120,6 +120,7 @@ class Theme {
           );
         } catch (error) {
           await notify("Error in: " + scriptName, error);
+          throw error;
         }
       }
     }
