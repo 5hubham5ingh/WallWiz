@@ -76,12 +76,14 @@ You can download the executable binary from the [GitHub releases](https://github
 WallWiz's functionality can be extended through user-defined JavaScript scripts:
 
 - **Theme Extension Scripts**: Located in `~/.config/WallWiz/themeExtensionScripts/`, these scripts are responsible for generating and applying themes. Each script should export the following functions:
-  - `async function setTheme(filepath, execAsync){}`: This function receives the file path to the cached theme configuration file, then it applies the theme using the configuration file.
   
-  - `async function getThemeConf(colorHexArray){}`: This function generates a theme configuration file from an array of 30 hex color codes derived from the selected wallpaper and returns it as a string. It will only be called when either the cached theme configuration file does not exist or is outdated.
+  - `async function setTheme(filepath, execAsync){}`: This function receives the file path to the cached theme configuration file and applies the theme using the provided configuration file.
+  
+  - `async function getLightThemeConf(colorHexArray){}` and `async function getDarkThemeConf(colorHexArray){}`: These functions generate theme configuration files from an array of up to 30 hex color codes derived from the selected wallpaper and return them as strings. These functions will only be called when the cached theme configuration file either does not exist or is outdated.
   
     **Example Array**:
     ```javascript
+    // Array of up to 30 colors derived from the wallpaper, ordered by their frequency in the wallpaper
     [
       "#1a1a1a", "#2e2e2e", "#424242", "#565656", "#6a6a6a",
       "#7e7e7e", "#929292", "#a6a6a6", "#bababa", "#cecece",
@@ -91,7 +93,6 @@ WallWiz's functionality can be extended through user-defined JavaScript scripts:
       "#000000", "#ffaaaa", "#aaffaa", "#aaaaff", "#ffaa00"
     ]
     ```
-
 - **Wallpaper Daemon Handler**: The single script located in `~/.config/WallWiz/` should default export a function for applying wallpaper.
 
   **Example**:
@@ -127,8 +128,8 @@ WallWiz's functionality can be extended through user-defined JavaScript scripts:
 | `--padding`            | `-p`     | `1x1`     | Container padding in cells. Format: `V_PADDINGxH_PADDING`.                                       |
 | `--enable-pagination`  | `-e`     | `false`   | Display wallpapers in a fixed-size grid. Remaining wallpapers will be displayed in the next grid upon navigation. |
 | `--grid-size`          | `-g`     | `4x4`     | Wallpaper grid size. Format: `WIDTHxHEIGHT`.                                                     |
-| `--dte`                |          | `false`   | Download theme extension scripts.                                                               |
-| `--dwh`                |          | `false`   | Download wallpaper handler script.                                                              |
+| `--theme-extensions`                |    `-t`      | `false`   | Download theme extension scripts.                                                               |
+| `--wallpaper-handler`                |     `-w`     | `false`   | Download wallpaper handler script.                                                              |
 | `--browse`             |          | `false`   | Browse wallpapers online.                                                                       |
 | `--repo-url`           |          | `https://github.com/5hubham5ingh/WallWiz/tree/wallpapers` | Specifies the wallpaper repository GitHub URL(s). Can also be set using the `WALLPAPER_REPO_URLS` environment variable. |
 | `--api-key`            |          | `None`    | Specify the GitHub API key for increasing API's rate limit. Can also be set using the `GITHUB_API_KEY` environment variable. |
