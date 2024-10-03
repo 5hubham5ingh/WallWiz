@@ -37,7 +37,7 @@ class WallWiz {
       enablePagination: "--enable-pagination",
       gridSize: "--grid-size",
       downloadThemeExtensionScripts: "--theme-extensions",
-      downloadWallpaperDaemonHandlerScript: "--wallpaper-handlers",
+      downloadWallpaperDaemonHandlerScript: "--wallpaper-handler",
       browseWallpaperOnline: "--browse",
       wallpaperRepositoryUrls: "--repo-url",
       githubApiKey: "--api-key",
