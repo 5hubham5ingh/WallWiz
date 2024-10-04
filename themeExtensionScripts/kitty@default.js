@@ -3,7 +3,7 @@
  Author:         https://github.com/5hubham5ingh
  Prerequisite:   For this script to work, enable remote control in the kitty terminal.
                  To enable remote control, start kitty with allow_remote_control=yes.
-                 Ex:- -o kitty allow_remote_control=yes
+                 Ex:- kitty allow_remote_control=yes
  */
 
 function hexToRGB(hex) {
@@ -116,31 +116,20 @@ function adjustColorForReadability(baseColor, textColor, minContrast = 4.5) {
   return rgbToHex(...rgb2);
 }
 
-function findColorByHue(
-  colors,
-  targetHue,
-  saturationThreshold = 20,
-  lightnessThreshold = 20,
-) {
-  return colors.reduce((best, color) => {
-    const [h, s, l] = rgbToHSL(...hexToRGB(color));
-    const hueDiff = Math.min(
-      Math.abs(h - targetHue),
-      360 - Math.abs(h - targetHue),
-    );
-    if (s > saturationThreshold && l > lightnessThreshold && l < 80) {
-      if (!best || hueDiff < best.hueDiff) {
-        return { color, hueDiff };
-      }
-    }
-    return best;
-  }, null)?.color;
-}
-
 function invertLightness(hex) {
   let [h, s, l] = rgbToHSL(...hexToRGB(hex));
   l = 100 - l; // Invert lightness
   return rgbToHex(...hslToRGB(h, s, l));
+}
+function selectDistinctColors(colors, count) {
+  const distinctColors = [];
+  const step = Math.floor(colors.length / count);
+
+  for (let i = 0; i < count; i++) {
+    distinctColors.push(colors[i * step]);
+  }
+
+  return distinctColors;
 }
 
 function generateTheme(colors, isDark) {
@@ -162,12 +151,15 @@ function generateTheme(colors, isDark) {
     ? sortedColors[Math.floor(midIndex / 2)]
     : sortedColors[Math.floor(midIndex * 1.5)];
 
-  const red = findColorByHue(colors, 0) || "#cc241d";
-  const green = findColorByHue(colors, 120) || "#98971a";
-  const yellow = findColorByHue(colors, 60) || "#d79921";
-  const blue = findColorByHue(colors, 240) || "#458588";
-  const purple = findColorByHue(colors, 300) || "#b16286";
-  const aqua = findColorByHue(colors, 180) || "#689d6a";
+  // Select 6 distinct colors from the middle of the sorted array
+  const middleColors = sortedColors.slice(
+    Math.floor(sortedColors.length / 4),
+    Math.floor(sortedColors.length * 3 / 4),
+  );
+  const [color1, color2, color3, color4, color5, color6] = selectDistinctColors(
+    middleColors,
+    6,
+  );
 
   const black = isDark
     ? sortedColors[1]
@@ -181,12 +173,12 @@ function generateTheme(colors, isDark) {
     foreground,
     selection,
     cursor,
-    red,
-    green,
-    yellow,
-    blue,
-    purple,
-    aqua,
+    color1,
+    color2,
+    color3,
+    color4,
+    color5,
+    color6,
     black,
     white,
   };
@@ -199,12 +191,12 @@ function generateThemeConfig(theme, isDark) {
 cursor ${invertIfLight(theme.cursor)}
 cursor_text_color ${theme.background}
 
-url_color ${invertIfLight(theme.blue)}
+url_color ${invertIfLight(theme.color1)}
 
-visual_bell_color ${invertIfLight(theme.green)}
-bell_border_color ${invertIfLight(theme.green)}
+visual_bell_color ${invertIfLight(theme.color2)}
+bell_border_color ${invertIfLight(theme.color2)}
 
-active_border_color ${invertIfLight(theme.purple)}
+active_border_color ${invertIfLight(theme.color3)}
 inactive_border_color ${isDark ? theme.black : theme.white}
 
 foreground ${theme.foreground}
@@ -213,7 +205,7 @@ selection_foreground ${invertIfLight(theme.cursor)}
 selection_background ${invertIfLight(theme.selection)}
 
 active_tab_foreground ${isDark ? theme.white : theme.black}
-active_tab_background ${theme.cursor}
+active_tab_background ${invertIfLight(theme.cursor)}
 inactive_tab_foreground ${isDark ? theme.white : theme.black}
 inactive_tab_background ${isDark ? theme.black : theme.white}
 
@@ -226,38 +218,40 @@ color8 ${
     )
   }
 
-# red
-color1 ${invertIfLight(theme.red)}
-color9 ${adjustColorForReadability(theme.background, invertIfLight(theme.red))}
+# color1
+color1 ${invertIfLight(theme.color1)}
+color9 ${
+    adjustColorForReadability(theme.background, invertIfLight(theme.color1))
+  }
 
-# green
-color2 ${invertIfLight(theme.green)}
+# color2
+color2 ${invertIfLight(theme.color2)}
 color10 ${
-    adjustColorForReadability(theme.background, invertIfLight(theme.green))
+    adjustColorForReadability(theme.background, invertIfLight(theme.color2))
   }
 
-# yellow
-color3 ${invertIfLight(theme.yellow)}
+# color3
+color3 ${invertIfLight(theme.color3)}
 color11 ${
-    adjustColorForReadability(theme.background, invertIfLight(theme.yellow))
+    adjustColorForReadability(theme.background, invertIfLight(theme.color3))
   }
 
-# blue
-color4 ${invertIfLight(theme.blue)}
+# color4
+color4 ${invertIfLight(theme.color4)}
 color12 ${
-    adjustColorForReadability(theme.background, invertIfLight(theme.blue))
+    adjustColorForReadability(theme.background, invertIfLight(theme.color4))
   }
 
-# purple
-color5 ${invertIfLight(theme.purple)}
+# color5
+color5 ${invertIfLight(theme.color5)}
 color13 ${
-    adjustColorForReadability(theme.background, invertIfLight(theme.purple))
+    adjustColorForReadability(theme.background, invertIfLight(theme.color5))
   }
 
-# aqua
-color6 ${invertIfLight(theme.aqua)}
+# color6
+color6 ${invertIfLight(theme.color6)}
 color14 ${
-    adjustColorForReadability(theme.background, invertIfLight(theme.aqua))
+    adjustColorForReadability(theme.background, invertIfLight(theme.color6))
   }
 
 # white

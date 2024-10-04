@@ -1,12 +1,198 @@
 /*
  For:            Hyprland, https://hyprland.org
- Author:         https://github.com/5hubham5ingh
+ Author:         https://github.com/5hubham5ingh (original)
+                 Modified by Claude (improvements based on Kitty script)
  Prerequisite:   Edit the ~/.config/hypr/hyprland.conf file to add this line-
                  source = "WallWizTheme.conf"
 
- Note: Sourcing the file on top will not overide the predefined colours in hyprland.conf.
+ Note: Sourcing the file on top will not override the predefined colours in hyprland.conf.
        So, to override the default theme colours, source the WallWizTheme.conf at the bottom.
 */
+
+function hexToRGB(hex) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return [r, g, b];
+}
+
+function rgbToHSL(r, g, b) {
+  r /= 255;
+  g /= 255;
+  b /= 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  let h, s, l = (max + min) / 2;
+
+  if (max === min) {
+    h = s = 0;
+  } else {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r:
+        h = (g - b) / d + (g < b ? 6 : 0);
+        break;
+      case g:
+        h = (b - r) / d + 2;
+        break;
+      case b:
+        h = (r - g) / d + 4;
+        break;
+    }
+    h /= 6;
+  }
+
+  return [h * 360, s * 100, l * 100];
+}
+
+function hslToRGB(h, s, l) {
+  h /= 360;
+  s /= 100;
+  l /= 100;
+  let r, g, b;
+
+  if (s === 0) {
+    r = g = b = l;
+  } else {
+    const hue2rgb = (p, q, t) => {
+      if (t < 0) t += 1;
+      if (t > 1) t -= 1;
+      if (t < 1 / 6) return p + (q - p) * 6 * t;
+      if (t < 1 / 2) return q;
+      if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+      return p;
+    };
+
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    const p = 2 * l - q;
+    r = hue2rgb(p, q, h + 1 / 3);
+    g = hue2rgb(p, q, h);
+    b = hue2rgb(p, q, h - 1 / 3);
+  }
+
+  return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+}
+
+function rgbToHex(r, g, b) {
+  return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+}
+
+function invertLightness(hex) {
+  let [h, s, l] = rgbToHSL(...hexToRGB(hex));
+  l = 100 - l; // Invert lightness
+  return rgbToHex(...hslToRGB(h, s, l));
+}
+
+function selectDistinctColors(colors, count) {
+  const distinctColors = [];
+  const step = Math.floor(colors.length / count);
+
+  for (let i = 0; i < count; i++) {
+    distinctColors.push(colors[i * step]);
+  }
+
+  return distinctColors;
+}
+
+function generateTheme(colors, isDark) {
+  const sortedColors = [...colors].sort((a, b) => {
+    const [, , lA] = rgbToHSL(...hexToRGB(a));
+    const [, , lB] = rgbToHSL(...hexToRGB(b));
+    return isDark ? lA - lB : lB - lA;
+  });
+
+  const backgroundIndex = isDark ? 0 : sortedColors.length - 1;
+  const foregroundIndex = isDark ? sortedColors.length - 1 : 0;
+
+  const background = sortedColors[backgroundIndex];
+  const foreground = sortedColors[foregroundIndex];
+
+  const midIndex = Math.floor(sortedColors.length / 2);
+  const selection = sortedColors[midIndex];
+  const cursor = isDark
+    ? sortedColors[Math.floor(midIndex / 2)]
+    : sortedColors[Math.floor(midIndex * 1.5)];
+
+  // Select 6 distinct colors from the middle of the sorted array
+  const middleColors = sortedColors.slice(
+    Math.floor(sortedColors.length / 4),
+    Math.floor(sortedColors.length * 3 / 4),
+  );
+  const [color1, color2, color3, color4, color5, color6] = selectDistinctColors(
+    middleColors,
+    6,
+  );
+
+  const black = isDark
+    ? sortedColors[1]
+    : sortedColors[sortedColors.length - 2];
+  const white = isDark
+    ? sortedColors[sortedColors.length - 2]
+    : sortedColors[1];
+
+  return {
+    background,
+    foreground,
+    selection,
+    cursor,
+    color1,
+    color2,
+    color3,
+    color4,
+    color5,
+    color6,
+    black,
+    white,
+  };
+}
+
+function generateHyprlandConfig(theme, isDark) {
+  const invertIfLight = (color) => isDark ? color : invertLightness(color);
+
+  const config = `
+general {
+    col.active_border = rgba(${invertIfLight(theme.color3).slice(1)}ee) rgba(${
+    invertIfLight(theme.color4).slice(1)
+  }ee) 45deg
+    col.inactive_border = rgba(${theme.selection.slice(1)}aa)
+}
+
+decoration {
+    col.shadow = rgba(${theme.black.slice(1)}ee)
+    col.shadow_inactive = rgba(${theme.black.slice(1)}aa)
+}
+
+misc {
+    background_color = rgb(${theme.background.slice(1)})
+}
+
+decoration {
+    col.shadow_inactive = rgba(${theme.black.slice(1)}aa)
+}
+
+# Window rules
+windowrulev2 = bordercolor rgba(${
+    invertIfLight(theme.color1).slice(1)
+  }ee), fullscreen:1
+windowrulev2 = bordercolor rgba(${
+    invertIfLight(theme.color2).slice(1)
+  }ee), floating:1
+`.trim();
+
+  return config;
+}
+
+function getDarkThemeConf(colors) {
+  const theme = generateTheme(colors, true);
+  return generateHyprlandConfig(theme, true);
+}
+
+function getLightThemeConf(colors) {
+  const theme = generateTheme(colors, false);
+  return generateHyprlandConfig(theme, false);
+}
+
 function setTheme(themeConfPath, execAsync) {
   return execAsync(
     ["cat", themeConfPath, ">", "~/.config/hypr/WallWizTheme.conf"],
@@ -14,108 +200,4 @@ function setTheme(themeConfPath, execAsync) {
   );
 }
 
-function getThemeConf(colors) {
-  if (colors.length < 8) {
-    throw new Error("At least 8 colors are required");
-  }
-
-  function hexToHSL(hex) {
-    let r = parseInt(hex.slice(1, 3), 16) / 255;
-    let g = parseInt(hex.slice(3, 5), 16) / 255;
-    let b = parseInt(hex.slice(5, 7), 16) / 255;
-    let max = Math.max(r, g, b),
-      min = Math.min(r, g, b);
-    let h,
-      s,
-      l = (max + min) / 2;
-    if (max === min) {
-      h = s = 0; // achromatic
-    } else {
-      let d = max - min;
-      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-      switch (max) {
-        case r:
-          h = (g - b) / d + (g < b ? 6 : 0);
-          break;
-        case g:
-          h = (b - r) / d + 2;
-          break;
-        case b:
-          h = (r - g) / d + 4;
-          break;
-      }
-      h /= 6;
-    }
-    return [h * 360, s * 100, l * 100];
-  }
-
-  // Sort colors by lightness
-  const sortedColors = [...colors].sort((a, b) => {
-    const [, , lA] = hexToHSL(a);
-    const [, , lB] = hexToHSL(b);
-    return lA - lB;
-  });
-
-  // Find colors for specific purposes
-  const darkestColor = sortedColors[0];
-  const lightestColor = sortedColors[sortedColors.length - 1];
-  const midColor = sortedColors[Math.floor(sortedColors.length / 2)];
-
-  // Find vibrant colors for different hues
-  const vibrantColors = colors.filter((color) => {
-    const [, s, l] = hexToHSL(color);
-    return s > 50 && l > 30 && l < 70;
-  });
-
-  // If we don't have enough vibrant colors, use all colors
-  const colorPool = vibrantColors.length >= 6 ? vibrantColors : colors;
-
-  function findColorByHue(startHue, endHue, fallback) {
-    return (
-      colorPool.find((color) => {
-        const [h] = hexToHSL(color);
-        return startHue <= endHue
-          ? h >= startHue && h < endHue
-          : h >= startHue || h < endHue;
-      }) || fallback
-    );
-  }
-
-  const redColor = findColorByHue(330, 30, colorPool[0]);
-  const greenColor = findColorByHue(90, 150, colorPool[1]);
-  const blueColor = findColorByHue(210, 270, colorPool[2]);
-  const yellowColor = findColorByHue(30, 90, colorPool[3]);
-  const magentaColor = findColorByHue(270, 330, colorPool[4]);
-  const cyanColor = findColorByHue(150, 210, colorPool[5]);
-
-  const hyprlandConf = `
-general {
-    col.active_border = rgba(${greenColor.slice(1)}ee) rgba(${
-    blueColor.slice(
-      1,
-    )
-  }ee) 45deg
-    col.inactive_border = rgba(${midColor.slice(1)}aa)
-
-}
-
-decoration {
-    col.shadow = rgba(${darkestColor.slice(1)}ee)
-    col.shadow_inactive = rgba(${darkestColor.slice(1)}aa)
-}
-
-misc {
-    background_color = rgb(${darkestColor.slice(1)})
-}
-
-# Example window rules
-windowrulev2 = bordercolor rgba(${redColor.slice(1)}ee), fullscreen:1
-windowrulev2 = bordercolor rgba(${blueColor.slice(1)}ee), floating:1
-`;
-
-  return hyprlandConf.trim();
-}
-
-const getDarkThemeConf = getThemeConf;
-const getLightThemeConf = getThemeConf;
 export { getDarkThemeConf, getLightThemeConf, setTheme };
