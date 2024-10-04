@@ -5,3 +5,4 @@
 - Auto enable grid mode when screen size insufficient.
 - Use workers for theme handler scripts for parallelism.
 - Custom error handling. Custom error class and error handler function in utils.
+- Overlay for keymap.
