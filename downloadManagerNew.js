@@ -1,7 +1,6 @@
 import { Curl, curlRequest } from "../justjs/src/curl.js";
 import { ensureDir } from "../justjs/src/fs.js";
 import { exec as execAsync } from "../justjs/src/process.js";
-import config from "./config.js";
 import { std } from "./quickJs.js";
 import { writeFile } from "./utils.js";
 
@@ -10,7 +9,7 @@ export default class Download {
     this.destinationDir = destinationDir;
     this.sourceRepoUrl = Download.ensureGitHubApiUrl(sourceRepoUrl);
     this.downloadItemList;
-    this.apiCacheDir = config.homeDir.concat("/.cache/WallWiz/api/");
+    this.apiCacheDir = std.getenv("HOME").homeDir.concat("/.cache/WallWiz/api/");
     this.apiCacheFilePath = this.apiCacheDir.concat("apiCache.json");
     this.apiCacheFile = std.loadFile(this.apiCacheFilePath);
     this.apiCache = this.apiCacheFile

@@ -1,13 +1,13 @@
 import { curlRequest } from "../justjs/src/curl.js";
 import { ProcessSync } from "../justjs/src/process.js";
 import Download from "./downloadManager.js";
-import config from "./config.js";
 import { std } from "./quickJs.js";
 import { ensureDir } from "../justjs/src/fs.js";
 
 class ExtensionScriptsDownloader extends Download {
   constructor(...all) {
     super(...all);
+    this.homeDir = std.getenv("HOME");
     this.tempDir = "/tmp/WallWiz/";
     this.downloadItemMenu;
     ensureDir(this.tempDir);
@@ -80,7 +80,7 @@ class ThemeExtensionScriptsDownloadManager extends ExtensionScriptsDownloader {
   constructor() {
     const themeExtensionSourceRepoUrl =
       `https://api.github.com/repos/5hubham5ingh/WallWiz/contents/themeExtensionScripts`;
-    const themeExtensionScriptDestinationDir = config.homeDir.concat(
+    const themeExtensionScriptDestinationDir = this.homeDir.concat(
       "/.config/WallWiz/themeExtensionScripts/",
     );
     super([themeExtensionSourceRepoUrl], themeExtensionScriptDestinationDir);
@@ -100,7 +100,7 @@ class WallpaperDaemonHandlerScriptDownloadManager
   constructor() {
     const themeExtensionSourceRepoUrl =
       `https://api.github.com/repos/5hubham5ingh/WallWiz/contents/wallpaperDaemonHandlerScripts`;
-    const themeExtensionScriptDestinationDir = config.homeDir.concat(
+    const themeExtensionScriptDestinationDir = this.homeDir.concat(
       "/.config/WallWiz/",
     );
     super([themeExtensionSourceRepoUrl], themeExtensionScriptDestinationDir);

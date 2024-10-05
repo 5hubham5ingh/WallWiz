@@ -3,12 +3,11 @@ import Download from "./downloadManager.js";
 import { UserInterface } from "./userInterface.js";
 import { os, std } from "./quickJs.js";
 import { clearTerminal } from "../justjs/src/just-js/helpers/cursor.js";
-import config from "./config.js";
 import { notify } from "./utils.js";
 
 export default class WallpaperDownloadManager extends Download {
   constructor(userArguments) {
-    const downloadDestinationDirectory = config.homeDir.concat(
+    const downloadDestinationDirectory = std.getenv("HOME").concat(
       "/.cache/WallWiz/.temp/",
     );
     super(

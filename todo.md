@@ -7,3 +7,4 @@
 - Custom error handling. Custom error class and error handler function in utils.
 - ARgument to print keymap.
 - Disable notification
+- User agr to set process limit.

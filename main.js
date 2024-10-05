@@ -15,6 +15,7 @@ class WallWiz {
   constructor() {
     this.userArguments = this.parseArguments();
     this.picCacheDir = cache.picCacheDir;
+    this.utils;
   }
 
   async run() {
@@ -43,7 +44,9 @@ class WallWiz {
       browseWallpaperOnline: "--browse",
       wallpaperRepositoryUrls: "--repo-url",
       githubApiKey: "--api-key",
-      showKeyMap: "--show-keymap"
+      showKeyMap: "--show-keymap",
+      notification: "--disable-notification",
+      processLimit: "--plimit"
     };
 
     const userArguments = arg
@@ -130,10 +133,11 @@ class WallWiz {
         "-b": argNames.browseWallpaperOnline,
         "-u": argNames.wallpaperRepositoryUrls,
         "-k": argNames.githubApiKey,
-        '-m': argNames.showKeyMap
+        '-m': argNames.showKeyMap,
+        '-n': argNames.notification
       })
       .ex([
-        "-d ~/Pics/wallpaper/wallpaper.jpeg -s 42x10",
+        "-d ~/Pics/wallpapers -s 42x10",
         "-l -p 4x4",
       ])
       .ver("0.0.1-alpha.5")
