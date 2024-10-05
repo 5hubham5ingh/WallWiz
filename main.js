@@ -1,6 +1,5 @@
 import { os, std } from "./quickJs.js";
 import arg from "../justjs/src/arg.js";
-import cache from "./cache.js";
 import {
   ThemeExtensionScriptsDownloadManager,
   WallpaperDaemonHandlerScriptDownloadManager,
@@ -14,7 +13,6 @@ import { UserInterface } from "./userInterface.js";
 class WallWiz {
   constructor() {
     this.userArguments = this.parseArguments();
-    this.picCacheDir = cache.picCacheDir;
     this.utils;
   }
 

@@ -1,4 +1,3 @@
-import cache from "./cache.js";
 import { Theme } from "./themeManager.js";
 import { os, std } from "./quickJs.js";
 import { UserInterface } from "./userInterface.js";
@@ -14,7 +13,10 @@ import { ansi } from "../justjs/src/just-js/helpers/ansiStyle.js";
 export default class WallpaperSetter {
   constructor(userArguments) {
     this.userArguments = userArguments;
-    this.picCacheDir = cache.picCacheDir;
+    this.homeDir = std.getenv("HOME");
+    this.picCacheDir = this.homeDir.concat("/.cache/WallWiz/pic/");
+    ;
+    ensureDir(this.picCacheDir)
     this.wallpapers = this.loadWallpapers();
     this.themeManager = new Theme(
       this.picCacheDir,
@@ -70,10 +72,9 @@ export default class WallpaperSetter {
 
     if (!wallpapers.length) {
       print(
-        `No wallpapers found in "${
-          ansi.styles(["bold", "underline", "red"]) +
-          this.userArguments.wallpapersDirectory +
-          ansi.style.reset
+        `No wallpapers found in "${ansi.styles(["bold", "underline", "red"]) +
+        this.userArguments.wallpapersDirectory +
+        ansi.style.reset
         }".`,
       );
       print(cursorShow);
