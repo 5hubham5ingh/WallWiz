@@ -19,6 +19,7 @@ class WallWiz {
 
   async run() {
     os.ttySetRaw();
+    this.handleShowKeymaps();
     await this.handleThemeExtensionScriptDownload();
     await this.handleWallpaperHandlerScriptDownload();
     await this.handleWallpaperBrowsing();
@@ -115,8 +116,8 @@ class WallWiz {
           .env("GITHUB_API_KEY")
           .desc("Github API key."),
         [argNames.showKeyMap]: arg
-          .str()
-          .desc('Print keymaps of User interface.'),
+          .flag(false)
+          .desc('See keymaps of User interface.'),
         "-d": argNames.wallpapersDirectory,
         "-r": argNames.setRandomWallpaper,
         "-s": argNames.imageSize,
@@ -129,7 +130,7 @@ class WallWiz {
         "-b": argNames.browseWallpaperOnline,
         "-u": argNames.wallpaperRepositoryUrls,
         "-k": argNames.githubApiKey,
-        '-K': argNames.showKeyMap
+        '-m': argNames.showKeyMap
       })
       .ex([
         "-d ~/Pics/wallpaper/wallpaper.jpeg -s 42x10",
@@ -200,9 +201,10 @@ class WallWiz {
       });
   }
 
-  showKeymaps() {
+  handleShowKeymaps() {
     if (!this.userArguments.showKeyMap) return;
     UserInterface.printKeyMaps()
+    std.exit(0)
   }
 }
 

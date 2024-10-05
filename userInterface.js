@@ -334,7 +334,7 @@ class UserInterface {
     let keyMaps = []
     for (const i in keys) {
       const key = keys[i];
-      const line = `${key} ${' '.repeat(5 + key.length)} ${actions[i]}`
+      const line = `${key} ${' '.repeat(15 - key.length)}: ${actions[i]}`
       keyMaps.push(line)
     }
 
