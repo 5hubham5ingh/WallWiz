@@ -1,5 +1,4 @@
-- Refactor config.js: Move extension theme handler script related code into themeHandlerClass. Rest of the config will be mounted in main class instead of globally.
-- Refactor cache.js
+- Testing config.js: Move extension theme handler script related code into themeHandlerClass. Rest of the config will be mounted in main class instead of globally.
 - **Set header for repeated request.**
 - Cache api responses accept the images.
 - Auto enable grid mode when screen size insufficient.
