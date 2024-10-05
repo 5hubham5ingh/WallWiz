@@ -188,11 +188,10 @@ class UserInterface {
     const xBorderDown = " ╰" + "─".repeat(this.containerWidth - 1) + "╯";
     const newLine = cursorMove(-1 * (this.containerWidth + 2), 1);
     const yBorder = ` │${" ".repeat(this.containerWidth - 1)}│${newLine}`;
-    const border = `${OO}${xBorderUp}${newLine}${
-      yBorder.repeat(
-        this.containerHeight - 1,
-      )
-    }${xBorderDown}${OO}`;
+    const border = `${OO}${xBorderUp}${newLine}${yBorder.repeat(
+      this.containerHeight - 1,
+    )
+      }${xBorderDown}${OO}`;
     print(cursorTo(0, 0), eraseDown, ansi.style.brightWhite, border);
   }
 
@@ -307,6 +306,39 @@ class UserInterface {
     };
 
     await handleKeysPress(keyPressHandlers);
+  }
+
+  static printKeyMaps() {
+    const keys = [
+      "k/ArrowUp",
+      "l/ArrowRight",
+      "j/ArrowDown",
+      "h/ArrowLeft",
+      "L/PageDown",
+      "H/PageUp",
+      "Enter",
+      "q"
+    ]
+
+    const actions = [
+      "Move Up",
+      "Move Right",
+      "Move down",
+      "Move Left",
+      "Next page",
+      "Previous page",
+      "Apply/Download wallpaper",
+      "Quit"
+    ]
+
+    let keyMaps = []
+    for (const i in keys) {
+      const key = keys[i];
+      const line = `${key} ${' '.repeat(5 + key.length)} ${actions[i]}`
+      keyMaps.push(line)
+    }
+
+    print(keyMaps.join('\n'))
   }
 }
 

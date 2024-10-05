@@ -7,6 +7,7 @@ import {
 } from "./extensionScriptDownloadManager.js";
 import WallpaperDownloadManager from "./wallpaperDownloadManager.js";
 import WallpaperSetter from "./wallpapersManager.js";
+import { UserInterface } from "./userInterface.js";
 
 "use strip";
 
@@ -41,6 +42,7 @@ class WallWiz {
       browseWallpaperOnline: "--browse",
       wallpaperRepositoryUrls: "--repo-url",
       githubApiKey: "--api-key",
+      showKeyMap: "--show-keymap"
     };
 
     const userArguments = arg
@@ -112,6 +114,9 @@ class WallWiz {
           .str()
           .env("GITHUB_API_KEY")
           .desc("Github API key."),
+        [argNames.showKeyMap]: arg
+          .str()
+          .desc('Print keymaps of User interface.'),
         "-d": argNames.wallpapersDirectory,
         "-r": argNames.setRandomWallpaper,
         "-s": argNames.imageSize,
@@ -124,6 +129,7 @@ class WallWiz {
         "-b": argNames.browseWallpaperOnline,
         "-u": argNames.wallpaperRepositoryUrls,
         "-k": argNames.githubApiKey,
+        '-K': argNames.showKeyMap
       })
       .ex([
         "-d ~/Pics/wallpaper/wallpaper.jpeg -s 42x10",
@@ -192,6 +198,11 @@ class WallWiz {
         print("Failed to initialize WallpaperSetter.", e);
         std.exit(1);
       });
+  }
+
+  showKeymaps() {
+    if (!this.userArguments.showKeyMap) return;
+    UserInterface.printKeyMaps()
   }
 }
 
