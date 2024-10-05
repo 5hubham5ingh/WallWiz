@@ -1,9 +1,9 @@
 import { exec as execAsync } from "../justjs/src/process.js";
 import config from "./config.js";
-import cache from "./cache.js";
 import { os, std } from "./quickJs.js";
 import { clearTerminal } from "../justjs/src/just-js/helpers/cursor.js";
 import { notify, promiseQueueWithLimit, writeFile } from "./utils.js";
+import { ensureDir } from "../justjs/src/fs.js";
 
 "use strip";
 
@@ -12,6 +12,12 @@ class Theme {
     this.wallpaperDir = wallpaperDir;
     this.wallpaper = wallpaper;
     this.enableLightTheme = enableLightTheme;
+    this.cacheBaseDir = std.getenv("HOME").concat("/.cache/WallWiz")
+    this.wallpaperColoursCacheDir = this.cacheBaseDir.concat("/colours/");
+    this.wallpaperThemeCacheDir = this.cacheBaseDir.concat("/themes/");
+    ensureDir(this.wallpaperColoursCacheDir)
+    ensureDir(this.wallpaperThemeCacheDir)
+    this.appThemeCacheDir = {};
   }
 
   async init() {
@@ -50,7 +56,7 @@ class Theme {
             (colours) => {
               writeFile(
                 JSON.stringify(colours),
-                cache.wallColoursCacheDir.concat(wallpaperName, ".txt"),
+                this.wallpaperColoursCacheDir.concat(wallpaperName, ".txt"),
               );
             },
           ),
@@ -66,14 +72,14 @@ class Theme {
 
   async createAppThemesFromColours() {
     const getCachedColours = (cacheName) => {
-      const cachePath = cache.wallColoursCacheDir.concat(cacheName, ".txt");
+      const cachePath = this.wallpaperColoursCacheDir.concat(cacheName, ".txt");
       if (this.areColoursCached(cacheName)) {
         return JSON.parse(std.loadFile(cachePath));
       }
     };
 
     const isThemeConfCached = (wallpaperName, scriptName) => {
-      const cacheDir = cache.getCacheDirectoryOfThemeConfigFileFromAppName(
+      const cacheDir = this.getCacheDirectoryOfThemeConfigFileFromAppName(
         scriptName,
       ).concat(
         this.getThemeName(wallpaperName, true),
@@ -107,7 +113,7 @@ class Theme {
           const lightThemeConfig = await themeHandler.getLightThemeConf(
             colours,
           );
-          const cacheDir = cache.getCacheDirectoryOfThemeConfigFileFromAppName(
+          const cacheDir = this.getCacheDirectoryOfThemeConfigFileFromAppName(
             scriptName,
           );
           writeFile(
@@ -132,7 +138,7 @@ class Theme {
     const promises = [];
     for (const scriptName in config.getThemeExtensionScripts()) {
       const themeHandler = config.getThemeHandler(scriptName);
-      const currentThemePath = cache
+      const currentThemePath = this
         .getCacheDirectoryOfThemeConfigFileFromAppName(scriptName).concat(
           themeName,
         );
@@ -157,8 +163,17 @@ class Theme {
   }
 
   areColoursCached(cacheName) {
-    const cachePath = cache.wallColoursCacheDir.concat(cacheName, ".txt");
+    const cachePath = this.wallpaperColoursCacheDir.concat(cacheName, ".txt");
     return os.stat(cachePath)[1] === 0;
+  }
+
+  createCacheDirrectoryForAppThemeConfigFileFromAppName(appName) {
+    this.appThemeCacheDir[appName] = this.wallpaperColoursCacheDir.concat(`/${appName}/`);
+    ensureDir(this.appThemeCacheDir[appName])
+  }
+
+  getCacheDirectoryOfThemeConfigFileFromAppName(app) {
+    return this.appThemeCacheDir[app];
   }
 }
 

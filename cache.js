@@ -6,13 +6,7 @@ class Catch {
   constructor() {
     this.homeDir = std.getenv("HOME");
     this.baseDir = this.homeDir.concat("/.cache/WallWiz");
-    this.wallColoursCacheDir = this.baseDir.concat("/colours/");
-    this.ensureCacheDir();
     this.appThemeCacheDir = {};
-  }
-
-  ensureCacheDir() {
-    ensureDir(this.wallColoursCacheDir);
   }
 
   createCacheDirrectoryForAppThemeConfigFileFromAppName(appName) {
