@@ -13,6 +13,7 @@ import {
   handleKeysPress,
   keySequences,
 } from "../justjs/src/just-js/helpers/terminal.js";
+import utils from "./utils.js";
 
 "use strip";
 
@@ -46,16 +47,22 @@ class UserInterface {
     }
   }
 
+  static autoScalingTerminal;
+
   async init() {
     [this.terminalWidth, this.terminalHeight] = os.ttyGetWinSize();
 
-    while (this.containerWidth > this.terminalWidth) {
+    while (
+      this.containerWidth > this.terminalWidth
+    ) {
       await this.increaseTerminalSize();
     }
 
     this.calculateCoordinates();
 
-    while (this.isScreenHeightInsufficient()) {
+    while (
+      this.isScreenHeightInsufficient()
+    ) {
       await this.increaseTerminalSize();
       this.calculateCoordinates();
     }
@@ -73,21 +80,29 @@ class UserInterface {
   }
 
   async increaseTerminalSize() {
-    await execAsync(["kitty", "@", "set-font-size", "--", "-1"]).catch((_e) => {
-      print(
-        ansi.styles(["bold", "red"]),
-        "Terminal size too small.\n",
-        ansi.style.reset,
-        "\bEither set it manually or enable kitty remote control for automatic screen resizing.",
+    const handleError = () =>
+      utils.notify(
+        "Insufficient screen size.",
+        "You can use pagination, or reduce the image preview size.",
+        "error",
       );
-      std.exit(1);
-    });
+
+    if (!UserInterface.autoScalingTerminal) handleError();
+
+    await execAsync(["kitty", "@", "set-font-size", "--", "-1"]).catch(
+      (_e) => {
+        utils.notify(
+          "Terminal size too small.",
+          "Either set it manually or enable kitty remote control for automatic scaling.",
+          "error",
+        );
+      },
+    );
+
     const [w, h] = os.ttyGetWinSize();
     if (w === this.terminalWidth && h === this.terminalHeight) {
       os.exec(["kitty", "@", "set-font-size", "--", "0"]);
-      throw new Error(
-        "Maximum screen size reached. Insufficient screen size. \n You can use pagination, or reduce the image preview size.",
-      );
+      handleError();
     }
     this.terminalWidth = w;
     this.terminalHeight = h;
@@ -188,10 +203,11 @@ class UserInterface {
     const xBorderDown = " ╰" + "─".repeat(this.containerWidth - 1) + "╯";
     const newLine = cursorMove(-1 * (this.containerWidth + 2), 1);
     const yBorder = ` │${" ".repeat(this.containerWidth - 1)}│${newLine}`;
-    const border = `${OO}${xBorderUp}${newLine}${yBorder.repeat(
-      this.containerHeight - 1,
-    )
-      }${xBorderDown}${OO}`;
+    const border = `${OO}${xBorderUp}${newLine}${
+      yBorder.repeat(
+        this.containerHeight - 1,
+      )
+    }${xBorderDown}${OO}`;
     print(cursorTo(0, 0), eraseDown, ansi.style.brightWhite, border);
   }
 
@@ -225,7 +241,29 @@ class UserInterface {
     return false;
   }
 
-  // Main navigation functions
+  //#region Handle key press
+
+  static printKeyMaps() {
+    const h = ansi.styles(["blue", "underline", "bold"]);
+    const r = ansi.style.reset;
+    const g = ansi.styles(["cyan", "bold"]);
+    const keyMaps = `
+${h} Key Maps                                        ${r}
+
+ ${g}k/ArrowUp             ${r}: Move Up
+ ${g}l/ArrowRight          ${r}: Move Right
+ ${g}j/ArrowDown           ${r}: Move down
+ ${g}h/ArrowLeft           ${r}: Move Left
+ ${g}L/PageDown            ${r}: Next page
+ ${g}H/PageUp              ${r}: Previous page
+ ${g}Enter                 ${r}: Apply/Download wallpaper
+ ${g}q                     ${r}: Quit
+${h}                                                 ${r}
+`;
+
+    print(keyMaps);
+  }
+
   moveLeft() {
     if (!this.moveSelection(-1) && !this.changePage(-1)) {
       this.wrapSelection(-1);
@@ -308,38 +346,7 @@ class UserInterface {
     await handleKeysPress(keyPressHandlers);
   }
 
-  static printKeyMaps() {
-    const keys = [
-      "k/ArrowUp",
-      "l/ArrowRight",
-      "j/ArrowDown",
-      "h/ArrowLeft",
-      "L/PageDown",
-      "H/PageUp",
-      "Enter",
-      "q"
-    ]
-
-    const actions = [
-      "Move Up",
-      "Move Right",
-      "Move down",
-      "Move Left",
-      "Next page",
-      "Previous page",
-      "Apply/Download wallpaper",
-      "Quit"
-    ]
-
-    let keyMaps = []
-    for (const i in keys) {
-      const key = keys[i];
-      const line = `${key} ${' '.repeat(15 - key.length)}: ${actions[i]}`
-      keyMaps.push(line)
-    }
-
-    print(keyMaps.join('\n'))
-  }
+  //#endregion
 }
 
 export { UserInterface };

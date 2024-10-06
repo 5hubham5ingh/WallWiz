@@ -6,17 +6,23 @@ import {
   cursorShow,
 } from "../justjs/src/just-js/helpers/cursor.js";
 import { exec as execAsync } from "../justjs/src/process.js";
-import { notify, promiseQueueWithLimit } from "./utils.js";
+import utils from "./utils.js";
 import { ensureDir } from "../justjs/src/fs.js";
 import { ansi } from "../justjs/src/just-js/helpers/ansiStyle.js";
+/**
+ * @typedef {import('./types.ts').UserArguments} UserArguments
+ */
 
 export default class WallpaperSetter {
+  /**
+   * @param {UserArguments} userArguments - The parsed user arguments.
+   */
   constructor(userArguments) {
     this.userArguments = userArguments;
     this.homeDir = std.getenv("HOME");
     this.picCacheDir = this.homeDir.concat("/.cache/WallWiz/pic/");
-    ;
-    ensureDir(this.picCacheDir)
+
+    ensureDir(this.picCacheDir);
     this.wallpapers = this.loadWallpapers();
     this.themeManager = new Theme(
       this.picCacheDir,
@@ -72,9 +78,10 @@ export default class WallpaperSetter {
 
     if (!wallpapers.length) {
       print(
-        `No wallpapers found in "${ansi.styles(["bold", "underline", "red"]) +
-        this.userArguments.wallpapersDirectory +
-        ansi.style.reset
+        `No wallpapers found in "${
+          ansi.styles(["bold", "underline", "red"]) +
+          this.userArguments.wallpapersDirectory +
+          ansi.style.reset
         }".`,
       );
       print(cursorShow);
@@ -156,7 +163,7 @@ export default class WallpaperSetter {
     } else return;
 
     print("Caching images...");
-    await promiseQueueWithLimit(
+    await utils.promiseQueueWithLimit(
       createWallpaperCachePromisesQueue,
     );
     print("Done");
@@ -207,9 +214,13 @@ export default class WallpaperSetter {
       `${this.userArguments.wallpapersDirectory}/${wallpaperName}`;
     try {
       await this.wallpaperDaemonHandler(wallpaperDir);
-      await notify("Wallpaper changed:", wallpaperName);
+      await utils.notify("Wallpaper changed:", wallpaperName, "normal");
     } catch (error) {
-      notify("Error wallpaper daemon handler script.", error);
+      await utils.notify(
+        "Error in wallpaper daemon handler script.",
+        error,
+        "critical",
+      );
     }
   }
 }

@@ -7,28 +7,60 @@ import {
 import WallpaperDownloadManager from "./wallpaperDownloadManager.js";
 import WallpaperSetter from "./wallpapersManager.js";
 import { UserInterface } from "./userInterface.js";
+import Utils from "./utils.js";
+
+/**
+ * @typedef {import('./types.ts').UserArguments} UserArguments
+ */
 
 "use strip";
-
 class WallWiz {
   constructor() {
+    /**
+     * Parsed command-line arguments.
+     * @type {UserArguments}
+     */
     this.userArguments = this.parseArguments();
-    this.utils;
+
+    // Set process limit for parallel operations
+    Utils.pLimit = this.userArguments.processLimit;
+
+    // Enable or disable notifications based on user preference
+    Utils.enableNotification = !this.userArguments.disableNotification;
+
+    // Set auto-scaling option for the user interface
+    UserInterface.autoScalingTerminal = !this.userArguments.disableAutoScaling;
   }
 
   async run() {
+    // Set the terminal to raw mode for better input handling
     os.ttySetRaw();
-    this.handleShowKeymaps();
-    await this.handleThemeExtensionScriptDownload();
-    await this.handleWallpaperHandlerScriptDownload();
-    await this.handleWallpaperBrowsing();
-    await this.handleWallpaperSetter();
-    std.exit(0);
+    try {
+      // Handle various operations based on user arguments
+      this.handleShowKeymaps();
+      await this.handleThemeExtensionScriptDownload();
+      await this.handleWallpaperHandlerScriptDownload();
+      await this.handleWallpaperBrowsing();
+      await this.handleWallpaperSetter();
+    } catch (error) {
+      // Print any errors that occur during execution
+      print(error);
+    } finally {
+      // Ensure the program exits properly
+      std.exit();
+    }
   }
 
+  /**
+   * Parses the command-line arguments and returns them in a structured format.
+   *
+   * @returns {UserArguments} Parsed user arguments.
+   */
   parseArguments() {
+    // Helper function to split string of format "AxB" into an array of two numbers
     const splitNumbersFromString = (str) => str.split("x").map(Number);
 
+    // Define argument names and their corresponding command-line flags
     const argNames = {
       wallpapersDirectory: "--wall-dir",
       setRandomWallpaper: "--random",
@@ -43,10 +75,12 @@ class WallWiz {
       wallpaperRepositoryUrls: "--repo-url",
       githubApiKey: "--api-key",
       showKeyMap: "--show-keymap",
-      notification: "--disable-notification",
-      processLimit: "--plimit"
+      disableNotification: "--disable-notification",
+      disableAutoScaling: "--disable-autoscaling",
+      processLimit: "--plimit",
     };
 
+    // Define and parse command-line arguments using the 'arg' library
     const userArguments = arg
       .parser({
         [argNames.wallpapersDirectory]: arg
@@ -61,7 +95,7 @@ class WallWiz {
         [argNames.imageSize]: arg
           .str("100x30")
           .reg(/^\d+x\d+$/)
-          .desc("Image size in pixel")
+          .desc("Image size in pixel.")
           .val("WIDTHxHEIGHT")
           .err(
             "Invalid size, it should be of WIDTHxHEIGHT format. \n Ex:- 60x20",
@@ -77,12 +111,12 @@ class WallWiz {
             "Invalid padding, it should of VERTICLE_PADDINGxHORIZONTAL_PADDING format. \n Ex:- 2x1",
           )
           .map(splitNumbersFromString)
-          .desc("Container padding in cells")
+          .desc("Container padding in cells.")
           .val("VERTICLExHORIZONTAL"),
         [argNames.enablePagination]: arg
           .flag(false)
           .desc(
-            "Display wallpapers in a fixed size grid. Remaining wallpapers will be displayed in the next grid upon navigation",
+            "Display wallpapers in a fixed size grid. Remaining wallpapers will be displayed in the next grid upon navigation.",
           ),
         [argNames.gridSize]: arg
           .str("4x4")
@@ -91,11 +125,11 @@ class WallWiz {
             "Invalid grid size. \n Ex:- 4x4",
           )
           .map(splitNumbersFromString)
-          .desc("Wallpaper grid size")
+          .desc("Wallpaper grid size.")
           .val("WIDTHxHEIGHT"),
         [argNames.downloadThemeExtensionScripts]: arg
           .flag(false)
-          .desc("Download theme extension scripts"),
+          .desc("Download theme extension scripts."),
         [argNames.downloadWallpaperDaemonHandlerScript]: arg
           .flag(false)
           .desc("Download wallpaper handler script."),
@@ -109,7 +143,7 @@ class WallWiz {
             /^https:\/\/github\.com\/[a-zA-Z0-9.-]+\/[a-zA-Z0-9.-]+(\/tree\/[a-zA-Z0-9.-]+(\/.*)?)?(\s*;\s*https:\/\/github\.com\/[a-zA-Z0-9.-]+\/[a-zA-Z0-9.-]+(\/tree\/[a-zA-Z0-9.-]+(\/.*)?)?)*$/,
           )
           .map((urls) => urls.split(";").map((url) => url.trim()))
-          .err("Invalid repository url(s)")
+          .err("Invalid repository url(s).")
           .desc("Wallpaper repository github url(s).")
           .val("URL(s)"),
         [argNames.githubApiKey]: arg
@@ -118,7 +152,17 @@ class WallWiz {
           .desc("Github API key."),
         [argNames.showKeyMap]: arg
           .flag(false)
-          .desc('See keymaps of User interface.'),
+          .desc("Display keymaps for the user interface."),
+        [argNames.disableNotification]: arg
+          .flag(false)
+          .desc("Disable desktop notifications."),
+        [argNames.disableAutoScaling]: arg
+          .flag(false)
+          .desc("Disable auto scale terminal size to fit all images."),
+        [argNames.processLimit]: arg
+          .num()
+          .min(1)
+          .desc("Number of execution threads used. (default: auto)"),
         "-d": argNames.wallpapersDirectory,
         "-r": argNames.setRandomWallpaper,
         "-s": argNames.imageSize,
@@ -131,8 +175,10 @@ class WallWiz {
         "-b": argNames.browseWallpaperOnline,
         "-u": argNames.wallpaperRepositoryUrls,
         "-k": argNames.githubApiKey,
-        '-m': argNames.showKeyMap,
-        '-n': argNames.notification
+        "-m": argNames.showKeyMap,
+        "-n": argNames.disableNotification,
+        "-a": argNames.disableAutoScaling,
+        "-x": argNames.processLimit,
       })
       .ex([
         "-d ~/Pics/wallpapers -s 42x10",
@@ -141,74 +187,93 @@ class WallWiz {
       .ver("0.0.1-alpha.5")
       .parse();
 
-    const argumentDictionary = {};
-    for (const argName in argNames) {
-      argumentDictionary[argName] = userArguments[argNames[argName]];
-    }
-    return argumentDictionary;
+    // Convert parsed arguments to a more convenient object format
+    return Object.fromEntries(
+      Object.entries(argNames).map((
+        [key, value],
+      ) => [key, userArguments[value]]),
+    );
   }
 
   async handleThemeExtensionScriptDownload() {
+    // Check if theme extension script download is requested
     if (!this.userArguments.downloadThemeExtensionScripts) return;
     print(
-      "Starting theme extension download manager.\n",
-      "\bFetching list of exteniosn scripts...",
+      "Starting theme extension download manager.",
+      "\bFetching list of extension scripts...",
     );
-    const downloadManager = new ThemeExtensionScriptsDownloadManager();
-    await downloadManager.init().catch((e) => {
+    try {
+      // Initialize and run the theme extension scripts download manager
+      const downloadManager = new ThemeExtensionScriptsDownloadManager();
+      await downloadManager.init();
+      std.exit(0);
+    } catch (error) {
       print(
-        "Failed to start Download manager for theme extension scripts.\n",
-        e,
+        "Failed to start Download manager for theme extension scripts.",
+        error,
       );
-      std.exit(1);
-    });
-    std.exit(0);
+    }
   }
 
   async handleWallpaperHandlerScriptDownload() {
+    // Check if wallpaper daemon handler script download is requested
     if (!this.userArguments.downloadWallpaperDaemonHandlerScript) return;
     print(
-      "Starting wallpaper daemon handler script download manager.\n",
+      "Starting wallpaper daemon handler script download manager.",
       "\bFetching list of available scripts...",
     );
-    const downloadManager = new WallpaperDaemonHandlerScriptDownloadManager();
-    await downloadManager.init().catch((e) => {
+    try {
+      // Initialize and run the wallpaper daemon handler script download manager
+      const downloadManager = new WallpaperDaemonHandlerScriptDownloadManager();
+      await downloadManager.init();
+      std.exit(0);
+    } catch (error) {
       print(
         "Failed to start downloadManager for wallpaper daemon handle script.",
-        e,
+        error,
       );
-      std.exit(1);
-    });
-    std.exit(0);
+    }
   }
 
   async handleWallpaperBrowsing() {
+    // Check if online wallpaper browsing is requested
     if (!this.userArguments.browseWallpaperOnline) return;
-    const wallpaperDownloadManager = new WallpaperDownloadManager(
-      this.userArguments,
-    );
-    await wallpaperDownloadManager.init()
-      .catch((e) => {
-        print("Failed to initialize WallpaperDownloadManager.", e);
-        std.exit(2);
-      });
+    try {
+      // Initialize and run the wallpaper download manager for online browsing
+      const wallpaperDownloadManager = new WallpaperDownloadManager(
+        this.userArguments,
+      );
+      await wallpaperDownloadManager.init();
+    } catch (error) {
+      print(
+        "Failed to initialize WallpaperDownloadManager.",
+        error,
+      );
+    }
   }
 
   async handleWallpaperSetter() {
-    const wallpaperSetter = new WallpaperSetter(this.userArguments);
-    await wallpaperSetter.init()
-      .catch((e) => {
-        print("Failed to initialize WallpaperSetter.", e);
-        std.exit(1);
-      });
+    try {
+      // Initialize and run the wallpaper setter
+      const wallpaperSetter = new WallpaperSetter(this.userArguments);
+      await wallpaperSetter.init();
+    } catch (error) {
+      print(
+        "Failed to initialize WallpaperSetter.",
+        error,
+      );
+    }
   }
 
   handleShowKeymaps() {
+    // Check if showing keymaps is requested
     if (!this.userArguments.showKeyMap) return;
-    UserInterface.printKeyMaps()
-    std.exit(0)
+    // Display keymaps and exit the program
+    UserInterface.printKeyMaps();
+    std.exit(0);
   }
 }
 
+// Create an instance of WallWiz and run the application
 const wallWiz = new WallWiz();
-await wallWiz.run().catch((e) => print("Failed to initialize WallWiz:", e));
+await wallWiz.run();

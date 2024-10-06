@@ -2,14 +2,16 @@ import { Curl, curlRequest } from "../justjs/src/curl.js";
 import { ensureDir } from "../justjs/src/fs.js";
 import { exec as execAsync } from "../justjs/src/process.js";
 import { std } from "./quickJs.js";
-import { writeFile } from "./utils.js";
+import utils from "./utils.js";
 
 export default class Download {
   constructor(sourceRepoUrl, destinationDir) {
     this.destinationDir = destinationDir;
     this.sourceRepoUrl = Download.ensureGitHubApiUrl(sourceRepoUrl);
     this.downloadItemList;
-    this.apiCacheDir = std.getenv("HOME").homeDir.concat("/.cache/WallWiz/api/");
+    this.apiCacheDir = std.getenv("HOME").homeDir.concat(
+      "/.cache/WallWiz/api/",
+    );
     this.apiCacheFilePath = this.apiCacheDir.concat("apiCache.json");
     this.apiCacheFile = std.loadFile(this.apiCacheFilePath);
     this.apiCache = this.apiCacheFile
@@ -68,7 +70,7 @@ export default class Download {
         cache = updatedData;
       }
     });
-    writeFile(JSON.stringify(this.apiCache), this.apiCacheDir);
+    utils.writeFile(JSON.stringify(this.apiCache), this.apiCacheDir);
   }
 
   async downloadItemInDestinationDir() {
