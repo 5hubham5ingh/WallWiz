@@ -3,16 +3,18 @@
  * @description Manages the download and preview of wallpapers
  */
 import { ProcessSync } from "../justjs/src/process.js";
-import Download from "./downloadManager.js";
+import Download from "./downloadManagerOld.js";
 import { UserInterface } from "./userInterface.js";
 import { clearTerminal } from "../justjs/src/just-js/helpers/cursor.js";
 import utils from "./utils.js";
+import { HOME_DIR } from "./constant.js";
 import * as std from 'std';
 import * as os from 'os';
 
 /**
  * @typedef {import('./types.ts').IOs} IOs
  * @typedef {import('./types.ts').IStd} IStd
+  * @typedef {import('./types.ts').UserArguments} UserArguments
  */
 
 /**
@@ -29,11 +31,10 @@ const { os, std } = { os, std };
 export default class WallpaperDownloadManager extends Download {
   /**
    * @constructor
-   * @param {Object} userArguments - User-provided arguments
+   * @param {UserArguments} userArguments - User-provided arguments
    */
   constructor(userArguments) {
-    const downloadDestinationDirectory = `${std.getenv("HOME")
-      }/.cache/WallWiz/.temp/`;
+    const downloadDestinationDirectory = `${HOME_DIR}/.cache/WallWiz/.temp/`;
     super(userArguments.wallpaperRepositoryUrls, downloadDestinationDirectory);
 
     this.userArguments = userArguments;

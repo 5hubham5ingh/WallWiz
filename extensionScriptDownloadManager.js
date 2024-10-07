@@ -4,6 +4,7 @@ import Download from "./downloadManager.js";
 import { ensureDir } from "../justjs/src/fs.js";
 import { ansi } from "../justjs/src/just-js/helpers/ansiStyle.js";
 import * as std from "std"
+import { HOME_DIR } from "./constant.js";
 
 /**
  * @typedef {import('./types.ts').IStd} IStd
@@ -18,7 +19,7 @@ const std = std;
 class ExtensionScriptsDownloader extends Download {
   constructor(...all) {
     super(...all);
-    this.homeDir = std.getenv("HOME");
+    this.homeDir = HOME_DIR
     this.tempDir = "/tmp/WallWiz/";
     this.downloadItemMenu;
     ensureDir(this.tempDir);

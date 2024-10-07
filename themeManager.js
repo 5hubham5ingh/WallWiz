@@ -4,6 +4,7 @@ import utils from "./utils.js";
 import { ensureDir } from "../justjs/src/fs.js";
 import * as os from 'os'
 import * as std from 'std'
+import { HOME_DIR } from "./constant.js";
 
 /**
  * @typedef {import('./types.ts').IOs} IOs
@@ -31,7 +32,7 @@ class Theme {
     this.wallpaperDir = wallpaperDir;
     this.wallpaper = wallpaper;
     this.enableLightTheme = enableLightTheme;
-    this.homeDir = std.getenv("HOME");
+    this.homeDir = HOME_DIR
     this.cacheBaseDir = `${this.homeDir}/.cache/WallWiz`;
     this.wallpaperColoursCacheDir = `${this.cacheBaseDir}/colours/`;
     this.wallpaperThemeCacheDir = `${this.cacheBaseDir}/themes/`;

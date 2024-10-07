@@ -1,5 +1,4 @@
 import { Theme } from "./themeManager.js";
-import { os, std } from "./quickJs.js";
 import { UserInterface } from "./userInterface.js";
 import {
   clearTerminal,
@@ -11,6 +10,7 @@ import { ensureDir } from "../justjs/src/fs.js";
 import { ansi } from "../justjs/src/just-js/helpers/ansiStyle.js";
 import * as os from 'os'
 import * as std from 'std'
+import { HOME_DIR } from "./constant.js";
 /**
  * @typedef {import('./types.ts').IOs} IOs
  */
@@ -33,7 +33,7 @@ export default class WallpaperSetter {
    */
   constructor(userArguments) {
     this.userArguments = userArguments;
-    this.homeDir = std.getenv("HOME");
+    this.homeDir = HOME_DIR
     this.picCacheDir = this.homeDir.concat("/.cache/WallWiz/pic/");
 
     ensureDir(this.picCacheDir);
@@ -105,7 +105,7 @@ export default class WallpaperSetter {
   }
 
   async loadWallpaperDaemonHandlerScript() {
-    const extensionDir = std.getenv("HOME").concat("/.config/WallWiz/");
+    const extensionDir = this.homeDir.concat("/.config/WallWiz/");
     ensureDir(extensionDir);
     const scriptNames = os.readdir(extensionDir)[0]
       .filter((name) => name !== "." && name !== ".." && name.endsWith(".js"));
