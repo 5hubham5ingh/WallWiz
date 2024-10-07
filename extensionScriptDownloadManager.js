@@ -3,6 +3,7 @@ import { ProcessSync } from "../justjs/src/process.js";
 import Download from "./downloadManager.js";
 import { std } from "./quickJs.js";
 import { ensureDir } from "../justjs/src/fs.js";
+import { ansi } from "../justjs/src/just-js/helpers/ansiStyle.js";
 
 class ExtensionScriptsDownloader extends Download {
   constructor(...all) {
@@ -45,8 +46,12 @@ class ExtensionScriptsDownloader extends Download {
       script.tmpFile
     )
       .join("\n");
+
+
+    const header = `${ansi.style.bold}${ansi.style.brightCyan}"Type program name to search for ${kindOfScript}."`
+
     const filter = new ProcessSync(
-      `fzf -m --delimiter / --with-nth -1 --preview="cat {}"  --preview-window="down:40%,wrap" --preview-label=" Description " --layout="reverse" --header="Type program name to search for ${kindOfScript}." --header-first --border=double --border-label=" ${kindOfScript} "`,
+      `fzf -m --delimiter / --with-nth -1 --preview="cat {}"  --preview-window="down:40%,wrap" --preview-label=" Description " --layout="reverse" --header=${header} --header-first --border=double --border-label=" ${kindOfScript} "`,
       {
         input: tempScriptsPaths,
         useShell: true,
@@ -80,7 +85,7 @@ class ThemeExtensionScriptsDownloadManager extends ExtensionScriptsDownloader {
   constructor() {
     const themeExtensionSourceRepoUrl =
       `https://api.github.com/repos/5hubham5ingh/WallWiz/contents/themeExtensionScripts`;
-    const themeExtensionScriptDestinationDir = this.homeDir.concat(
+    const themeExtensionScriptDestinationDir = std.getenv('HOME').concat(
       "/.config/WallWiz/themeExtensionScripts/",
     );
     super([themeExtensionSourceRepoUrl], themeExtensionScriptDestinationDir);
@@ -100,7 +105,7 @@ class WallpaperDaemonHandlerScriptDownloadManager
   constructor() {
     const themeExtensionSourceRepoUrl =
       `https://api.github.com/repos/5hubham5ingh/WallWiz/contents/wallpaperDaemonHandlerScripts`;
-    const themeExtensionScriptDestinationDir = this.homeDir.concat(
+    const themeExtensionScriptDestinationDir = std.getenv('HOME').concat(
       "/.config/WallWiz/",
     );
     super([themeExtensionSourceRepoUrl], themeExtensionScriptDestinationDir);
