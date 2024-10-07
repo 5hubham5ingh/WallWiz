@@ -9,6 +9,19 @@ import { exec as execAsync } from "../justjs/src/process.js";
 import utils from "./utils.js";
 import { ensureDir } from "../justjs/src/fs.js";
 import { ansi } from "../justjs/src/just-js/helpers/ansiStyle.js";
+import QJS from "./quickJs.js";
+/**
+ * @typedef {import('./types.ts').IOs} IOs
+ */
+/**
+ * @typedef {import('./types.ts').IStd} IStd
+ */
+
+/**
+* @type {{ os: IOs, std: IStd }}
+ */
+const { os, std } = QJS;
+
 /**
  * @typedef {import('./types.ts').UserArguments} UserArguments
  */
@@ -78,10 +91,9 @@ export default class WallpaperSetter {
 
     if (!wallpapers.length) {
       print(
-        `No wallpapers found in "${
-          ansi.styles(["bold", "underline", "red"]) +
-          this.userArguments.wallpapersDirectory +
-          ansi.style.reset
+        `No wallpapers found in "${ansi.styles(["bold", "underline", "red"]) +
+        this.userArguments.wallpapersDirectory +
+        ansi.style.reset
         }".`,
       );
       print(cursorShow);

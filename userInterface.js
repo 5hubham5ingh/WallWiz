@@ -1,5 +1,4 @@
 import { exec as execAsync } from "../justjs/src/process.js";
-import { os, std } from "./quickJs.js";
 import {
   clearTerminal,
   cursorHide,
@@ -14,6 +13,18 @@ import {
   keySequences,
 } from "../justjs/src/just-js/helpers/terminal.js";
 import utils from "./utils.js";
+import QJS from "./quickJs.js";
+/**
+ * @typedef {import('./types.ts').IOs} IOs
+ */
+/**
+ * @typedef {import('./types.ts').IStd} IStd
+ */
+
+/**
+* @type {{ os: IOs, std: IStd }}
+ */
+const { os, std } = QJS;
 
 "use strip";
 
@@ -203,11 +214,10 @@ class UserInterface {
     const xBorderDown = " ╰" + "─".repeat(this.containerWidth - 1) + "╯";
     const newLine = cursorMove(-1 * (this.containerWidth + 2), 1);
     const yBorder = ` │${" ".repeat(this.containerWidth - 1)}│${newLine}`;
-    const border = `${OO}${xBorderUp}${newLine}${
-      yBorder.repeat(
-        this.containerHeight - 1,
-      )
-    }${xBorderDown}${OO}`;
+    const border = `${OO}${xBorderUp}${newLine}${yBorder.repeat(
+      this.containerHeight - 1,
+    )
+      }${xBorderDown}${OO}`;
     print(cursorTo(0, 0), eraseDown, ansi.style.brightWhite, border);
   }
 

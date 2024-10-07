@@ -1,9 +1,19 @@
 import { curlRequest } from "../justjs/src/curl.js";
 import { ProcessSync } from "../justjs/src/process.js";
 import Download from "./downloadManager.js";
-import { std } from "./quickJs.js";
 import { ensureDir } from "../justjs/src/fs.js";
 import { ansi } from "../justjs/src/just-js/helpers/ansiStyle.js";
+import QJS from "./quickJs.js";
+
+/**
+ * @typedef {import('./types.ts').IStd} IStd
+ */
+
+
+/**
+* @type {{ std: IStd }}
+ */
+const { std } = QJS;
 
 class ExtensionScriptsDownloader extends Download {
   constructor(...all) {

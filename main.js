@@ -1,4 +1,3 @@
-import { os, std } from "./quickJs.js";
 import arg from "../justjs/src/arg.js";
 import {
   ThemeExtensionScriptsDownloadManager,
@@ -8,6 +7,18 @@ import WallpaperDownloadManager from "./wallpaperDownloadManager.js";
 import WallpaperSetter from "./wallpapersManager.js";
 import { UserInterface } from "./userInterface.js";
 import Utils from "./utils.js";
+import QJS from "./quickJs.js";
+/**
+ * @typedef {import('./types.ts').IOs} IOs
+ */
+/**
+ * @typedef {import('./types.ts').IStd} IStd
+ */
+
+/**
+* @type {{ os: IOs, std: IStd }}
+ */
+const { os, std } = QJS;
 
 /**
  * @typedef {import('./types.ts').UserArguments} UserArguments

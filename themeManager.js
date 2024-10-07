@@ -1,8 +1,19 @@
 import { exec as execAsync } from "../justjs/src/process.js";
-import { os, std } from "./quickJs.js";
 import { clearTerminal } from "../justjs/src/just-js/helpers/cursor.js";
 import utils from "./utils.js";
 import { ensureDir } from "../justjs/src/fs.js";
+import QJS from "./quickJs.js";
+/**
+ * @typedef {import('./types.ts').IOs} IOs
+ */
+/**
+ * @typedef {import('./types.ts').IStd} IStd
+ */
+
+/**
+* @type {{ os: IOs, std: IStd }}
+ */
+const { os, std } = QJS;
 
 "use strip";
 
@@ -116,9 +127,8 @@ class Theme {
     };
 
     const isThemeConfCached = (wallpaperName, scriptName) => {
-      const cacheDir = `${this.appThemeCacheDir[scriptName]}${
-        this.getThemeName(wallpaperName, true)
-      }`;
+      const cacheDir = `${this.appThemeCacheDir[scriptName]}${this.getThemeName(wallpaperName, true)
+        }`;
       const scriptDir = `${this.themeExtensionScriptsBaseDir}${scriptName}`;
       const [cacheStat, cacheErr] = os.stat(cacheDir);
       const [scriptStat, scriptErr] = os.stat(scriptDir);
@@ -180,9 +190,8 @@ class Theme {
     const themeName = this.getThemeName(wallpaperName);
     const promises = Object.entries(this.themeExtensionScripts).map(
       async ([scriptName, themeHandler]) => {
-        const currentThemePath = `${
-          this.appThemeCacheDir[scriptName]
-        }${themeName}`;
+        const currentThemePath = `${this.appThemeCacheDir[scriptName]
+          }${themeName}`;
         const [, err] = os.stat(currentThemePath);
 
         if (err === 0) {

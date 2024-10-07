@@ -2,10 +2,18 @@
  * @file Utils.js
  * @description Utility class for process management, notifications, and file operations
  */
-
 import { ansi } from "../justjs/src/just-js/helpers/ansiStyle.js";
 import { exec as execAsync } from "../justjs/src/process.js";
-import { std } from "./quickJs.js";
+import QJS from "./quickJs.js";
+
+/**
+ * @typedef {import('./types.ts').IStd} IStd
+ */
+
+/**
+* @type {{ std: IStd }}
+ */
+const { std } = QJS;
 
 class Utils {
   /**
@@ -87,9 +95,8 @@ class Utils {
 
     if (!Utils.enableNotification) return;
 
-    const command = `notify-send -u ${
-      validUrgencies.includes(urgency) ? urgency : validUrgencies[1]
-    } "${title}" "${message}"`;
+    const command = `notify-send -u ${validUrgencies.includes(urgency) ? urgency : validUrgencies[1]
+      } "${title}" "${message}"`;
 
     try {
       await execAsync(command);
