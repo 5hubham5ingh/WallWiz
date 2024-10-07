@@ -2,8 +2,7 @@ import { Curl, curlRequest } from "../justjs/src/curl.js";
 import { ensureDir } from "../justjs/src/fs.js";
 import { exec as execAsync } from "../justjs/src/process.js";
 import utils from "./utils.js";
-import QJS from "./quickJs.js";
-
+import * as std from 'std'
 /**
  * @typedef {import('./types.ts').IStd} IStd
  */
@@ -11,9 +10,9 @@ import QJS from "./quickJs.js";
 
 /**
  * Parsed command-line arguments.
-* @type {{ std: IStd }}
+* @type {IStd}
  */
-const { std } = QJS;
+const std = std;
 
 export default class Download {
   constructor(sourceRepoUrl, destinationDir) {

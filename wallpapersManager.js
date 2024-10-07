@@ -9,7 +9,8 @@ import { exec as execAsync } from "../justjs/src/process.js";
 import utils from "./utils.js";
 import { ensureDir } from "../justjs/src/fs.js";
 import { ansi } from "../justjs/src/just-js/helpers/ansiStyle.js";
-import QJS from "./quickJs.js";
+import * as os from 'os'
+import * as std from 'std'
 /**
  * @typedef {import('./types.ts').IOs} IOs
  */
@@ -20,7 +21,7 @@ import QJS from "./quickJs.js";
 /**
 * @type {{ os: IOs, std: IStd }}
  */
-const { os, std } = QJS;
+const { os, std } = { os, std };
 
 /**
  * @typedef {import('./types.ts').UserArguments} UserArguments

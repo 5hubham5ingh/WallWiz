@@ -4,16 +4,15 @@
  */
 import { ansi } from "../justjs/src/just-js/helpers/ansiStyle.js";
 import { exec as execAsync } from "../justjs/src/process.js";
-import QJS from "./quickJs.js";
-
+import * as std from 'std'
 /**
  * @typedef {import('./types.ts').IStd} IStd
  */
 
 /**
-* @type {{ std: IStd }}
+* @type {IStd}
  */
-const { std } = QJS;
+const std = std;
 
 class Utils {
   /**

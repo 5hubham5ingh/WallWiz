@@ -7,18 +7,19 @@ import Download from "./downloadManager.js";
 import { UserInterface } from "./userInterface.js";
 import { clearTerminal } from "../justjs/src/just-js/helpers/cursor.js";
 import utils from "./utils.js";
-import QJS from "./quickJs.js";
+import * as std from 'std';
+import * as os from 'os';
+
 /**
  * @typedef {import('./types.ts').IOs} IOs
- */
-/**
  * @typedef {import('./types.ts').IStd} IStd
  */
 
 /**
-* @type {{ os: IOs, std: IStd }}
+ * @type {{ os: IOs, std: IStd }}
  */
-const { os, std } = QJS;
+const { os, std } = { os, std };
+
 
 /**
  * @class WallpaperDownloadManager

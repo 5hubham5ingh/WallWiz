@@ -13,18 +13,17 @@ import {
   keySequences,
 } from "../justjs/src/just-js/helpers/terminal.js";
 import utils from "./utils.js";
-import QJS from "./quickJs.js";
+import * as os from 'os'
+import * as std from 'std'
 /**
  * @typedef {import('./types.ts').IOs} IOs
- */
-/**
  * @typedef {import('./types.ts').IStd} IStd
- */
+*/
 
 /**
 * @type {{ os: IOs, std: IStd }}
  */
-const { os, std } = QJS;
+const { os, std } = { os, std };
 
 "use strip";
 

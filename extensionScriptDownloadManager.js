@@ -3,7 +3,7 @@ import { ProcessSync } from "../justjs/src/process.js";
 import Download from "./downloadManager.js";
 import { ensureDir } from "../justjs/src/fs.js";
 import { ansi } from "../justjs/src/just-js/helpers/ansiStyle.js";
-import QJS from "./quickJs.js";
+import * as std from "std"
 
 /**
  * @typedef {import('./types.ts').IStd} IStd
@@ -11,9 +11,9 @@ import QJS from "./quickJs.js";
 
 
 /**
-* @type {{ std: IStd }}
+* @type {IStd}
  */
-const { std } = QJS;
+const std = std;
 
 class ExtensionScriptsDownloader extends Download {
   constructor(...all) {

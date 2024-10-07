@@ -2,18 +2,18 @@ import { exec as execAsync } from "../justjs/src/process.js";
 import { clearTerminal } from "../justjs/src/just-js/helpers/cursor.js";
 import utils from "./utils.js";
 import { ensureDir } from "../justjs/src/fs.js";
-import QJS from "./quickJs.js";
+import * as os from 'os'
+import * as std from 'std'
+
 /**
  * @typedef {import('./types.ts').IOs} IOs
- */
-/**
  * @typedef {import('./types.ts').IStd} IStd
  */
 
 /**
 * @type {{ os: IOs, std: IStd }}
  */
-const { os, std } = QJS;
+const { os, std } = { os, std };
 
 "use strip";
 

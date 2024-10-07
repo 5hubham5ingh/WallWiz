@@ -7,22 +7,19 @@ import WallpaperDownloadManager from "./wallpaperDownloadManager.js";
 import WallpaperSetter from "./wallpapersManager.js";
 import { UserInterface } from "./userInterface.js";
 import Utils from "./utils.js";
-import QJS from "./quickJs.js";
+import * as os from 'os'
+import * as std from 'std'
 /**
  * @typedef {import('./types.ts').IOs} IOs
- */
-/**
  * @typedef {import('./types.ts').IStd} IStd
+ * @typedef {import('./types.ts').UserArguments} UserArguments
  */
 
 /**
 * @type {{ os: IOs, std: IStd }}
  */
-const { os, std } = QJS;
+const { os, std } = { os, std };
 
-/**
- * @typedef {import('./types.ts').UserArguments} UserArguments
- */
 
 "use strip";
 class WallWiz {
