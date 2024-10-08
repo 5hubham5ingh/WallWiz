@@ -55,7 +55,7 @@ export default class WallpaperDownloadManager extends Download {
       await this.downloadItemInDestinationDir();
       await this.previewWallpapersForDownload();
     } catch (error) {
-      print("WallpaperDownloadManager's Initialization failed:", error);
+      utils.notify("WallpaperDownloadManager's Initialization failed:", error, 'error');
     }
   }
 

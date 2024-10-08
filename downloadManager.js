@@ -24,71 +24,84 @@ export default class Download {
     ensureDir(this.destinationDir);
     this.apiCacheFilePath = HOME_DIR.concat("/.cache/WallWiz/apiCache.json");
     this.apiCacheFile = std.loadFile(this.apiCacheFilePath);
-    this.apiCache = this.apiCacheFile ? std.parseExtJSON(this.apiCacheFile) ?? [] : [];
+    this.apiCache = this.apiCacheFile ? std.parseExtJSON(this.apiCacheFile) : [];
   }
 
-  async fetchItemListFromRepo() {
+
+  async fetch(url, headers) {
 
     const upsertCache = (updatedData) => {
-      let updated = false;
-      this.apiCache.forEach((cache) => {
+      const writeCache = () =>
+        utils.writeFile(JSON.stringify(this.apiCache), this.apiCacheFilePath);
+
+      for (const cache of this.apiCache) {
         if (cache.url === updatedData.url) {
           cache = updatedData;
-          updated = true;
+          writeCache();
+          return
         }
-      });
-      if (!updated)
-        this.apiCache.push(updatedData);
-      utils.writeFile(JSON.stringify(this.apiCache), this.apiCacheFilePath);
+      }
+
+      this.apiCache.push(updatedData);
+      writeCache();
     }
 
+    const currentCache = this.apiCache.find((cache) =>
+      cache.url === url
+    ) ?? { url };
+
+    const curl = new Curl(url, {
+      parseJson: true,
+      headers: {
+        "if-none-match": currentCache?.etag,
+        ...headers
+      },
+    });
+
+    await curl.run()
+      .catch((error) => {
+        utils.notify("Failed to fetch list of theme extension scripts.", error, "error");
+      });
+
+    if (curl.statusCode === 304) {
+      return currentCache.data;
+    }
+
+    if (curl.failed) utils.notify("Error:", curl.error, 'error');
+
+    currentCache.etag = curl.headers.etag;
+    currentCache.data = curl.body;
+    upsertCache(currentCache);
+    return curl.body;
+
+  }
+
+
+  async fetchItemListFromRepo() {
     const responses = await Promise.all(
-      this.sourceRepoUrls.map(async (sourceRepoUrl) => {
-        const currentCache = this.apiCache.find((cache) =>
-          cache.url === sourceRepoUrl
-        ) ?? { url: sourceRepoUrl };
-
-        const curl = new Curl(sourceRepoUrl, {
-          parseJson: true,
-          headers: {
-            "if-none-match": currentCache?.etag,
-          },
-        });
-
-        await curl.run()
-          .catch((error) => {
-            utils.notify("Failed to fetch list of theme extension scripts.", error, "error");
-          });
-
-        if (curl.statusCode !== 304 && !curl.failed) {
-          currentCache.etag = curl.headers.etag;
-          currentCache.data = curl.body;
-          upsertCache(currentCache);
-          return curl.body;
-        }
-        return currentCache.data;
-      }),
+      this.sourceRepoUrls.map(this.fetch.bind(this)),
     );
+
     return responses.reduce((acc, itemList) => {
-      Array.prototype.push.apply(acc, itemList);
+      Array.prototype.push.apply(acc, itemList)
       return acc;
     }, []);
   }
 
 
-  async downloadItemInDestinationDir() {
-    if (!this.downloadItemList) {
+  async downloadItemInDestinationDir(itemList = this.downloadItemList, destinationDir = this.destinationDir) {
+    if (!itemList) {
       utils.notify("No item selected.", "Select atleast one item.", "error");
       return;
     }
 
     const fileListForCurl = [];
 
-    for (const item of this.downloadItemList) {
+    for (const item of itemList) {
       print(item.name);
       fileListForCurl.push([
         item.downloadUrl,
-        this.destinationDir.concat("/", item.name),
+        destinationDir.concat("/", item.name),
       ]);
     }
     await execAsync(Download.generateCurlParallelCommand(fileListForCurl))

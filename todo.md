@@ -3,3 +3,4 @@
 - Auto enable grid mode when screen size insufficient.
 - Use workers for theme handler scripts for parallelism.
 - Refactored colours cache code to use in memory cache and stored the cache in single json.
+- Modify download manager to make the download function return the reult intead of setting it to the class variable.
