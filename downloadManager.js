@@ -27,6 +27,7 @@ export default class Download {
     this.apiCache = this.apiCacheFile ? std.parseExtJSON(this.apiCacheFile) : [];
   }
 
+  static GITHUB_API_KEY;
 
   async fetch(url, headers) {
 
@@ -34,7 +35,7 @@ export default class Download {
       const writeCache = () =>
         utils.writeFile(JSON.stringify(this.apiCache), this.apiCacheFilePath);
 
-      for (const cache of this.apiCache) {
+      for (let cache of this.apiCache) {
         if (cache.url === updatedData.url) {
           cache = updatedData;
           writeCache();
@@ -54,6 +55,7 @@ export default class Download {
       parseJson: true,
       headers: {
         "if-none-match": currentCache?.etag,
+        Authorization: Download.GITHUB_API_KEY ? `token ${Download.GITHUB_API_KEY}` : null,
         ...headers
       },
     });
@@ -90,11 +92,6 @@ export default class Download {
 
 
   async downloadItemInDestinationDir(itemList = this.downloadItemList, destinationDir = this.destinationDir) {
-    if (!itemList) {
-      utils.notify("No item selected.", "Select atleast one item.", "error");
-      return;
-    }
-
     const fileListForCurl = [];
 
     for (const item of itemList) {
@@ -135,7 +132,7 @@ export default class Download {
     const match = gitHubUrl.match(githubRegex);
 
     if (!match) {
-      throw new Error("Invalid GitHub URL format. " + gitHubUrl);
+      utils.notify("Invalid GitHub URL format.", gitHubUrl, 'error')
     }
 
     const [_, owner, repo, branch, , directoryPath] = match;

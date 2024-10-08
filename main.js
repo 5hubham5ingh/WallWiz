@@ -9,6 +9,7 @@ import { UserInterface } from "./userInterface.js";
 import Utils from "./utils.js";
 import * as os from 'os'
 import * as std from 'std'
+import Download from "./downloadManager.js";
 /**
  * @typedef {import('./types.ts').IOs} IOs
  * @typedef {import('./types.ts').IStd} IStd
@@ -38,6 +39,9 @@ class WallWiz {
 
     // Set auto-scaling option for the user interface
     UserInterface.autoScalingTerminal = !this.userArguments.disableAutoScaling;
+
+    // Set Github api key 
+    Download.GITHUB_API_KEY = this.userArguments.githubApiKey ?? null;
   }
 
   async run() {
