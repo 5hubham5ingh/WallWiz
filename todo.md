@@ -1,4 +1,3 @@
-- Auto enable grid mode when screen size insufficient.
 - Use workers for theme handler scripts for parallelism.
 - Refactored colours cache code to use in memory cache and stored the cache in single json.
 - github api testing remaining.
