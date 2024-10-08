@@ -2,92 +2,83 @@ import { Curl, curlRequest } from "../justjs/src/curl.js";
 import { ensureDir } from "../justjs/src/fs.js";
 import { exec as execAsync } from "../justjs/src/process.js";
 import { HOME_DIR } from "./constant.js";
-import utils from "./utils.js";
-import * as std from 'std'
+import utils from "./utils.js"
+import * as std from "std"
 /**
  * @typedef {import('./types.ts').IStd} IStd
  */
 
 
 /**
- * Parsed command-line arguments.
 * @type {IStd}
  */
 const std = std;
 
 export default class Download {
-  constructor(sourceRepoUrl, destinationDir) {
+  constructor(sourceRepoUrls, destinationDir) {
     this.destinationDir = destinationDir;
-    this.sourceRepoUrl = Download.ensureGitHubApiUrl(sourceRepoUrl);
-    this.downloadItemList;
-    this.apiCacheDir = HOME_DIR.concat(
-      "/.cache/WallWiz/api/",
+    this.sourceRepoUrls = sourceRepoUrls.map((url) =>
+      Download.ensureGitHubApiUrl(url)
     );
-    this.apiCacheFilePath = this.apiCacheDir.concat("apiCache.json");
-    this.apiCacheFile = std.loadFile(this.apiCacheFilePath);
-    this.apiCache = this.apiCacheFile
-      ? std.parseExtJSON(this.apiCacheFile)
-      : null;
-
+    this.downloadItemList;
     ensureDir(this.destinationDir);
-    ensureDir(this.apiCacheDir);
+    this.apiCacheFilePath = HOME_DIR.concat("/.cache/WallWiz/apiCache.json");
+    this.apiCacheFile = std.loadFile(this.apiCacheFilePath);
+    this.apiCache = this.apiCacheFile ? std.parseExtJSON(this.apiCacheFile) ?? [] : [];
   }
 
   async fetchItemListFromRepo() {
-    let currentCache;
-    if (this.apiCache) {
-      currentCache = this.apiCache.find((cache) =>
-        cache.url === this.sourceRepoUrl
-      );
-    } else {
-      // initialise api cache
-      this.apiCache = [{ url: this.sourceRepoUrl }];
-    }
 
-    const curl = new Curl(this.sourceRepoUrl, {
-      parseJson: true,
-      headers: {
-        etag: currentCache?.etag,
-      },
-    });
-
-    await curl.run()
-      .catch((error) => {
-        print("Failed to fetch list of theme extension scripts.", error);
+    const upsertCache = (updatedData) => {
+      let updated = false;
+      this.apiCache.forEach((cache) => {
+        if (cache.url === updatedData.url) {
+          cache = updatedData;
+          updated = true;
+        }
       });
-
-    print(curl.headers.etag)
-    if (curl.statusCode !== 304 && !curl.failed) {
-      currentCache.etag = curl.headers.etag;
-      currentCache.data = curl.body;
-      this.updateCache(currentCache);
-      return curl.body;
+      if (!updated)
+        this.apiCache.push(updatedData);
+      utils.writeFile(JSON.stringify(this.apiCache), this.apiCacheFilePath);
     }
 
-    if (!currentCache) {
-      currentCache = {
-        url: this.sourceRepoUrl,
-        etag: curl.headers.etag,
-        data: curl.body,
-      };
-      this.updateCache(currentCache);
-      return currentCache.data;
-    }
-    throw new Error("Something went wrong.");
+    const responses = await Promise.all(
+      this.sourceRepoUrls.map(async (sourceRepoUrl) => {
+        const currentCache = this.apiCache.find((cache) =>
+          cache.url === sourceRepoUrl
+        ) ?? { url: sourceRepoUrl };
+
+        const curl = new Curl(sourceRepoUrl, {
+          parseJson: true,
+          headers: {
+            "if-none-match": currentCache?.etag,
+          },
+        });
+
+        await curl.run()
+          .catch((error) => {
+            utils.notify("Failed to fetch list of theme extension scripts.", error, "error");
+          });
+
+        if (curl.statusCode !== 304 && !curl.failed) {
+          currentCache.etag = curl.headers.etag;
+          currentCache.data = curl.body;
+          upsertCache(currentCache);
+          return curl.body;
+        }
+        return currentCache.data;
+      }),
+    );
+    return responses.reduce((acc, itemList) => {
+      Array.prototype.push.apply(acc, itemList);
+      return acc;
+    }, []);
   }
 
-  updateCache(updatedData) {
-    this.apiCache.forEach((cache) => {
-      if (cache.url === updatedData.url) {
-        cache = updatedData;
-      }
-    });
-    utils.writeFile(JSON.stringify(this.apiCache), this.apiCacheDir);
-  }
 
   async downloadItemInDestinationDir() {
     if (!this.downloadItemList) {
-      print("No item selected.");
+      utils.notify("No item selected.", "Select atleast one item.", "error");
       return;
     }
 
@@ -100,13 +91,8 @@ export default class Download {
         this.destinationDir.concat("/", item.name),
       ]);
     }
-
-    print("Downloading...");
-
     await execAsync(Download.generateCurlParallelCommand(fileListForCurl))
-      .catch((e) => print("Download failed:", e));
-
-    print("Items downloaded:", fileListForCurl.length);
+      .catch((e) => utils.notify("Download failed:", e, "error"));
   }
 
   static generateCurlParallelCommand(fileList) {
@@ -132,18 +118,18 @@ export default class Download {
 
     // Ensure the input is a valid GitHub URL
     const githubRegex =
-      /https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/tree\/([^\/]+)\/(.+)/;
+      /https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/tree\/([^\/]+)(\/(.+))?/;
     const match = gitHubUrl.match(githubRegex);
 
     if (!match) {
-      throw new Error("Invalid GitHub URL format.");
+      throw new Error("Invalid GitHub URL format. " + gitHubUrl);
     }
 
-    const [_, owner, repo, branch, directoryPath] = match;
+    const [_, owner, repo, branch, , directoryPath] = match;
 
     // Construct the GitHub API URL
-    const apiUrl =
-      `https://api.github.com/repos/${owner}/${repo}/contents/${directoryPath}?ref=${branch}`;
+    const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${directoryPath || ""
+      }?ref=${branch}`;
 
     return apiUrl;
   }

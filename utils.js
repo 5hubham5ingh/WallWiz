@@ -112,16 +112,12 @@ class Utils {
    */
   writeFile(content, path) {
     if (typeof content !== "string") {
-      print("Error: Content must be a string");
+      this.notify("Type Error:", "Error: Content must be a string", 'error');
       return;
     }
-    try {
-      const fileHandler = std.open(path, "w+");
-      fileHandler.puts(content);
-      fileHandler.close();
-    } catch (e) {
-      print(`Error writing to file ${path}:`, e);
-    }
+    const fileHandler = std.open(path, "w+");
+    fileHandler.puts(content);
+    fileHandler.close();
   }
 }
 

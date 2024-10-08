@@ -63,13 +63,13 @@ You can download the executable binary from the [GitHub releases](https://github
 - Download it from [here](https://github.com/5hubham5ingh/WallWiz/tree/main/wallpaperDaemonHandlerScripts).
 - Or, run
   ```bash
-  WallWiz --dwh
+  WallWiz -w
   ```
 ##### Theme extension scripts
 - Download it from [here](https://github.com/5hubham5ingh/WallWiz/tree/main/themeExtensionScripts).
 - Or, run
   ```bash
-  WallWiz --dte
+  WallWiz -t
   ```
 ***Note:*** [curl](https://github.com/curl/curl) and [fzf](https://github.com/junegunn/fzf) are required to download and filter script from command line.
 #### Option 2: Write your own custom scripts
@@ -146,10 +146,6 @@ Contributions are welcome! Feel free to submit pull requests.
 - The beginning of the script should contain information about it. For reference, check out the [existing scripts](https://github.com/5hubham5ingh/WallWiz/tree/main/themeExtensionScripts).
   
 - To contribute wallpapers, visit the [wallpapers repository](https://github.com/5hubham5ingh/WallWiz/tree/wallpapers).
-
-## Future Plans
-
-- Support for other terminal emulators that supports kitty graphic protocol.
 
 ## License
 
