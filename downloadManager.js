@@ -95,7 +95,7 @@ export default class Download {
     const fileListForCurl = [];
 
     for (const item of itemList) {
-      print(item.name);
+      print('- ', item.name);
       fileListForCurl.push([
         item.downloadUrl,
         destinationDir.concat("/", item.name),

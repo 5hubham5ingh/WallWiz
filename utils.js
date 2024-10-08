@@ -67,7 +67,7 @@ class Utils {
    * @description Sends a desktop notification or prints to console based on urgency and notification settings
    * @param {string} title - The notification title
    * @param {string} message - The notification message
-   * @param {string} [urgency='normal'] - The urgency level of the notification ('low', 'normal', 'critical', or 'error')
+   * @param {'normal' | "critical" | 'low' | 'error'} [urgency='normal'] - The urgency level of the notification ('low', 'normal', 'critical', or 'error')
    * @returns {Promise<void>}
    */
   async notify(title, message, urgency = "normal") {

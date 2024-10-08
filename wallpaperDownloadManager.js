@@ -10,6 +10,7 @@ import utils from "./utils.js";
 import { HOME_DIR } from "./constant.js";
 import * as std from 'std';
 import * as os from 'os';
+import { ansi } from "../justjs/src/just-js/helpers/ansiStyle.js";
 
 /**
  * @typedef {import('./types.ts').IOs} IOs
@@ -91,7 +92,7 @@ export default class WallpaperDownloadManager extends Download {
     if (filter.run()) {
       const filteredWallpapers = filter.stdout.trim().split("\n");
       if (filteredWallpapers.length) {
-        print("Fetching wallpapers for preview");
+        print(ansi.styles(['bold', 'blue']), "\n Fetching wallpapers for preview\n", ansi.style.reset);
         this.downloadItemList = this.downloadItemMenu.filter((wallpaper) =>
           filteredWallpapers.includes(wallpaper.name)
         );
@@ -141,7 +142,7 @@ export default class WallpaperDownloadManager extends Download {
       await UI.init();
       this.removeTempWallpapers(tempDownloadedWallpapers);
     } catch (error) {
-      print("Failed to preview wallpapers for download:", error);
+      utils.notify("Failed to preview wallpapers for download:", error, 'error');
     }
   }
 
@@ -168,7 +169,7 @@ export default class WallpaperDownloadManager extends Download {
         "normal",
       );
     } catch (error) {
-      print(clearTerminal, "HandleSelection:", error);
+      utils.notify("HandleSelection:", error, 'error');
     }
   }
 }
