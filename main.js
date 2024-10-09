@@ -1,3 +1,4 @@
+import * as _ from './constant.js'
 import arg from "../justjs/src/arg.js";
 import {
   ThemeExtensionScriptsDownloadManager,
@@ -7,19 +8,11 @@ import WallpaperDownloadManager from "./wallpaperDownloadManager.js";
 import WallpaperSetter from "./wallpapersManager.js";
 import { UserInterface } from "./userInterface.js";
 import Utils from "./utils.js";
-import * as os from 'os'
-import * as std from 'std'
 import Download from "./downloadManager.js";
-/**
- * @typedef {import('./types.ts').IOs} IOs
- * @typedef {import('./types.ts').IStd} IStd
- * @typedef {import('./types.ts').UserArguments} UserArguments
- */
 
 /**
-* @type {{ os: IOs, std: IStd }}
+ * @typedef {import('./types.ts').UserArguments} UserArguments
  */
-const { os, std } = { os, std };
 
 
 "use strip";

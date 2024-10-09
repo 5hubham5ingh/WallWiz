@@ -17,9 +17,6 @@ export type UserArguments = {
   processLimit: number;
 };
 
-declare global {
-  let userArguments: UserArguments
-}
 
 export type ColourCache = {
   [uid: string]: string[]
@@ -238,5 +235,10 @@ export interface IStd {
 }
 
 //#endregion
-
 //#endregion
+
+declare global {
+  let userArguments: UserArguments;
+  const os: IOs;
+  const std: IStd;
+}

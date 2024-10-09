@@ -1,11 +1,6 @@
 import * as std from 'std'
-/**
- * @typedef {import("./types.ts").IStd} IStd
- * */
+import * as os from 'os'
 
-/**
- * @type {IStd}
- */
-const std = std;
-
+globalThis.os = os;
+globalThis.std = std;
 export const HOME_DIR = std.getenv("HOME")
