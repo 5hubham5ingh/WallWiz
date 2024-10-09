@@ -62,14 +62,14 @@ export default class Download {
 
     await curl.run()
       .catch((error) => {
-        utils.notify("Failed to fetch list of theme extension scripts.", error, "error");
+        utils.error("Failed to fetch list of theme extension scripts.", error);
       });
 
     if (curl.statusCode === 304) {
       return currentCache.data;
     }
 
-    if (curl.failed) utils.notify("Error:", curl.error, 'error');
+    if (curl.failed) utils.error("Error:", curl.error);
 
     currentCache.etag = curl.headers.etag;
     currentCache.data = curl.body;
@@ -102,7 +102,7 @@ export default class Download {
       ]);
     }
     await execAsync(Download.generateCurlParallelCommand(fileListForCurl))
-      .catch((e) => utils.notify("Download failed:", e, "error"));
+      .catch((e) => utils.error("Download failed:", e));
   }
 
   static generateCurlParallelCommand(fileList) {
@@ -132,7 +132,7 @@ export default class Download {
     const match = gitHubUrl.match(githubRegex);
 
     if (!match) {
-      utils.notify("Invalid GitHub URL format.", gitHubUrl, 'error')
+      utils.error("Invalid GitHub URL format.", gitHubUrl)
     }
 
     const [_, owner, repo, branch, , directoryPath] = match;

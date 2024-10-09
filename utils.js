@@ -3,6 +3,7 @@
  * @description Utility class for process management, notifications, and file operations
  */
 import { ansi } from "../justjs/src/just-js/helpers/ansiStyle.js";
+import { cursorShow } from "../justjs/src/just-js/helpers/cursor.js";
 import { exec as execAsync } from "../justjs/src/process.js";
 import * as std from 'std'
 /**
@@ -38,7 +39,7 @@ class Utils {
       this.notify(
         "Failed to get process limit. Using default value = 4",
         e,
-        "low",
+        "critical",
       );
       return 4;
     }
@@ -62,35 +63,34 @@ class Utils {
     await Promise.all(executing);
   }
 
+  error(source, error) {
+    print(
+      "\n",
+      ansi.styles(["bold", "red"]),
+      source,
+      ":",
+      ansi.style.reset,
+      "\n",
+      ansi.style.red,
+      error,
+      ansi.style.reset,
+      "\n",
+      cursorShow
+    );
+    std.exit(1);
+  };
+
+
   /**
    * @method notify
    * @description Sends a desktop notification or prints to console based on urgency and notification settings
    * @param {string} title - The notification title
    * @param {string} message - The notification message
-   * @param {'normal' | "critical" | 'low' | 'error'} [urgency='normal'] - The urgency level of the notification ('low', 'normal', 'critical', or 'error')
+   * @param {'normal' | "critical" | 'low' } [urgency='normal'] - The urgency level of the notification ('low', 'normal' or 'critical' )
    * @returns {Promise<void>}
    */
   async notify(title, message, urgency = "normal") {
     const validUrgencies = ["low", "normal", "critical"];
-    const notifyError = (source = title, error = message) => {
-      print(
-        "\n",
-        ansi.styles(["bold", "red"]),
-        source,
-        ":",
-        ansi.style.reset,
-        "\n",
-        ansi.style.red,
-        error,
-        ansi.style.reset,
-        "\n",
-      );
-      std.exit(1);
-    };
-
-    if (urgency === "error") {
-      notifyError();
-    }
 
     if (!Utils.enableNotification) return;
 
@@ -100,7 +100,7 @@ class Utils {
     try {
       await execAsync(command);
     } catch (e) {
-      notifyError("Failed to send notification.", e);
+      this.error("Failed to send notification.", e);
     }
   }
 
@@ -112,8 +112,7 @@ class Utils {
    */
   writeFile(content, path) {
     if (typeof content !== "string") {
-      this.notify("Type Error:", "Error: Content must be a string", 'error');
-      return;
+      throw TypeError('File content to wrtie must be string.')
     }
     const fileHandler = std.open(path, "w+");
     fileHandler.puts(content);

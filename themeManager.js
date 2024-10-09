@@ -105,7 +105,7 @@ class Theme {
         !script.setTheme || !script.getDarkThemeConf ||
         !script.getLightThemeConf
       ) {
-        utils.notify(`Missing required functions- "setTheme","getDarkThemeConf" or "getLightThemeConf".`, `Extension script: ${extensionPath}`, 'error');
+        utils.error(`Missing required functions- "setTheme","getDarkThemeConf" or "getLightThemeConf".`, `Extension script: ${extensionPath}`);
       }
 
       this.themeExtensionScripts[fileName] = script;
@@ -127,14 +127,14 @@ class Theme {
       const [scriptStat, scriptErr] = os.stat(scriptDir);
 
       if (scriptErr !== 0) {
-        utils.notify('Failed to read script status.', 'Script name: '.concat(scriptName), 'error')
+        utils.error('Failed to read script status.', 'Script name: '.concat(scriptName))
       }
       return cacheErr === 0 && cacheStat.mtime > scriptStat.mtime;
     };
 
     for (const wp of this.wallpaper) {
       const colours = this.getCachedColours(wp.uniqueId);
-      if (!colours) utils.notify("Cache miss", `Wallpaper name: ${wp.name}; Colours cache id: ${wp.uniqueId};`, "error")
+      if (!colours) utils.error("Cache miss", `Wallpaper name: ${wp.name}; Colours cache id: ${wp.uniqueId};`)
       for (
         const [scriptName, themeHandler] of Object.entries(
           this.themeExtensionScripts,
@@ -186,7 +186,7 @@ class Theme {
         if (err === 0) {
           return themeHandler.setTheme(currentThemePath, execAsync);
         } else {
-          utils.notify('Cache miss', `Wallpaper: ${wallpaperName}; Theme path: ${currentThemePath}.`, 'error')
+          utils.error('Cache miss', `Wallpaper: ${wallpaperName}; Theme path: ${currentThemePath}.`)
         }
       },
     );

@@ -12,20 +12,15 @@ import * as os from 'os'
 import * as std from 'std'
 import { HOME_DIR } from "./constant.js";
 /**
- * @typedef {import('./types.ts').IOs} IOs
- */
-/**
  * @typedef {import('./types.ts').IStd} IStd
+ * @typedef {import('./types.ts').IOs} IOs
+ * @typedef {import('./types.ts').UserArguments} UserArguments
  */
 
 /**
 * @type {{ os: IOs, std: IStd }}
  */
 const { os, std } = { os, std };
-
-/**
- * @typedef {import('./types.ts').UserArguments} UserArguments
- */
 
 export default class WallpaperSetter {
   /**
@@ -50,7 +45,7 @@ export default class WallpaperSetter {
     await this.handleWallpaperCacheCreation();
     await this.themeManager.init()
       .catch((e) => {
-        print("Failed to initialize themeManager:\n", e);
+        print('Error in themeManager init')
         throw e;
       });
     await this.handleSettingRandomWallpaper();
@@ -62,8 +57,7 @@ export default class WallpaperSetter {
       this.userArguments.wallpapersDirectory,
     );
     if (error !== 0)
-      utils.notify('Failed to read wallpapers directory', this.userArguments.wallpapersDirectory,
-        'error');
+      utils.error('Failed to read wallpapers directory', this.userArguments.wallpapersDirectory);
     const wallpapers = imgFiles.filter(
       (name) =>
         name !== "." && name !== ".." && this.isSupportedImageFormat(name),
@@ -73,7 +67,7 @@ export default class WallpaperSetter {
       );
 
       if (error)
-        utils.notify('Failed to read wallpaper stat for', this.wallpapers.concat(name), 'error');
+        utils.error('Failed to read wallpaper stat for', this.wallpapers.concat(name));
       const { dev, ino } = stats;
       return {
         name,
@@ -82,14 +76,8 @@ export default class WallpaperSetter {
     });
 
     if (!wallpapers.length) {
-      print(
-        `No wallpapers found in "${ansi.styles(["bold", "underline", "red"]) +
-        this.userArguments.wallpapersDirectory +
-        ansi.style.reset
-        }".`,
-      );
-      print(cursorShow);
-      std.exit(2);
+      utils.error("No wallpaper found in ".concat(this.userArguments.wallpapersDirectory),
+        "Male sure the supported image file exists in the directory.")
     }
 
     return wallpapers;
@@ -101,22 +89,20 @@ export default class WallpaperSetter {
     const scriptNames = os.readdir(extensionDir)[0]
       .filter((name) => name !== "." && name !== ".." && name.endsWith(".js"));
     if (scriptNames.length > 1) {
-      throw new Error(`Too many scripts found in the ${extensionDir}.`);
+      utils.error(`Too many scripts found in the ${extensionDir}.`, 'Only one script is required');
     }
     if (scriptNames.length) {
       const extensionPath = extensionDir.concat(scriptNames[0]);
       const wallpaperDaemonHandler = await import(extensionPath);
       if (!wallpaperDaemonHandler.default) {
-        print("No default export found in ", extensionPath);
-        std.exit(2);
+        utils.error("No default export found in ", extensionPath);
       }
       this.wallpaperDaemonHandler = wallpaperDaemonHandler.default;
     } else {
-      print(
+      utils.error(
         "Failed to find any wallpaper daemon handler script in " + extensionDir,
-        '\n Run "WallWiz --dwh" to download it if you do not have a wallpaper daemon handler script.',
+        'Run "WallWiz --dwh" to download it if you do not have a wallpaper daemon handler script.',
       );
-      std.exit(2);
     }
   }
 
@@ -149,11 +135,7 @@ export default class WallpaperSetter {
         cachePicName,
       ])
         .catch((e) => {
-          print(
-            "Failed to create wallpaper cache. Make sure ImageMagick is installed in your system",
-            e,
-          );
-          std.exit(2);
+          utils.error("Failed to create wallpaper cache", "Make sure ImageMagick is installed in your system")
         });
     };
 

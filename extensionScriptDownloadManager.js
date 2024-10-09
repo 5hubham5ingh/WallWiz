@@ -70,7 +70,7 @@ class ExtensionScriptsDownloader extends Download {
     filter.run();
 
     if (!filter.success) {
-      utils.notify("Error", filter.stderr || "No item selected.", 'error');
+      utils.error("Error", filter.stderr || "No item selected.");
     }
 
     const filteredItem = filter.stdout.split("\n");

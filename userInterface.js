@@ -91,20 +91,18 @@ class UserInterface {
 
   async increaseTerminalSize() {
     const handleError = () =>
-      utils.notify(
+      utils.error(
         "Insufficient screen size.",
         "You can use pagination, or reduce the image preview size.",
-        "error",
       );
 
     if (!UserInterface.autoScalingTerminal) handleError();
 
     await execAsync(["kitty", "@", "set-font-size", "--", "-1"]).catch(
       (_e) => {
-        utils.notify(
+        utils.error(
           "Terminal size too small.",
           "Either set it manually or enable kitty remote control for automatic scaling.",
-          "error",
         );
       },
     );

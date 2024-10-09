@@ -29,6 +29,7 @@ class WallWiz {
      * Parsed command-line arguments.
      * @type {UserArguments}
      */
+    globalThis.userArguments = this.parseArguments();
     this.userArguments = this.parseArguments();
 
     // Set process limit for parallel operations

@@ -56,7 +56,8 @@ export default class WallpaperDownloadManager extends Download {
       await this.downloadItemInDestinationDir();
       await this.previewWallpapersForDownload();
     } catch (error) {
-      utils.notify("WallpaperDownloadManager's Initialization failed:", error, 'error');
+      print("Error in WallpaperDownloadManager's init")
+      throw error
     }
   }
 
@@ -121,8 +122,9 @@ export default class WallpaperDownloadManager extends Download {
     try {
       const [tempDownloadedWallpapers, error] = os.readdir(this.destinationDir);
       if (error !== 0) {
-        throw new Error(
-          `Failed to read temporary download files from ${this.destinationDir}`,
+        utils.error(
+          `Failed to read temporary downloaded files`,
+          this.destinationDir
         );
       }
 
@@ -142,7 +144,8 @@ export default class WallpaperDownloadManager extends Download {
       await UI.init();
       this.removeTempWallpapers(tempDownloadedWallpapers);
     } catch (error) {
-      utils.notify("Failed to preview wallpapers for download:", error, 'error');
+      print("Failed to preview wallpapers for download:");
+      throw error;
     }
   }
 
@@ -160,16 +163,16 @@ export default class WallpaperDownloadManager extends Download {
 
       const error = os.rename(sourceWallpaperPath, destinationWallpaperPath);
       if (error) {
-        throw new Error(`Failed to move wallpaper: ${error}`);
+        utils.error(`Failed to move wallpaper`, `Error code: ${error}`);
       }
-
       await utils.notify(
         "Download complete:",
         destinationWallpaperPath,
         "normal",
       );
     } catch (error) {
-      utils.notify("HandleSelection:", error, 'error');
+      print('Error in handleWallpaperSelection.')
+      throw error;
     }
   }
 }
