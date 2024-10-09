@@ -1,3 +1,6 @@
 - Use workers for theme handler scripts for parallelism.
-- Refactored colours cache code to use in memory cache and stored the cache in single json.
+- Refactored colours : testing remains.
 - github api testing remaining.
+- Refactor:
+  - Make user arguments global by attaching them globaThis, else: All constant will be set in the static prperty of class.
+  - Calculated fields will be passed in the constructor or initialiser.

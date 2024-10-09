@@ -61,13 +61,9 @@ export default class WallpaperSetter {
     const [imgFiles, error] = os.readdir(
       this.userArguments.wallpapersDirectory,
     );
-    if (error !== 0) {
-      print(
-        "Failed to read wallpapers directory: ",
-        this.userArguments.wallpapersDirectory,
-      );
-      std.exit(error);
-    }
+    if (error !== 0)
+      utils.notify('Failed to read wallpapers directory', this.userArguments.wallpapersDirectory,
+        'error');
     const wallpapers = imgFiles.filter(
       (name) =>
         name !== "." && name !== ".." && this.isSupportedImageFormat(name),
@@ -76,13 +72,8 @@ export default class WallpaperSetter {
         this.userArguments.wallpapersDirectory.concat(name),
       );
 
-      if (error) {
-        print(
-          "Failed to read wallpaper stat for :",
-          this.wallpapers.concat(name),
-        );
-        std.exit(error);
-      }
+      if (error)
+        utils.notify('Failed to read wallpaper stat for', this.wallpapers.concat(name), 'error');
       const { dev, ino } = stats;
       return {
         name,

@@ -17,6 +17,10 @@ export type UserArguments = {
   processLimit: number;
 };
 
+export type ColourCache = {
+  [uid: string]: string[]
+}
+
 
 //#region QuickJs 
 //#region os module
