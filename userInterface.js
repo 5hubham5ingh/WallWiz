@@ -251,12 +251,13 @@ class UserInterface {
   //#region Handle key press
 
   static printKeyMaps() {
-    const h = ansi.styles(["blue", "underline", "bold"]);
+    const l = ansi.style.underline;
+    const h = ansi.styles(["red", "bold"]);
     const r = ansi.style.reset;
     const g = ansi.styles(["cyan", "bold"]);
     const keyMaps = `
 ${h} Key Maps                                        ${r}
-
+${l}                                                 ${r}
  ${g}k/ArrowUp             ${r}: Move Up
  ${g}l/ArrowRight          ${r}: Move Right
  ${g}j/ArrowDown           ${r}: Move down
@@ -265,7 +266,7 @@ ${h} Key Maps                                        ${r}
  ${g}H/PageUp              ${r}: Previous page
  ${g}Enter                 ${r}: Apply/Download wallpaper
  ${g}q                     ${r}: Quit
-${h}                                                 ${r}
+${l}                                                 ${r}
 `;
 
     print(keyMaps);

@@ -211,10 +211,6 @@ class WallWiz {
   async handleThemeExtensionScriptDownload() {
     // Check if theme extension script download is requested
     if (!this.userArguments.downloadThemeExtensionScripts) return;
-    print(
-      "Starting theme extension download manager.",
-      "\bFetching list of extension scripts...",
-    );
     try {
       // Initialize and run the theme extension scripts download manager
       const downloadManager = new ThemeExtensionScriptsDownloadManager();
@@ -231,10 +227,6 @@ class WallWiz {
   async handleWallpaperHandlerScriptDownload() {
     // Check if wallpaper daemon handler script download is requested
     if (!this.userArguments.downloadWallpaperDaemonHandlerScript) return;
-    print(
-      "Starting wallpaper daemon handler script download manager.",
-      "\bFetching list of available scripts...",
-    );
     try {
       // Initialize and run the wallpaper daemon handler script download manager
       const downloadManager = new WallpaperDaemonHandlerScriptDownloadManager();

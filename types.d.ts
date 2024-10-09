@@ -17,10 +17,31 @@ export type UserArguments = {
   processLimit: number;
 };
 
+declare global {
+  let userArguments: UserArguments
+}
+
 export type ColourCache = {
   [uid: string]: string[]
 }
 
+export type DownloadItemMenu = {
+  name: string,
+  about: string,
+  downloadUrl: string
+  tmpFile?: string
+}[]
+
+export type ApiCache = {
+  url: string,
+  etag: string,
+  data: any
+}[]
+
+export type DownloadItemList = {
+  name: string,
+  downloadUrl: string
+}[]
 
 //#region QuickJs 
 //#region os module

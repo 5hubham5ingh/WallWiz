@@ -6,6 +6,8 @@ import utils from "./utils.js"
 import * as std from "std"
 /**
  * @typedef {import('./types.ts').IStd} IStd
+ * @typedef {import('./types.ts').ApiCache} ApiCache
+ * @typedef {import('./types.ts').DownloadItemList} DownloadItemList 
  */
 
 
@@ -20,10 +22,17 @@ export default class Download {
     this.sourceRepoUrls = sourceRepoUrls.map((url) =>
       Download.ensureGitHubApiUrl(url)
     );
+
+    /**
+     * @type {DownloadItemList}
+     */
     this.downloadItemList;
     ensureDir(this.destinationDir);
     this.apiCacheFilePath = HOME_DIR.concat("/.cache/WallWiz/apiCache.json");
     this.apiCacheFile = std.loadFile(this.apiCacheFilePath);
+    /**
+      * @type {ApiCache}
+      */
     this.apiCache = this.apiCacheFile ? std.parseExtJSON(this.apiCacheFile) : [];
   }
 
@@ -91,6 +100,10 @@ export default class Download {
   }
 
 
+  /**
+  * @param {DownloadItemList} itemList
+  * @param {string} destinationDir
+  */
   async downloadItemInDestinationDir(itemList = this.downloadItemList, destinationDir = this.destinationDir) {
     const fileListForCurl = [];
 

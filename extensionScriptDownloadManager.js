@@ -7,7 +7,8 @@ import { HOME_DIR } from "./constant.js";
 import utils from "./utils.js";
 
 /**
- * @typedef {import('./types.ts').IStd} IStd
+ * @typedef {import('./types.d.ts').IStd} IStd
+ * @typedef {import('./types.d.ts').DownloadItemMenu} DownloadItemMenu
  */
 
 
@@ -19,8 +20,11 @@ const std = std;
 class ExtensionScriptsDownloader extends Download {
   constructor(...all) {
     super(...all);
-    this.homeDir = HOME_DIR
     this.tempDir = "/tmp/WallWiz/";
+
+    /**
+     * @type {DownloadItemMenu}
+     */
     this.downloadItemMenu;
     ensureDir(this.tempDir);
   }
@@ -53,8 +57,7 @@ class ExtensionScriptsDownloader extends Download {
   promptUserToChooseScriptsToDownload(kindOfScript) {
     const tempScriptsPaths = this.downloadItemMenu.map((script) =>
       script.tmpFile
-    )
-      .join("\n");
+    ).join("\n");
 
 
     const header = `${ansi.style.bold}${ansi.style.brightCyan}"Type program name to search for ${kindOfScript}."`
@@ -104,6 +107,7 @@ class ThemeExtensionScriptsDownloadManager extends ExtensionScriptsDownloader {
   }
 
   async init() {
+    print(" Fetching list of theme extension scripts...")
     const response = await this.fetchItemListFromRepo();
     await this.prepareMenu(response);
     this.writeTempItemInTempDir();
@@ -124,6 +128,10 @@ class WallpaperDaemonHandlerScriptDownloadManager
   }
 
   async init() {
+    print(
+      " Fetching list of wallpaper daemon handler extension scripts...",
+    )
+
     const response = await this.fetchItemListFromRepo();
     await this.prepareMenu(response);
     this.writeTempItemInTempDir();
