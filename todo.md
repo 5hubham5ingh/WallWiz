@@ -1,7 +1,6 @@
 - Use workers for theme handler scripts for parallelism.
-- Refactored colours : testing remains.
 - github api testing remaining.
 - Refactor:
-  - Make user arguments global by attaching them globaThis, else: All constant will be set in the static prperty of class.
-  - Calculated fields will be passed in the constructor or initialiser.
-- Update readme for new arguments
+- Update readme for new arguments and future plan section to include future comming scripts and remove support for other terminals.
+- Full screen mode for wallpaper using kitty overlay window.
+  - the images in the full screen will not the cached one rather the original high quallity ones.

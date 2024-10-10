@@ -17,7 +17,7 @@ export type UserArguments = {
   processLimit: number;
 };
 
-export type ColourCache = {
+export type ColoursCache = {
   [uid: string]: string[];
 };
 
