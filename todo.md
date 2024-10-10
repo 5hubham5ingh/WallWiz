@@ -4,3 +4,4 @@
 - Refactor:
   - Make user arguments global by attaching them globaThis, else: All constant will be set in the static prperty of class.
   - Calculated fields will be passed in the constructor or initialiser.
+- Update readme for new arguments

@@ -107,7 +107,7 @@ WallWiz's functionality can be extended through user-defined JavaScript scripts:
   export default setWallpaper;
   ```
 
-- **System Calls**: The standard modules of QuickJS, such as `std` and `os`, can be imported in the scripts for any necessary system calls.
+- **System Calls**: The standard modules of QuickJS, such as `std` and `os`, can be used in the scripts for any necessary system calls.
 
   If you need to run shell commands asynchronously, `execAsync` callback function can be used like this:
   ```javascript
@@ -130,12 +130,28 @@ WallWiz's functionality can be extended through user-defined JavaScript scripts:
 | `--grid-size`          | `-g`     | `4x4`     | Wallpaper grid size. Format: `WIDTHxHEIGHT`.                                                     |
 | `--theme-extensions`                |    `-t`      | `false`   | Download theme extension scripts.                                                               |
 | `--wallpaper-handler`                |     `-w`     | `false`   | Download wallpaper handler script.                                                              |
-| `--browse`             |   -b     | `false`   | Browse wallpapers online.                                                                       |
-| `--repo-url`           |   -u       | `https://github.com/5hubham5ingh/WallWiz/tree/wallpapers` | Specifies the wallpaper repository GitHub URL(s). Can also be set using the `WALLPAPER_REPO_URLS` environment variable. |
-| `--api-key`            |   -k    | `None`    | Specify the GitHub API key for increasing API's rate limit. Can also be set using the `GITHUB_API_KEY` environment variable. |
+| `--browse`             |   `-b`     | `false`   | Browse wallpapers online.                                                                       |
+| `--repo-url`           |   `-u`       | `https://github.com/5hubham5ingh/WallWiz/tree/wallpapers` | Specifies the wallpaper repository GitHub URL(s). Can also be set using the `WALLPAPER_REPO_URLS` environment variable. |
+| `--api-key`            |   `-k`    | `None`    | Specify the GitHub API key for increasing API's rate limit. Can also be set using the `GITHUB_API_KEY` environment variable. |
 | `-h, --help`           |          |           | Print help.                                                                                     |
 | `--version`            |          |           | Print the program version.                                                                      |
 
+**Example:**
+```bash
+```
+# Browse online wallpapers
+WallWiz -d ~/Pictures -u https://github.com/D3Ext/aesthetic-wallpapers/tree/main/images;https://github.com/5hubham5ingh/WallWiz/tree/wallpapers
+
+# Download theme extension scripts
+WallWiz -t -d ~/Pictures
+
+# Apply wallpaper and light theme
+WallWiz -l -d ~/Pictures/wallpapers
+
+# Enable grid view and disable terminal auto-scaling
+WallWiz -e -a -d ~/Pictures
+```
+```
 ## Contributing
 
 Contributions are welcome! Feel free to submit pull requests.
