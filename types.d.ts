@@ -40,8 +40,16 @@ export type DownloadItemList = {
 }[];
 
 //#region QuickJs
+
 //#region os module
-// Define the File interface
+
+/**
+ * Represents a file in the QuickJS OS module.
+ * @example
+ * const file = OS.open('example.txt', OS.O_RDWR | OS.O_CREAT);
+ * file.puts('Hello, world!');
+ * file.close();
+ */
 interface File {
   close(): number;
   puts(str: string): void;
@@ -62,7 +70,14 @@ interface File {
   putByte(c: number): void;
 }
 
-// Define the FileStatus interface
+/**
+ * Represents file status information in the QuickJS OS module.
+ * @example
+ * const [stat, err] = OS.stat('example.txt');
+ * if (err === 0) {
+ *   console.log(`File size: ${stat.size} bytes`);
+ * }
+ */
 interface FileStatus {
   readonly dev: number;
   readonly ino: number;
@@ -78,7 +93,16 @@ interface FileStatus {
   readonly ctime: number;
 }
 
-// Define the ExecOptions interface
+/**
+ * Options for executing a command in the QuickJS OS module.
+ * @example
+ * const options: ExecOptions = {
+ *   block: true,
+ *   cwd: '/home/user',
+ *   env: { 'PATH': '/usr/bin' }
+ * };
+ * OS.exec(['ls', '-l'], options);
+ */
 interface ExecOptions {
   block?: boolean;
   usePath?: boolean;
@@ -94,6 +118,23 @@ interface ExecOptions {
 
 type OSOperationResult = 0 | Error;
 
+/**
+ * The OS module in QuickJS provides low-level operating system functionalities.
+ * It allows file operations, process management, and system-level interactions.
+ * @example
+ * // Reading a file
+ * const file = OS.open('example.txt', OS.O_RDONLY);
+ * const buffer = new ArrayBuffer(100);
+ * const bytesRead = OS.read(file, buffer, 0, 100);
+ * OS.close(file);
+ *
+ * // Creating a directory
+ * OS.mkdir('/path/to/new/directory');
+ *
+ * // Executing a command
+ * const pid = OS.exec(['ls', '-l'], { block: false });
+ * const [status, _] = OS.waitpid(pid, 0);
+ */
 export interface IOs {
   open(filename: string, flag: number, mode?: unknown): File | -1;
   close(file: File): number;
@@ -136,7 +177,14 @@ export interface IOs {
 
 //#region std module
 
-// Enum for Error handling
+/**
+ * Enum for common error codes in QuickJS.
+ * These can be used for more specific error handling.
+ * @example
+ * if (err === ErrorEnum.ENOENT) {
+ *   console.log('File not found');
+ * }
+ */
 export enum ErrorEnum {
   EACCES = 13,
   EBUSY = 16,
@@ -150,19 +198,55 @@ export enum ErrorEnum {
   EPIPE = 32,
 }
 
+/**
+ * Options for script evaluation in QuickJS.
+ * @example
+ * const options: EvalOptions = { backtrace_barrier: true };
+ * std.evalScript('console.log("Hello");', options);
+ */
 interface EvalOptions {
   backtrace_barrier?: boolean;
 }
 
+/**
+ * Options for URL GET requests in QuickJS.
+ * @example
+ * const content = std.urlGet('https://example.com', { binary: true });
+ */
 interface URLGetOptions {
   binary?: boolean;
   full?: boolean;
 }
 
+/**
+ * Options for error handling in file operations.
+ * @example
+ * const errorObj: ErrorOptions = { errorno: new Error() };
+ * const file = std.open('nonexistent.txt', 'r', errorObj);
+ * if (file === null) {
+ *   console.log(`Error: ${std.strerror(errorObj.errorno)}`);
+ * }
+ */
 interface ErrorOptions {
   errorno: Error;
 }
 
+/**
+ * The std module in QuickJS provides standard library functions.
+ * It includes utilities for I/O, script evaluation, environment variables, and more.
+ * @example
+ * // Writing to standard output
+ * std.puts('Hello, world!');
+ *
+ * // Reading environment variables
+ * const path = std.getenv('PATH');
+ *
+ * // Evaluating a script
+ * std.evalScript('console.log(2 + 2);');
+ *
+ * // Making a URL request
+ * const content = std.urlGet('https://example.com');
+ */
 export interface IStd {
   exit(n: number): void;
   evalScript(script: string, options?: EvalOptions): void;

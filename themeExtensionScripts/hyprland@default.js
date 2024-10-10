@@ -1,7 +1,6 @@
 /*
  For:            Hyprland, https://hyprland.org
- Author:         https://github.com/5hubham5ingh (original)
-                 Modified by Claude (improvements based on Kitty script)
+ Author:         https://github.com/5hubham5ingh
  Prerequisite:   Edit the ~/.config/hypr/hyprland.conf file to add this line-
                  source = "WallWizTheme.conf"
 

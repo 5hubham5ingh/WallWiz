@@ -2,55 +2,63 @@ import { Curl } from "../justjs/src/curl.js";
 import { ensureDir } from "../justjs/src/fs.js";
 import { exec as execAsync } from "../justjs/src/process.js";
 import utils from "./utils.js";
+
 /**
  * @typedef {import('./types.d.ts').ApiCache} ApiCache
  * @typedef {import('./types.d.ts').DownloadItemList} DownloadItemList
  */
 
 export default class Download {
+  /**
+   * @param {string[]} sourceRepoUrls
+   * @param {string} destinationDir
+   */
   constructor(sourceRepoUrls, destinationDir) {
     this.destinationDir = destinationDir;
-    this.sourceRepoUrls = sourceRepoUrls.map((url) =>
-      Download.ensureGitHubApiUrl(url)
-    );
+    this.sourceRepoUrls = sourceRepoUrls.map(Download.ensureGitHubApiUrl);
 
-    /**
-     * @type {DownloadItemList}
-     */
-    this.downloadItemList;
-    ensureDir(this.destinationDir);
-    this.apiCacheFilePath = HOME_DIR.concat("/.cache/WallWiz/apiCache.json");
-    this.apiCacheFile = STD.loadFile(this.apiCacheFilePath);
-    /**
-     * @type {ApiCache}
-     */
-    this.apiCache = this.apiCacheFile ? JSON.parse(this.apiCacheFile) : [];
+    /** @type {DownloadItemList} */
+    this.downloadItemList = [];
+
+    this.apiCacheFilePath = `${HOME_DIR}/.cache/WallWiz/apiCache.json`;
+
+    try {
+      ensureDir(this.destinationDir);
+      const apiCacheFile = STD.loadFile(this.apiCacheFilePath);
+      /** @type {ApiCache} */
+      this.apiCache = apiCacheFile ? JSON.parse(apiCacheFile) : [];
+    } catch (error) {
+      print("Error initializing Download:");
+      throw error;
+    }
   }
 
-  async fetch(url, headers) {
+  /**
+   * Fetch data from a URL with caching support
+   * @param {string} url
+   * @param {Object} [headers]
+   * @returns {Promise<any>}
+   */
+  async fetch(url, headers = {}) {
     const upsertCache = (updatedData) => {
-      const writeCache = () =>
-        utils.writeFile(JSON.stringify(this.apiCache), this.apiCacheFilePath);
-
-      for (let cache of this.apiCache) {
-        if (cache.url === updatedData.url) {
-          cache = updatedData;
-          writeCache();
-          return;
-        }
+      const index = this.apiCache.findIndex((cache) =>
+        cache.url === updatedData.url
+      );
+      if (index !== -1) {
+        this.apiCache[index] = updatedData;
+      } else {
+        this.apiCache.push(updatedData);
       }
-
-      this.apiCache.push(updatedData);
-      writeCache();
+      utils.writeFile(JSON.stringify(this.apiCache), this.apiCacheFilePath);
     };
 
-    const currentCache = this.apiCache.find((cache) => cache.url === url) ??
+    const currentCache = this.apiCache.find((cache) => cache.url === url) ||
       { url };
 
     const curl = new Curl(url, {
       parseJson: true,
       headers: {
-        "if-none-match": currentCache?.etag,
+        "if-none-match": currentCache.etag,
         Authorization: USER_ARGUMENTS.githubApiKey
           ? `token ${USER_ARGUMENTS.githubApiKey}`
           : null,
@@ -58,16 +66,20 @@ export default class Download {
       },
     });
 
-    await curl.run()
-      .catch((error) => {
-        utils.error("Failed to fetch list of theme extension scripts.", error);
-      });
+    try {
+      await curl.run();
+    } catch (error) {
+      print("Failed to fetch data:");
+      throw error;
+    }
 
     if (curl.statusCode === 304) {
       return currentCache.data;
     }
 
-    if (curl.failed) utils.error("Error:", curl.error);
+    if (curl.failed) {
+      utils.error("Curl Error:", curl.error);
+    }
 
     currentCache.etag = curl.headers.etag;
     currentCache.data = curl.body;
@@ -75,20 +87,29 @@ export default class Download {
     return curl.body;
   }
 
+  /**
+   * Fetch item list from all source repositories
+   * @returns {Promise<DownloadItemList>}
+   */
   async fetchItemListFromRepo() {
     const responses = await Promise.all(
-      this.sourceRepoUrls.map(this.fetch.bind(this)),
+      this.sourceRepoUrls.map((url) => this.fetch(url)),
     );
 
     return responses.reduce((acc, itemList) => {
-      Array.prototype.push.apply(acc, itemList);
+      if (Array.isArray(itemList)) {
+        Array.prototype.push.apply(acc, itemList);
+      } else {
+        utils.notify("Invalid item list received:", itemList, "critical");
+      }
       return acc;
     }, []);
   }
 
   /**
-   * @param {DownloadItemList} itemList
-   * @param {string} destinationDir
+   * Download items to the destination directory
+   * @param {DownloadItemList} [itemList]
+   * @param {string} [destinationDir]
    */
   async downloadItemInDestinationDir(
     itemList = this.downloadItemList,
@@ -97,53 +118,57 @@ export default class Download {
     const fileListForCurl = [];
 
     for (const item of itemList) {
-      print("- ", item.name);
       fileListForCurl.push([
         item.downloadUrl,
-        destinationDir.concat("/", item.name),
+        `${destinationDir}/${item.name}`,
       ]);
     }
-    await execAsync(Download.generateCurlParallelCommand(fileListForCurl))
-      .catch((e) => utils.error("Download failed:", e));
+
+    try {
+      await execAsync(Download.generateCurlParallelCommand(fileListForCurl));
+    } catch (error) {
+      utils.error("Download failed:", error);
+    }
   }
 
+  /**
+   * Generate curl command for parallel downloads
+   * @param {Array<[string, string]>} fileList
+   * @returns {string}
+   */
   static generateCurlParallelCommand(fileList) {
-    let curlCommand = "curl --parallel --parallel-immediate";
+    const escapedFileList = fileList.map(([sourceUrl, destPath]) => [
+      sourceUrl.replace(/(["\s'$`\\])/g, "\\$1"),
+      destPath.replace(/(["\s'$`\\])/g, "\\$1"),
+    ]);
 
-    fileList.forEach(([sourceUrl, destPath]) => {
-      const escapedSourceUrl = sourceUrl.replace(/(["\s'$`\\])/g, "\\$1");
-      const escapedDestPath = destPath.replace(/(["\s'$`\\])/g, "\\$1");
-
-      curlCommand += ` -o "${escapedDestPath}" "${escapedSourceUrl}"`;
-    });
-
-    return curlCommand;
+    return "curl --parallel --parallel-immediate " +
+      escapedFileList.map(([sourceUrl, destPath]) =>
+        `-o "${destPath}" "${sourceUrl}"`
+      ).join(" ");
   }
 
+  /**
+   * Ensure the given URL is a valid GitHub API URL
+   * @param {string} gitHubUrl
+   * @returns {string}
+   */
   static ensureGitHubApiUrl(gitHubUrl) {
-    // Check if the URL is already a GitHub API URL
     const apiUrlRegex =
       /^https:\/\/api\.github\.com\/repos\/([^\/]+)\/([^\/]+)\/contents\/(.+)(\?ref=.+)?$/;
     if (apiUrlRegex.test(gitHubUrl)) {
-      return gitHubUrl; // It's already a GitHub API URL
+      return gitHubUrl;
     }
 
-    // Ensure the input is a valid GitHub URL
     const githubRegex =
       /https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/tree\/([^\/]+)(\/(.+))?/;
     const match = gitHubUrl.match(githubRegex);
 
     if (!match) {
-      utils.error("Invalid GitHub URL format.", gitHubUrl);
+      utils.error(`Invalid GitHub URL format`, gitHubUrl);
     }
 
-    const [_, owner, repo, branch, , directoryPath] = match;
-
-    // Construct the GitHub API URL
-    const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${
-      directoryPath || ""
-    }?ref=${branch}`;
-
-    return apiUrl;
+    const [, owner, repo, branch, , directoryPath = ""] = match;
+    return `https://api.github.com/repos/${owner}/${repo}/contents/${directoryPath}?ref=${branch}`;
   }
 }

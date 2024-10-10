@@ -1,7 +1,6 @@
 /*
  For:            Btop, https://github.com/aristocratos/btop
  Author:         https://github.com/5hubham5ingh
-                 Modified by Claude (improvements based on Hyprland script)
  Prerequisite:   Edit the ~/.config/btop/btop.conf file to add this line-
                  color_theme = "WallWiz.theme"
 
@@ -31,9 +30,15 @@ function rgbToHSL(r, g, b) {
     const d = max - min;
     s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
     switch (max) {
-      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-      case g: h = (b - r) / d + 2; break;
-      case b: h = (r - g) / d + 4; break;
+      case r:
+        h = (g - b) / d + (g < b ? 6 : 0);
+        break;
+      case g:
+        h = (b - r) / d + 2;
+        break;
+      case b:
+        h = (r - g) / d + 4;
+        break;
     }
     h /= 6;
   }
@@ -105,12 +110,19 @@ function generateTheme(colors, isDark) {
 
   const middleColors = sortedColors.slice(
     Math.floor(sortedColors.length / 4),
-    Math.floor(sortedColors.length * 3 / 4)
+    Math.floor(sortedColors.length * 3 / 4),
   );
-  const [color1, color2, color3, color4, color5, color6] = selectDistinctColors(middleColors, 6);
+  const [color1, color2, color3, color4, color5, color6] = selectDistinctColors(
+    middleColors,
+    6,
+  );
 
-  const black = isDark ? sortedColors[1] : sortedColors[sortedColors.length - 2];
-  const white = isDark ? sortedColors[sortedColors.length - 2] : sortedColors[1];
+  const black = isDark
+    ? sortedColors[1]
+    : sortedColors[sortedColors.length - 2];
+  const white = isDark
+    ? sortedColors[sortedColors.length - 2]
+    : sortedColors[1];
 
   return {
     background,
@@ -129,7 +141,12 @@ function generateTheme(colors, isDark) {
 }
 
 function generateBtopConfig(theme, isDark) {
-  const invertIfLight = (color) => isDark ? color : rgbToHex(...hslToRGB(...rgbToHSL(...hexToRGB(color)).map((v, i) => i === 2 ? 100 - v : v)));
+  const invertIfLight = (color) =>
+    isDark
+      ? color
+      : rgbToHex(...hslToRGB(
+        ...rgbToHSL(...hexToRGB(color)).map((v, i) => i === 2 ? 100 - v : v),
+      ));
 
   const config = `
 # Main background
