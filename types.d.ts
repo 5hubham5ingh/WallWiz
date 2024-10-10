@@ -17,30 +17,29 @@ export type UserArguments = {
   processLimit: number;
 };
 
-
 export type ColourCache = {
-  [uid: string]: string[]
-}
+  [uid: string]: string[];
+};
 
 export type DownloadItemMenu = {
-  name: string,
-  about: string,
-  downloadUrl: string
-  tmpFile?: string
-}[]
+  name: string;
+  about: string;
+  downloadUrl: string;
+  tmpFile?: string;
+}[];
 
 export type ApiCache = {
-  url: string,
-  etag: string,
-  data: any
-}[]
+  url: string;
+  etag: string;
+  data: object;
+}[];
 
 export type DownloadItemList = {
-  name: string,
-  downloadUrl: string
-}[]
+  name: string;
+  downloadUrl: string;
+}[];
 
-//#region QuickJs 
+//#region QuickJs
 //#region os module
 // Define the File interface
 interface File {
@@ -100,7 +99,12 @@ export interface IOs {
   close(file: File): number;
   seek(file: File, offset: number, whence: number): number;
   read(file: File, buffer: ArrayBuffer, offset: number, length: number): number;
-  write(file: File, buffer: ArrayBuffer, offset: number, length: number): number;
+  write(
+    file: File,
+    buffer: ArrayBuffer,
+    offset: number,
+    length: number,
+  ): number;
   isatty(file: File): boolean;
   ttyGetWinSize(file: File): [number, number] | null;
   ttySetRaw(file: File): void;
@@ -133,7 +137,7 @@ export interface IOs {
 //#region std module
 
 // Enum for Error handling
-enum ErrorEnum {
+export enum ErrorEnum {
   EACCES = 13,
   EBUSY = 16,
   EEXIST = 17,
@@ -167,17 +171,17 @@ export interface IStd {
   open(
     filename: string,
     flags: unknown,
-    errorObj?: ErrorOptions
+    errorObj?: ErrorOptions,
   ): File | null;
   popen(
     command: string,
     flags: unknown,
-    errorObj?: ErrorOptions
+    errorObj?: ErrorOptions,
   ): File | null;
   fdopen(
     file: File,
     flags: unknown,
-    errorObj?: ErrorOptions
+    errorObj?: ErrorOptions,
   ): File | null;
   tmpFile(errorObj?: ErrorOptions): File | null;
   puts(str: string): void;
@@ -186,28 +190,28 @@ export interface IStd {
 
   strerror(errorno: Error): string;
   gc(): void;
-  getenv(name: string): any | undefined;
-  setenv(name: string, value: any): void;
+  getenv(name: string): string | undefined;
+  setenv(name: string, value: string): void;
   unsetenv(name: string): void;
   getenviron(): { readonly [key: string]: string };
   urlGet(url: string): string;
   urlGet(
     url: string,
-    options: { full?: false; binary: false }
+    options: { full?: false; binary: false },
   ): string;
   urlGet(
     url: string,
-    options: { full?: false; binary: true }
+    options: { full?: false; binary: true },
   ): ArrayBuffer;
   urlGet(
     url: string,
-    options: { full: true; binary?: false }
+    options: { full: true; binary?: false },
   ): URLGetOptions;
   urlGet(
     url: string,
-    options: { full: true; binary?: false }
+    options: { full: true; binary?: false },
   ): ArrayBuffer;
-  parseExtJSON(str: string): any;
+  parseExtJSON(str: string): object;
 
   readonly in: File;
   readonly err: File;
@@ -238,7 +242,5 @@ export interface IStd {
 //#endregion
 
 declare global {
-  let userArguments: UserArguments;
-  const os: IOs;
-  const std: IStd;
+  const USER_ARGUMENTS: UserArguments;
 }

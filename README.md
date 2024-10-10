@@ -130,9 +130,9 @@ WallWiz's functionality can be extended through user-defined JavaScript scripts:
 | `--grid-size`          | `-g`     | `4x4`     | Wallpaper grid size. Format: `WIDTHxHEIGHT`.                                                     |
 | `--theme-extensions`                |    `-t`      | `false`   | Download theme extension scripts.                                                               |
 | `--wallpaper-handler`                |     `-w`     | `false`   | Download wallpaper handler script.                                                              |
-| `--browse`             |          | `false`   | Browse wallpapers online.                                                                       |
-| `--repo-url`           |          | `https://github.com/5hubham5ingh/WallWiz/tree/wallpapers` | Specifies the wallpaper repository GitHub URL(s). Can also be set using the `WALLPAPER_REPO_URLS` environment variable. |
-| `--api-key`            |          | `None`    | Specify the GitHub API key for increasing API's rate limit. Can also be set using the `GITHUB_API_KEY` environment variable. |
+| `--browse`             |   -b     | `false`   | Browse wallpapers online.                                                                       |
+| `--repo-url`           |   -u       | `https://github.com/5hubham5ingh/WallWiz/tree/wallpapers` | Specifies the wallpaper repository GitHub URL(s). Can also be set using the `WALLPAPER_REPO_URLS` environment variable. |
+| `--api-key`            |   -k    | `None`    | Specify the GitHub API key for increasing API's rate limit. Can also be set using the `GITHUB_API_KEY` environment variable. |
 | `-h, --help`           |          |           | Print help.                                                                                     |
 | `--version`            |          |           | Print the program version.                                                                      |
 

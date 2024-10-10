@@ -1,4 +1,4 @@
-import * as _ from './constant.js'
+import * as _ from "./globalConstants.js";
 import arg from "../justjs/src/arg.js";
 import {
   ThemeExtensionScriptsDownloadManager,
@@ -7,40 +7,17 @@ import {
 import WallpaperDownloadManager from "./wallpaperDownloadManager.js";
 import WallpaperSetter from "./wallpapersManager.js";
 import { UserInterface } from "./userInterface.js";
-import Utils from "./utils.js";
-import Download from "./downloadManager.js";
-
-/**
- * @typedef {import('./types.ts').UserArguments} UserArguments
- */
-
 
 "use strip";
 class WallWiz {
   constructor() {
-    /**
-     * Parsed command-line arguments.
-     * @type {UserArguments}
-     */
-    globalThis.userArguments = this.parseArguments();
-    this.userArguments = this.parseArguments();
-
-    // Set process limit for parallel operations
-    Utils.pLimit = this.userArguments.processLimit;
-
-    // Enable or disable notifications based on user preference
-    Utils.enableNotification = !this.userArguments.disableNotification;
-
-    // Set auto-scaling option for the user interface
-    UserInterface.autoScalingTerminal = !this.userArguments.disableAutoScaling;
-
-    // Set Github api key 
-    Download.GITHUB_API_KEY = this.userArguments.githubApiKey ?? null;
+    globalThis.USER_ARGUMENTS = this.parseArguments();
   }
 
   async run() {
     // Set the terminal to raw mode for better input handling
-    os.ttySetRaw();
+    OS.ttySetRaw();
+
     try {
       // Handle various operations based on user arguments
       this.handleShowKeymaps();
@@ -53,14 +30,14 @@ class WallWiz {
       print(error);
     } finally {
       // Ensure the program exits properly
-      std.exit();
+      STD.exit();
     }
   }
 
   /**
    * Parses the command-line arguments and returns them in a structured format.
    *
-   * @returns {UserArguments} Parsed user arguments.
+   * @returns {typeof USER_ARGUMENTS} Parsed user arguments.
    */
   parseArguments() {
     // Helper function to split string of format "AxB" into an array of two numbers
@@ -203,12 +180,12 @@ class WallWiz {
 
   async handleThemeExtensionScriptDownload() {
     // Check if theme extension script download is requested
-    if (!this.userArguments.downloadThemeExtensionScripts) return;
+    if (!USER_ARGUMENTS.downloadThemeExtensionScripts) return;
     try {
       // Initialize and run the theme extension scripts download manager
       const downloadManager = new ThemeExtensionScriptsDownloadManager();
       await downloadManager.init();
-      std.exit(0);
+      STD.exit(0);
     } catch (error) {
       print(
         "Failed to start Download manager for theme extension scripts.",
@@ -219,12 +196,12 @@ class WallWiz {
 
   async handleWallpaperHandlerScriptDownload() {
     // Check if wallpaper daemon handler script download is requested
-    if (!this.userArguments.downloadWallpaperDaemonHandlerScript) return;
+    if (!USER_ARGUMENTS.downloadWallpaperDaemonHandlerScript) return;
     try {
       // Initialize and run the wallpaper daemon handler script download manager
       const downloadManager = new WallpaperDaemonHandlerScriptDownloadManager();
       await downloadManager.init();
-      std.exit(0);
+      STD.exit(0);
     } catch (error) {
       print(
         "Failed to start downloadManager for wallpaper daemon handle script.",
@@ -235,12 +212,10 @@ class WallWiz {
 
   async handleWallpaperBrowsing() {
     // Check if online wallpaper browsing is requested
-    if (!this.userArguments.browseWallpaperOnline) return;
+    if (!USER_ARGUMENTS.browseWallpaperOnline) return;
     try {
       // Initialize and run the wallpaper download manager for online browsing
-      const wallpaperDownloadManager = new WallpaperDownloadManager(
-        this.userArguments,
-      );
+      const wallpaperDownloadManager = new WallpaperDownloadManager();
       await wallpaperDownloadManager.init();
     } catch (error) {
       print(
@@ -253,7 +228,7 @@ class WallWiz {
   async handleWallpaperSetter() {
     try {
       // Initialize and run the wallpaper setter
-      const wallpaperSetter = new WallpaperSetter(this.userArguments);
+      const wallpaperSetter = new WallpaperSetter();
       await wallpaperSetter.init();
     } catch (error) {
       print(
@@ -265,10 +240,10 @@ class WallWiz {
 
   handleShowKeymaps() {
     // Check if showing keymaps is requested
-    if (!this.userArguments.showKeyMap) return;
+    if (!USER_ARGUMENTS.showKeyMap) return;
     // Display keymaps and exit the program
     UserInterface.printKeyMaps();
-    std.exit(0);
+    STD.exit(0);
   }
 }
 

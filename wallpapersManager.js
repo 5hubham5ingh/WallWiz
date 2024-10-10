@@ -1,42 +1,18 @@
 import { Theme } from "./themeManager.js";
 import { UserInterface } from "./userInterface.js";
-import {
-  clearTerminal,
-  cursorShow,
-} from "../justjs/src/just-js/helpers/cursor.js";
+import { clearTerminal } from "../justjs/src/just-js/helpers/cursor.js";
 import { exec as execAsync } from "../justjs/src/process.js";
 import utils from "./utils.js";
 import { ensureDir } from "../justjs/src/fs.js";
-import { ansi } from "../justjs/src/just-js/helpers/ansiStyle.js";
-import * as os from 'os'
-import * as std from 'std'
-import { HOME_DIR } from "./constant.js";
-/**
- * @typedef {import('./types.ts').IStd} IStd
- * @typedef {import('./types.ts').IOs} IOs
- * @typedef {import('./types.ts').UserArguments} UserArguments
- */
-
-/**
-* @type {{ os: IOs, std: IStd }}
- */
-const { os, std } = { os, std };
 
 export default class WallpaperSetter {
-  /**
-   * @param {UserArguments} userArguments - The parsed user arguments.
-   */
-  constructor(userArguments) {
-    this.userArguments = userArguments;
-    this.homeDir = HOME_DIR
-    this.picCacheDir = this.homeDir.concat("/.cache/WallWiz/pic/");
-
+  constructor() {
+    this.picCacheDir = HOME_DIR.concat("/.cache/WallWiz/pic/");
     ensureDir(this.picCacheDir);
     this.wallpapers = this.loadWallpapers();
     this.themeManager = new Theme(
       this.picCacheDir,
       this.wallpapers,
-      userArguments.enableLightTheme,
     );
   }
 
@@ -45,7 +21,7 @@ export default class WallpaperSetter {
     await this.handleWallpaperCacheCreation();
     await this.themeManager.init()
       .catch((e) => {
-        print('Error in themeManager init')
+        print("Error in themeManager init");
         throw e;
       });
     await this.handleSettingRandomWallpaper();
@@ -53,21 +29,29 @@ export default class WallpaperSetter {
   }
 
   loadWallpapers() {
-    const [imgFiles, error] = os.readdir(
-      this.userArguments.wallpapersDirectory,
+    const [imgFiles, error] = OS.readdir(
+      USER_ARGUMENTS.wallpapersDirectory,
     );
-    if (error !== 0)
-      utils.error('Failed to read wallpapers directory', this.userArguments.wallpapersDirectory);
+    if (error !== 0) {
+      utils.error(
+        "Failed to read wallpapers directory",
+        USER_ARGUMENTS.wallpapersDirectory,
+      );
+    }
     const wallpapers = imgFiles.filter(
       (name) =>
         name !== "." && name !== ".." && this.isSupportedImageFormat(name),
     ).map((name) => {
-      const [stats, error] = os.stat(
-        this.userArguments.wallpapersDirectory.concat(name),
+      const [stats, error] = OS.stat(
+        USER_ARGUMENTS.wallpapersDirectory.concat(name),
       );
 
-      if (error)
-        utils.error('Failed to read wallpaper stat for', this.wallpapers.concat(name));
+      if (error) {
+        utils.error(
+          "Failed to read wallpaper stat for",
+          this.wallpapers.concat(name),
+        );
+      }
       const { dev, ino } = stats;
       return {
         name,
@@ -76,20 +60,25 @@ export default class WallpaperSetter {
     });
 
     if (!wallpapers.length) {
-      utils.error("No wallpaper found in ".concat(this.userArguments.wallpapersDirectory),
-        "Male sure the supported image file exists in the directory.")
+      utils.error(
+        "No wallpaper found in ".concat(USER_ARGUMENTS.wallpapersDirectory),
+        "Male sure the supported image file exists in the directory.",
+      );
     }
 
     return wallpapers;
   }
 
   async loadWallpaperDaemonHandlerScript() {
-    const extensionDir = this.homeDir.concat("/.config/WallWiz/");
+    const extensionDir = HOME_DIR.concat("/.config/WallWiz/");
     ensureDir(extensionDir);
-    const scriptNames = os.readdir(extensionDir)[0]
+    const scriptNames = OS.readdir(extensionDir)[0]
       .filter((name) => name !== "." && name !== ".." && name.endsWith(".js"));
     if (scriptNames.length > 1) {
-      utils.error(`Too many scripts found in the ${extensionDir}.`, 'Only one script is required');
+      utils.error(
+        `Too many scripts found in the ${extensionDir}.`,
+        "Only one script is required",
+      );
     }
     if (scriptNames.length) {
       const extensionPath = extensionDir.concat(scriptNames[0]);
@@ -107,7 +96,7 @@ export default class WallpaperSetter {
   }
 
   async handleWallpaperCacheCreation() {
-    const [cacheNames, error] = os.readdir(this.picCacheDir);
+    const [cacheNames, error] = OS.readdir(this.picCacheDir);
     const doesWallaperCacheExist = () => {
       if (error !== 0) return false;
       const cachedWallpaper = cacheNames.filter(
@@ -125,17 +114,20 @@ export default class WallpaperSetter {
       const cachePicName = this.picCacheDir.concat(
         wallpaper.uniqueId,
       );
-      return execAsync([
+      return await execAsync([
         "magick",
-        this.userArguments.wallpapersDirectory.concat(wallpaper.name),
+        USER_ARGUMENTS.wallpapersDirectory.concat(wallpaper.name),
         "-resize",
         "800x600",
         "-quality",
         "50",
         cachePicName,
       ])
-        .catch((e) => {
-          utils.error("Failed to create wallpaper cache", "Make sure ImageMagick is installed in your system")
+        .catch((_e) => {
+          utils.error(
+            "Failed to create wallpaper cache",
+            "Make sure ImageMagick is installed in your system",
+          );
         });
     };
 
@@ -156,20 +148,19 @@ export default class WallpaperSetter {
   }
 
   async handleSettingRandomWallpaper() {
-    if (!this.userArguments.setRandomWallpaper) return;
+    if (!USER_ARGUMENTS.setRandomWallpaper) return;
     const randomWallpaperIndex = Math.floor(
       Math.random() * this.wallpapers.length,
     );
     await this.handleSelection(this.wallpapers[randomWallpaperIndex]);
-    std.exit(0);
+    STD.exit(0);
   }
 
   async handleSettingWallpaper() {
     const ui = new UserInterface(
-      this.userArguments,
       this.wallpapers,
       this.picCacheDir,
-      (wallpapers) => this.handleSelection(wallpapers),
+      this.handleSelection.bind(this),
     );
     await ui.init();
   }
@@ -197,7 +188,7 @@ export default class WallpaperSetter {
 
   async setWallpaper(wallpaperName) {
     const wallpaperDir =
-      `${this.userArguments.wallpapersDirectory}/${wallpaperName}`;
+      `${USER_ARGUMENTS.wallpapersDirectory}/${wallpaperName}`;
     try {
       await this.wallpaperDaemonHandler(wallpaperDir);
       await utils.notify("Wallpaper changed:", wallpaperName, "normal");

@@ -13,54 +13,22 @@ import {
   keySequences,
 } from "../justjs/src/just-js/helpers/terminal.js";
 import utils from "./utils.js";
-import * as os from 'os'
-import * as std from 'std'
-/**
- * @typedef {import('./types.ts').IOs} IOs
- * @typedef {import('./types.ts').IStd} IStd
-*/
-
-/**
-* @type {{ os: IOs, std: IStd }}
- */
-const { os, std } = { os, std };
 
 "use strip";
-
 class UserInterface {
   constructor(
-    uiConfig,
     wallpaperNames,
     wallpapersDirectory,
     handleSelection,
   ) {
-    [this.imageWidth, this.imageHeight] = uiConfig.imageSize;
-    [this.paddV, this.paddH] = uiConfig.padding;
     this.wallpapers = wallpaperNames;
-    this.wallpaperBatch = [];
     this.picCacheDir = wallpapersDirectory;
-    this.containerWidth = this.imageWidth + this.paddH;
-    this.containerHeight = this.imageHeight + this.paddV;
-    this.terminalWidth = 0;
-    this.terminalHeight = 0;
-    this.xy = [];
-    this.selection = 0;
     this.handleSelection = handleSelection;
-    this.pagination = uiConfig.enablePagination;
-    this.defaultGridSize = uiConfig.gridSize;
-
-    if (this.pagination) {
-      const batchSize = uiConfig.gridSize[0] * uiConfig.gridSize[1];
-      this.getWallpaperBatch(batchSize);
-      this.pageNo = 0;
-      this.wallpapers = this.wallpaperBatch[this.pageNo];
-    }
+    this.prepareUiConfig();
   }
 
-  static autoScalingTerminal;
-
   async init() {
-    [this.terminalWidth, this.terminalHeight] = os.ttyGetWinSize();
+    [this.terminalWidth, this.terminalHeight] = OS.ttyGetWinSize();
 
     while (
       this.containerWidth > this.terminalWidth
@@ -80,12 +48,25 @@ class UserInterface {
     await this.handleKeysPress();
   }
 
-  getWallpaperBatch(batchSize) {
-    this.wallpaperBatch = [];
-    for (let start = 0; start < this.wallpapers.length; start += batchSize) {
-      this.wallpaperBatch.push(
-        this.wallpapers.slice(start, start + batchSize),
-      );
+  prepareUiConfig() {
+    [this.imageWidth, this.imageHeight] = USER_ARGUMENTS.imageSize;
+    this.containerHeight = this.imageHeight + USER_ARGUMENTS.padding[0];
+    this.containerWidth = this.imageWidth + USER_ARGUMENTS.padding[1];
+    this.terminalWidth = 0;
+    this.terminalHeight = 0;
+    this.xy = [];
+    this.selection = 0;
+
+    if (USER_ARGUMENTS.enablePagination) {
+      const batchSize = USER_ARGUMENTS.gridSize[0] * USER_ARGUMENTS.gridSize[1];
+      this.wallpaperBatch = [];
+      for (let start = 0; start < this.wallpapers.length; start += batchSize) {
+        this.wallpaperBatch.push(
+          this.wallpapers.slice(start, start + batchSize),
+        );
+      }
+      this.pageNo = 0;
+      this.wallpapers = this.wallpaperBatch[this.pageNo];
     }
   }
 
@@ -96,7 +77,7 @@ class UserInterface {
         "You can use pagination, or reduce the image preview size.",
       );
 
-    if (!UserInterface.autoScalingTerminal) handleError();
+    if (USER_ARGUMENTS.disableAutoScaling) handleError();
 
     await execAsync(["kitty", "@", "set-font-size", "--", "-1"]).catch(
       (_e) => {
@@ -107,9 +88,9 @@ class UserInterface {
       },
     );
 
-    const [w, h] = os.ttyGetWinSize();
+    const [w, h] = OS.ttyGetWinSize();
     if (w === this.terminalWidth && h === this.terminalHeight) {
-      os.exec(["kitty", "@", "set-font-size", "--", "0"]);
+      OS.exec(["kitty", "@", "set-font-size", "--", "0"]);
       handleError();
     }
     this.terminalWidth = w;
@@ -135,9 +116,9 @@ class UserInterface {
     // Start y position with a top margin of 2 units
     let y = 2; // Top margin
 
-    if (this.pagination) {
+    if (USER_ARGUMENTS.enablePagination) {
       // If gridSize is provided, parse the grid size and calculate coordinates accordingly
-      const [numRows, numCols] = this.defaultGridSize;
+      const [numRows, numCols] = USER_ARGUMENTS.gridSize;
 
       // Calculate the number of images to generate based on the grid size
       const totalImages = numRows * numCols;
@@ -183,14 +164,14 @@ class UserInterface {
   drawUI() {
     print(clearTerminal, cursorHide);
 
-    if (!this.wallpapers) std.exit(2);
+    if (!this.wallpapers) STD.exit(2);
     this.wallpapers.forEach((wallpaper, i) => {
       const wallpaperDir = `${this.picCacheDir}/${wallpaper.uniqueId}`;
       const [x, y] = i < this.xy.length
         ? this.xy[i]
         : this.xy[i % this.xy.length];
       const cordinates = `${this.imageWidth}x${this.imageHeight}@${x}x${y}`;
-      os.exec([
+      OS.exec([
         "kitten",
         "icat",
         "--stdin=no",
@@ -211,17 +192,18 @@ class UserInterface {
     const xBorderDown = " ╰" + "─".repeat(this.containerWidth - 1) + "╯";
     const newLine = cursorMove(-1 * (this.containerWidth + 2), 1);
     const yBorder = ` │${" ".repeat(this.containerWidth - 1)}│${newLine}`;
-    const border = `${OO}${xBorderUp}${newLine}${yBorder.repeat(
-      this.containerHeight - 1,
-    )
-      }${xBorderDown}${OO}`;
+    const border = `${OO}${xBorderUp}${newLine}${
+      yBorder.repeat(
+        this.containerHeight - 1,
+      )
+    }${xBorderDown}${OO}`;
     print(cursorTo(0, 0), eraseDown, ansi.style.brightWhite, border);
   }
 
   changePage(direction, selectStart) {
     const newPageNo = this.pageNo + direction;
     if (
-      this.pagination && newPageNo >= 0 &&
+      USER_ARGUMENTS.enablePagination && newPageNo >= 0 &&
       newPageNo < this.wallpaperBatch.length
     ) {
       this.pageNo = newPageNo;
@@ -328,7 +310,7 @@ ${l}                                                 ${r}
 
   handleExit(quit) {
     print(clearTerminal, cursorShow);
-    os.exec(["kitty", "@", "set-font-size", "--", "0"]);
+    OS.exec(["kitty", "@", "set-font-size", "--", "0"]);
     quit();
   }
 

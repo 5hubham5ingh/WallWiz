@@ -5,27 +5,8 @@
 import { ansi } from "../justjs/src/just-js/helpers/ansiStyle.js";
 import { cursorShow } from "../justjs/src/just-js/helpers/cursor.js";
 import { exec as execAsync } from "../justjs/src/process.js";
-import * as std from 'std'
-/**
- * @typedef {import('./types.ts').IStd} IStd
- */
-
-/**
-* @type {IStd}
- */
-const std = std;
 
 class Utils {
-  /**
-   * @type {number} [pLimit=4] - Default process limit.
-   */
-  static pLimit;
-
-  /**
-   * @type {boolean} [enableNotification=true] - Default notification setting.
-   */
-  static enableNotification;
-
   /**
    * @method processLimit
    * @description Determines the number of available CPU threads
@@ -43,7 +24,6 @@ class Utils {
       );
       return 4;
     }
-
   }
 
   /**
@@ -53,12 +33,13 @@ class Utils {
    * @returns {Promise<void>}
    */
   async promiseQueueWithLimit(tasks) {
-    Utils.pLimit = Utils.pLimit ?? await this.processLimit();
+    this.pLimit = (this.pLimit || USER_ARGUMENTS.pLimit) ??
+      await this.processLimit();
     const executing = new Set();
     for (const task of tasks) {
       const promise = task().finally(() => executing.delete(promise));
       executing.add(promise);
-      if (executing.size >= Utils.pLimit) await Promise.race(executing);
+      if (executing.size >= this.pLimit) await Promise.race(executing);
     }
     await Promise.all(executing);
   }
@@ -75,11 +56,10 @@ class Utils {
       error,
       ansi.style.reset,
       "\n",
-      cursorShow
+      cursorShow,
     );
-    std.exit(1);
-  };
-
+    STD.exit(1);
+  }
 
   /**
    * @method notify
@@ -92,10 +72,11 @@ class Utils {
   async notify(title, message, urgency = "normal") {
     const validUrgencies = ["low", "normal", "critical"];
 
-    if (!Utils.enableNotification) return;
+    if (USER_ARGUMENTS.disableNotification) return;
 
-    const command = `notify-send -u ${validUrgencies.includes(urgency) ? urgency : validUrgencies[1]
-      } "${title}" "${message}"`;
+    const command = `notify-send -u ${
+      validUrgencies.includes(urgency) ? urgency : validUrgencies[1]
+    } "${title}" "${message}"`;
 
     try {
       await execAsync(command);
@@ -112,9 +93,9 @@ class Utils {
    */
   writeFile(content, path) {
     if (typeof content !== "string") {
-      throw TypeError('File content to wrtie must be string.')
+      throw TypeError("File content to wrtie must be string.");
     }
-    const fileHandler = std.open(path, "w+");
+    const fileHandler = STD.open(path, "w+");
     fileHandler.puts(content);
     fileHandler.close();
   }

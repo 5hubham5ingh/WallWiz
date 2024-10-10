@@ -5,24 +5,8 @@
 import { ProcessSync } from "../justjs/src/process.js";
 import Download from "./downloadManager.js";
 import { UserInterface } from "./userInterface.js";
-import { clearTerminal } from "../justjs/src/just-js/helpers/cursor.js";
 import utils from "./utils.js";
-import { HOME_DIR } from "./constant.js";
-import * as std from 'std';
-import * as os from 'os';
 import { ansi } from "../justjs/src/just-js/helpers/ansiStyle.js";
-
-/**
- * @typedef {import('./types.ts').IOs} IOs
- * @typedef {import('./types.ts').IStd} IStd
-  * @typedef {import('./types.ts').UserArguments} UserArguments
- */
-
-/**
- * @type {{ os: IOs, std: IStd }}
- */
-const { os, std } = { os, std };
-
 
 /**
  * @class WallpaperDownloadManager
@@ -30,15 +14,10 @@ const { os, std } = { os, std };
  * @description Manages the process of downloading, filtering, and previewing wallpapers
  */
 export default class WallpaperDownloadManager extends Download {
-  /**
-   * @constructor
-   * @param {UserArguments} userArguments - User-provided arguments
-   */
-  constructor(userArguments) {
+  constructor() {
     const downloadDestinationDirectory = `${HOME_DIR}/.cache/WallWiz/tmp/`;
-    super(userArguments.wallpaperRepositoryUrls, downloadDestinationDirectory);
+    super(USER_ARGUMENTS.wallpaperRepositoryUrls, downloadDestinationDirectory);
 
-    this.userArguments = userArguments;
     this.downloadItemMenu = [];
     this.downloadItemFilteredMenu = [];
   }
@@ -56,8 +35,8 @@ export default class WallpaperDownloadManager extends Download {
       await this.downloadItemInDestinationDir();
       await this.previewWallpapersForDownload();
     } catch (error) {
-      print("Error in WallpaperDownloadManager's init")
-      throw error
+      print("Error in WallpaperDownloadManager's init");
+      throw error;
     }
   }
 
@@ -93,7 +72,11 @@ export default class WallpaperDownloadManager extends Download {
     if (filter.run()) {
       const filteredWallpapers = filter.stdout.trim().split("\n");
       if (filteredWallpapers.length) {
-        print(ansi.styles(['bold', 'blue']), "\n Fetching wallpapers for preview\n", ansi.style.reset);
+        print(
+          ansi.styles(["bold", "blue"]),
+          "\n Fetching wallpapers for preview\n",
+          ansi.style.reset,
+        );
         this.downloadItemList = this.downloadItemMenu.filter((wallpaper) =>
           filteredWallpapers.includes(wallpaper.name)
         );
@@ -109,7 +92,7 @@ export default class WallpaperDownloadManager extends Download {
   removeTempWallpapers(wallpapers) {
     wallpapers.forEach((wallpaperName) => {
       const filePath = `${this.destinationDir}${wallpaperName}`;
-      os.remove(filePath);
+      OS.remove(filePath);
     });
   }
 
@@ -120,11 +103,11 @@ export default class WallpaperDownloadManager extends Download {
    */
   async previewWallpapersForDownload() {
     try {
-      const [tempDownloadedWallpapers, error] = os.readdir(this.destinationDir);
+      const [tempDownloadedWallpapers, error] = OS.readdir(this.destinationDir);
       if (error !== 0) {
         utils.error(
           `Failed to read temporary downloaded files`,
-          this.destinationDir
+          this.destinationDir,
         );
       }
 
@@ -135,7 +118,6 @@ export default class WallpaperDownloadManager extends Download {
         .map((wallpaper) => ({ uniqueId: wallpaper }));
 
       const UI = new UserInterface(
-        this.userArguments,
         tempWallpapers,
         this.destinationDir,
         this.handleWallpaperSelection.bind(this),
@@ -159,9 +141,9 @@ export default class WallpaperDownloadManager extends Download {
     try {
       const sourceWallpaperPath = `${this.destinationDir}${wallpaper.uniqueId}`;
       const destinationWallpaperPath =
-        `${this.userArguments.wallpapersDirectory}${wallpaper.uniqueId}`;
+        `${USER_ARGUMENTS.wallpapersDirectory}${wallpaper.uniqueId}`;
 
-      const error = os.rename(sourceWallpaperPath, destinationWallpaperPath);
+      const error = OS.rename(sourceWallpaperPath, destinationWallpaperPath);
       if (error) {
         utils.error(`Failed to move wallpaper`, `Error code: ${error}`);
       }
@@ -171,7 +153,7 @@ export default class WallpaperDownloadManager extends Download {
         "normal",
       );
     } catch (error) {
-      print('Error in handleWallpaperSelection.')
+      print("Error in handleWallpaperSelection.");
       throw error;
     }
   }

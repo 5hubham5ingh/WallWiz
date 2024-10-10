@@ -2,20 +2,11 @@ import { ProcessSync } from "../justjs/src/process.js";
 import Download from "./downloadManager.js";
 import { ensureDir } from "../justjs/src/fs.js";
 import { ansi } from "../justjs/src/just-js/helpers/ansiStyle.js";
-import * as std from "std"
-import { HOME_DIR } from "./constant.js";
 import utils from "./utils.js";
 
 /**
- * @typedef {import('./types.d.ts').IStd} IStd
  * @typedef {import('./types.d.ts').DownloadItemMenu} DownloadItemMenu
  */
-
-
-/**
-* @type {IStd}
- */
-const std = std;
 
 class ExtensionScriptsDownloader extends Download {
   constructor(...all) {
@@ -35,9 +26,9 @@ class ExtensionScriptsDownloader extends Download {
     const promises = [];
 
     const fetchScriptHead = async (url) => {
-      return this.fetch(url, {
+      return await this.fetch(url, {
         "Range": "bytes=0-500",
-      })
+      });
     };
 
     for (const script of itemList) {
@@ -59,8 +50,8 @@ class ExtensionScriptsDownloader extends Download {
       script.tmpFile
     ).join("\n");
 
-
-    const header = `${ansi.style.bold}${ansi.style.brightCyan}"Type program name to search for ${kindOfScript}."`
+    const header =
+      `${ansi.style.bold}${ansi.style.brightCyan}"Type program name to search for ${kindOfScript}."`;
 
     const filter = new ProcessSync(
       `fzf -m --delimiter / --with-nth -1 --preview="cat {}"  --preview-window="down:40%,wrap" --preview-label=" Description " --layout="reverse" --header=${header} --header-first --border=double --border-label=" ${kindOfScript} "`,
@@ -85,7 +76,7 @@ class ExtensionScriptsDownloader extends Download {
   writeTempItemInTempDir() {
     for (const item of this.downloadItemMenu) {
       const currFile = this.tempDir.concat(item.name);
-      const tmpFile = std.open(currFile, "w+");
+      const tmpFile = STD.open(currFile, "w+");
       const start = item.about.indexOf("/*") + 2;
       const end = item.about.lastIndexOf("*/") - 1;
       const about = item.about.slice(start, end);
@@ -107,9 +98,9 @@ class ThemeExtensionScriptsDownloadManager extends ExtensionScriptsDownloader {
   }
 
   async init() {
-    print(" Fetching list of theme extension scripts...")
-    const response = await this.fetchItemListFromRepo();
-    await this.prepareMenu(response);
+    print(" Fetching list of theme extension scripts...");
+    const itemList = await this.fetchItemListFromRepo();
+    await this.prepareMenu(itemList);
     this.writeTempItemInTempDir();
     this.promptUserToChooseScriptsToDownload("Theme extension scripts");
     await this.downloadItemInDestinationDir();
@@ -130,10 +121,10 @@ class WallpaperDaemonHandlerScriptDownloadManager
   async init() {
     print(
       " Fetching list of wallpaper daemon handler extension scripts...",
-    )
+    );
 
-    const response = await this.fetchItemListFromRepo();
-    await this.prepareMenu(response);
+    const itemList = await this.fetchItemListFromRepo();
+    await this.prepareMenu(itemList);
     this.writeTempItemInTempDir();
     this.promptUserToChooseScriptsToDownload(
       "Wallpaper daemon handler script.",
@@ -146,4 +137,3 @@ export {
   ThemeExtensionScriptsDownloadManager,
   WallpaperDaemonHandlerScriptDownloadManager,
 };
-

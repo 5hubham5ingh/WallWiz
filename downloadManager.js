@@ -1,20 +1,11 @@
-import { Curl, curlRequest } from "../justjs/src/curl.js";
+import { Curl } from "../justjs/src/curl.js";
 import { ensureDir } from "../justjs/src/fs.js";
 import { exec as execAsync } from "../justjs/src/process.js";
-import { HOME_DIR } from "./constant.js";
-import utils from "./utils.js"
-import * as std from "std"
+import utils from "./utils.js";
 /**
- * @typedef {import('./types.ts').IStd} IStd
- * @typedef {import('./types.ts').ApiCache} ApiCache
- * @typedef {import('./types.ts').DownloadItemList} DownloadItemList 
+ * @typedef {import('./types.d.ts').ApiCache} ApiCache
+ * @typedef {import('./types.d.ts').DownloadItemList} DownloadItemList
  */
-
-
-/**
-* @type {IStd}
- */
-const std = std;
 
 export default class Download {
   constructor(sourceRepoUrls, destinationDir) {
@@ -29,17 +20,14 @@ export default class Download {
     this.downloadItemList;
     ensureDir(this.destinationDir);
     this.apiCacheFilePath = HOME_DIR.concat("/.cache/WallWiz/apiCache.json");
-    this.apiCacheFile = std.loadFile(this.apiCacheFilePath);
+    this.apiCacheFile = STD.loadFile(this.apiCacheFilePath);
     /**
-      * @type {ApiCache}
-      */
-    this.apiCache = this.apiCacheFile ? std.parseExtJSON(this.apiCacheFile) : [];
+     * @type {ApiCache}
+     */
+    this.apiCache = this.apiCacheFile ? JSON.parse(this.apiCacheFile) : [];
   }
 
-  static GITHUB_API_KEY;
-
   async fetch(url, headers) {
-
     const upsertCache = (updatedData) => {
       const writeCache = () =>
         utils.writeFile(JSON.stringify(this.apiCache), this.apiCacheFilePath);
@@ -48,24 +36,25 @@ export default class Download {
         if (cache.url === updatedData.url) {
           cache = updatedData;
           writeCache();
-          return
+          return;
         }
       }
 
       this.apiCache.push(updatedData);
       writeCache();
-    }
+    };
 
-    const currentCache = this.apiCache.find((cache) =>
-      cache.url === url
-    ) ?? { url };
+    const currentCache = this.apiCache.find((cache) => cache.url === url) ??
+      { url };
 
     const curl = new Curl(url, {
       parseJson: true,
       headers: {
         "if-none-match": currentCache?.etag,
-        Authorization: Download.GITHUB_API_KEY ? `token ${Download.GITHUB_API_KEY}` : null,
-        ...headers
+        Authorization: USER_ARGUMENTS.githubApiKey
+          ? `token ${USER_ARGUMENTS.githubApiKey}`
+          : null,
+        ...headers,
       },
     });
 
@@ -84,9 +73,7 @@ export default class Download {
     currentCache.data = curl.body;
     upsertCache(currentCache);
     return curl.body;
-
   }
-
 
   async fetchItemListFromRepo() {
     const responses = await Promise.all(
@@ -94,21 +81,23 @@ export default class Download {
     );
 
     return responses.reduce((acc, itemList) => {
-      Array.prototype.push.apply(acc, itemList)
+      Array.prototype.push.apply(acc, itemList);
       return acc;
     }, []);
   }
 
-
   /**
-  * @param {DownloadItemList} itemList
-  * @param {string} destinationDir
-  */
-  async downloadItemInDestinationDir(itemList = this.downloadItemList, destinationDir = this.destinationDir) {
+   * @param {DownloadItemList} itemList
+   * @param {string} destinationDir
+   */
+  async downloadItemInDestinationDir(
+    itemList = this.downloadItemList,
+    destinationDir = this.destinationDir,
+  ) {
     const fileListForCurl = [];
 
     for (const item of itemList) {
-      print('- ', item.name);
+      print("- ", item.name);
       fileListForCurl.push([
         item.downloadUrl,
         destinationDir.concat("/", item.name),
@@ -145,14 +134,15 @@ export default class Download {
     const match = gitHubUrl.match(githubRegex);
 
     if (!match) {
-      utils.error("Invalid GitHub URL format.", gitHubUrl)
+      utils.error("Invalid GitHub URL format.", gitHubUrl);
     }
 
     const [_, owner, repo, branch, , directoryPath] = match;
 
     // Construct the GitHub API URL
-    const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${directoryPath || ""
-      }?ref=${branch}`;
+    const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${
+      directoryPath || ""
+    }?ref=${branch}`;
 
     return apiUrl;
   }
