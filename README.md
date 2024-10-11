@@ -154,7 +154,6 @@ WallWiz -l -d ~/Pictures/wallpapers
 WallWiz -e -a -d ~/Pictures
 ```
 ## Todo
-- Fullscreen view in the UI using Kitty's overlay window.
 - Worker thread pool for handling theme extension scripts.
 - `swww` wallpaper daemon handler script.
 - VS Code theme extension script.
