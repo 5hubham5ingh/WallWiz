@@ -118,27 +118,29 @@ WallWiz's functionality can be extended through user-defined JavaScript scripts:
 
 ## Usage
 
-
 | Option                | Shortcut | Default   | Description                                                                                     |
 |-----------------------|----------|-----------|-------------------------------------------------------------------------------------------------|
-| `--wall-dir`           | `-d`     | `Current directory` | Specifies the wallpaper directory path. Can also be set using the `WALLPAPER_DIR` environment variable. |
-| `--random`             | `-r`     | `false`   | Apply a random wallpaper from the specified directory.                                           |
-| `--img-size`           | `-s`     | `118x32`  | Image size in cell. Format: `WIDTHxHEIGHT`.                                                   |
-| `--light-theme`        | `-l`     | `true`    | Enables light theme mode.                                                                       |
-| `--padding`            | `-p`     | `1x1`     | Container padding in cells. Format: `V_PADDINGxH_PADDING`.                                       |
-| `--enable-pagination`  | `-e`     | `false`   | Display wallpapers in a fixed-size grid. Remaining wallpapers will be displayed in the next grid upon navigation. |
+| `--wall-dir`           | `-d`     | `Current directory` | Wallpaper directory path. Can also be set using the `WALLPAPER_DIR` environment variable. |
+| `--random`             | `-r`  | `false`   | Apply a random wallpaper from the specified directory.                                           |
+| `--img-size`           | `-s`     | `100x30`  | Image size in cell. Format: `WIDTHxHEIGHT`.                                                     |
+| `--light-theme`        | `-l`  | `false`    | Enables light theme mode.                                                                       |
+| `--padding`            | `-p`     | `1x1`     | Container padding in cells. Format: `VERTICLExHORIZONTAL`.                                       |
+| `--enable-pagination`  | `-e`  | `false`   | Display wallpapers in a fixed-size grid. Remaining wallpapers will be displayed in the next grid upon navigation. |
 | `--grid-size`          | `-g`     | `4x4`     | Wallpaper grid size. Format: `WIDTHxHEIGHT`.                                                     |
-| `--theme-extensions`                |    `-t`      | `false`   | Download theme extension scripts.                                                               |
-| `--wallpaper-handler`                |     `-w`     | `false`   | Download wallpaper handler script.                                                              |
-| `--browse`             |   `-b`     | `false`   | Browse wallpapers online.                                                                       |
-| `--repo-url`           |   `-u`       | `https://github.com/5hubham5ingh/WallWiz/tree/wallpapers` | Specifies the wallpaper repository GitHub URL(s). Can also be set using the `WALLPAPER_REPO_URLS` environment variable. |
-| `--api-key`            |   `-k`    | `None`    | Specify the GitHub API key for increasing API's rate limit. Can also be set using the `GITHUB_API_KEY` environment variable. |
+| `--theme-extensions`   | `-t` | `false`   | Download theme extension scripts.                                                               |
+| `--wallpaper-handler`  | `-w` | `false`   | Download wallpaper handler script.                                                              |
+| `--browse`             | `-b` | `false`   | Browse wallpapers online.                                                                       |
+| `--repo-url`           | `-u`     | `https://github.com/5hubham5ingh/WallWiz/tree/wallpapers` | Wallpaper repository GitHub URL(s). Can also be set using the `WALLPAPER_REPO_URLS` environment variable. |
+| `--api-key`            | `-k`     | `None`    | GitHub API key for increasing API's rate limit. Can also be set using the `GITHUB_API_KEY` environment variable. |
+| `--show-keymap`        | `-m`  | `false`   | Display keymaps for the user interface.                                                         |
+| `--disable-notification`| `-n` | `false`   | Disable desktop notifications.                                                                  |
+| `--disable-autoscaling`| `-a`  | `false`   | Disable auto scaling terminal size to fit all images.                                            |
+| `--plimit`             | `-x`     | `auto`    | Number of execution threads used.                                                               |
 | `-h, --help`           |          |           | Print help.                                                                                     |
 | `--version`            |          |           | Print the program version.                                                                      |
 
 **Example:**
 ```bash
-```
 # Browse online wallpapers
 WallWiz -d ~/Pictures -u https://github.com/D3Ext/aesthetic-wallpapers/tree/main/images;https://github.com/5hubham5ingh/WallWiz/tree/wallpapers
 
@@ -151,7 +153,15 @@ WallWiz -l -d ~/Pictures/wallpapers
 # Enable grid view and disable terminal auto-scaling
 WallWiz -e -a -d ~/Pictures
 ```
-```
+## Todo
+- Fullscreen view in the UI using Kitty's overlay window.
+- Worker thread pool for handling theme extension scripts.
+- `swww` wallpaper daemon handler script.
+- VS Code theme extension script.
+- Firefox theme extension script.
+- Dunst notification theme extension script.
+- `fzf` theme extension script.
+
 ## Contributing
 
 Contributions are welcome! Feel free to submit pull requests.
