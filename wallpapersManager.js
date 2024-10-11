@@ -168,7 +168,7 @@ export default class WallpaperSetter {
   async handleSelection(wallpaper) {
     const { name, uniqueId } = wallpaper;
 
-    const promises = [ // this.enableLightTheme should be passed in the themes constructor, not here.
+    const promises = [
       this.themeManager.setTheme(uniqueId)
         .catch(
           (e) => {

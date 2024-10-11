@@ -58,7 +58,7 @@ class Utils {
       "\n",
       cursorShow,
     );
-    STD.exit(1);
+    STD.exit();
   }
 
   /**

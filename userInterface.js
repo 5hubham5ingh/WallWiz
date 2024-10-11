@@ -14,15 +14,22 @@ import {
 } from "../justjs/src/just-js/helpers/terminal.js";
 import utils from "./utils.js";
 
+/**
+ * @typedef {import('./types.d.ts').WallpapersList} WallpapersList
+ */
+
 "use strip";
 class UserInterface {
+  /**
+   * @param {WallpapersList} wallpaperNames
+   */
   constructor(
-    wallpaperNames,
+    wallpaperList,
     wallpapersDirectory,
     handleSelection,
   ) {
-    this.wallpapers = wallpaperNames;
-    this.picCacheDir = wallpapersDirectory;
+    this.wallpapers = wallpaperList;
+    this.wallpapersDir = wallpapersDirectory;
     this.handleSelection = handleSelection;
     this.prepareUiConfig();
   }
@@ -166,7 +173,7 @@ class UserInterface {
 
     if (!this.wallpapers) STD.exit(2);
     this.wallpapers.forEach((wallpaper, i) => {
-      const wallpaperDir = `${this.picCacheDir}/${wallpaper.uniqueId}`;
+      const wallpaperDir = `${this.wallpapersDir}/${wallpaper.uniqueId}`;
       const [x, y] = i < this.xy.length
         ? this.xy[i]
         : this.xy[i % this.xy.length];
@@ -230,7 +237,7 @@ class UserInterface {
     return false;
   }
 
-  //#region Handle key press
+  //#region Handle input
 
   static printKeyMaps() {
     const l = ansi.style.underline;
@@ -247,6 +254,7 @@ ${l}                                                 ${r}
  ${g}L/PageDown            ${r}: Next page
  ${g}H/PageUp              ${r}: Previous page
  ${g}Enter                 ${r}: Apply/Download wallpaper
+ ${g}f                     ${r}: Fullscreen
  ${g}q                     ${r}: Quit
 ${l}                                                 ${r}
 `;
@@ -304,6 +312,21 @@ ${l}                                                 ${r}
     }
   }
 
+  async enableFullScreenPreview(index = this.selection) {
+    const wallpaperName = this.wallpapers[index].name;
+    const wallpaperPath = this.wallpapersDir.concat(wallpaperName);
+    await execAsync(
+      `kitty @ launch --type=overlay bash -c "stty raw; kitten icat ${wallpaperPath}; read -n 1; stty sane; exit;"`,
+    ).catch((error) => {
+      utils.error("Toggle fullscreen", error);
+      utils.notify(
+        "Failed to launch fullscreen preview.",
+        "Make sure kitty remote control is enabled.",
+        "critical",
+      );
+    });
+  }
+
   async handleEnter(index = this.selection) {
     await this.handleSelection(this.wallpapers[index]);
   }
@@ -331,6 +354,7 @@ ${l}                                                 ${r}
       q: (_, quit) => this.handleExit(quit),
       [keySequences.Enter]: () => this.handleEnter(),
       [keySequences.Escape]: () => this.handleExit(),
+      f: () => this.enableFullScreenPreview(),
     };
 
     await handleKeysPress(keyPressHandlers);

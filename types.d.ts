@@ -39,6 +39,10 @@ export type DownloadItemList = {
   downloadUrl: string;
 }[];
 
+export type WallpapersList = {
+  name: string;
+  uniqueId: string;
+}[];
 //#region QuickJs
 
 //#region os module

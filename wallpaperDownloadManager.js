@@ -115,7 +115,7 @@ export default class WallpaperDownloadManager extends Download {
 
       const tempWallpapers = tempDownloadedWallpapers
         .filter((fileName) => fileName !== "." && fileName !== "..")
-        .map((wallpaper) => ({ uniqueId: wallpaper }));
+        .map((wallpaper) => ({ name: wallpaper, uniqueId: wallpaper }));
 
       const UI = new UserInterface(
         tempWallpapers,

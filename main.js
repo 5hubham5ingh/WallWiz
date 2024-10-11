@@ -78,7 +78,7 @@ class WallWiz {
         [argNames.imageSize]: arg
           .str("100x30")
           .reg(/^\d+x\d+$/)
-          .desc("Image size in pixel.")
+          .desc("Image cell size.")
           .val("WIDTHxHEIGHT")
           .err(
             "Invalid size, it should be of WIDTHxHEIGHT format. \n Ex:- 60x20",
