@@ -299,6 +299,7 @@ class UserInterface {
     const keyMaps = `
 ${styles.header} Key Maps                                        ${styles.reset}
 ${styles.underline}                                                 ${styles.reset}
+
  ${styles.key}k/ArrowUp             ${styles.reset}: Move Up
  ${styles.key}l/ArrowRight          ${styles.reset}: Move Right
  ${styles.key}j/ArrowDown           ${styles.reset}: Move down

@@ -192,11 +192,15 @@ function getLightThemeConf(colors) {
   return generateHyprlandConfig(theme, false);
 }
 
-function setTheme(themeConfPath, execAsync) {
-  return execAsync(
-    ["cat", themeConfPath, ">", "~/.config/hypr/WallWizTheme.conf"],
-    { useShell: true },
+function setTheme(themeConfPath) {
+  const newConfig = loadFile(themeConfPath);
+  const oldConfigPath = getenv("HOME").concat(
+    "/.config/hypr/WallWizTheme.conf",
   );
+  const oldConfig = open(oldConfigPath, "w+");
+  oldConfig.puts(newConfig);
+  oldConfig.flush();
+  oldConfig.close();
 }
 
 export { getDarkThemeConf, getLightThemeConf, setTheme };

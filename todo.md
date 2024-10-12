@@ -1,3 +1,2 @@
 - Use workers for theme handler scripts for parallelism.
 - github api testing remaining.
-- make execAsyn global

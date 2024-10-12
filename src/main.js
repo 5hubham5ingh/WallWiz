@@ -176,7 +176,7 @@ class WallWiz {
         "-d ~/Pics/wallpapers -s 42x10",
         "-l -p 4x4",
       ])
-      .ver("0.0.1-alpha.5")
+      .ver("0.0.1-alpha.6")
       .parse();
 
     // Convert parsed arguments to a more convenient object format
