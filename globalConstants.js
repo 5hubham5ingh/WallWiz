@@ -36,12 +36,13 @@ globalThis.SystemError = class SystemError extends Error {
    *
    * @param {string} error - The error message describing the issue.
    * @param {string} [description] - Additional description about the error (optional).
+   * @param {typeof Error} body
    */
-  constructor(error, description = "") {
+  constructor(error, description, body) {
     super(error);
-    this.name = "SystemError";
+    this.name = error;
     this.description = description;
-
+    this.body = body;
     // Capture the stack trace (optional)
     if (Error.captureStackTrace) {
       Error.captureStackTrace(this, SystemError);
@@ -50,19 +51,22 @@ globalThis.SystemError = class SystemError extends Error {
 
   /**
    * Logs the error in a formatted style, using ANSI codes for styling.
+   *
+   * @param {boolean} inspect - Wheather to print the error body or not for inspection.
    */
-  log() {
+  log(inspect) {
     print(
       "\n",
       ansi.styles(["bold", "red"]),
-      this.error,
+      this.name,
       ":",
       ansi.style.reset,
       "\n",
       ansi.style.red,
-      this.message,
+      this.description.split(".").map((line) => line.trim()).join("\n"),
       ansi.style.reset,
       "\n",
+      inspect && body,
       cursorShow,
     );
   }

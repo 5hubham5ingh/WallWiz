@@ -50,6 +50,9 @@ export type UserArguments = {
 
   /** Limit the number of processes used for downloading wallpapers */
   processLimit: number;
+
+  /** Enable verbose error log for inspection. */
+  inspection: boolean;
 };
 
 /**

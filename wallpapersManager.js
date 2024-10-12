@@ -19,11 +19,7 @@ export default class WallpaperSetter {
   async init() {
     await this.loadWallpaperDaemonHandlerScript();
     await this.handleWallpaperCacheCreation();
-    await this.themeManager.init()
-      .catch((e) => {
-        print("Error in themeManager init");
-        throw e;
-      });
+    await this.themeManager.init();
     await this.handleSettingRandomWallpaper();
     await this.handleSettingWallpaper();
   }
@@ -33,9 +29,9 @@ export default class WallpaperSetter {
       USER_ARGUMENTS.wallpapersDirectory,
     );
     if (error !== 0) {
-      utils.error(
-        "Failed to read wallpapers directory",
-        USER_ARGUMENTS.wallpapersDirectory,
+      throw new Error(
+        "Failed to read wallpapers directory:\n" +
+          USER_ARGUMENTS.wallpapersDirectory,
       );
     }
     const wallpapers = imgFiles.filter(
@@ -47,9 +43,9 @@ export default class WallpaperSetter {
       );
 
       if (error) {
-        utils.error(
-          "Failed to read wallpaper stat for",
-          this.wallpapers.concat(name),
+        throw new Error(
+          "Failed to read wallpaper stat for:\n" +
+            USER_ARGUMENTS.wallpapersDirectory.concat(name),
         );
       }
       const { dev, ino } = stats;
@@ -60,7 +56,7 @@ export default class WallpaperSetter {
     });
 
     if (!wallpapers.length) {
-      utils.error(
+      throw new SystemError(
         "No wallpaper found in ".concat(USER_ARGUMENTS.wallpapersDirectory),
         "Male sure the supported image file exists in the directory.",
       );
@@ -75,7 +71,7 @@ export default class WallpaperSetter {
     const scriptNames = OS.readdir(extensionDir)[0]
       .filter((name) => name !== "." && name !== ".." && name.endsWith(".js"));
     if (scriptNames.length > 1) {
-      utils.error(
+      throw new SystemError(
         `Too many scripts found in the ${extensionDir}.`,
         "Only one script is required",
       );
@@ -84,11 +80,14 @@ export default class WallpaperSetter {
       const extensionPath = extensionDir.concat(scriptNames[0]);
       const wallpaperDaemonHandler = await import(extensionPath);
       if (!wallpaperDaemonHandler.default) {
-        utils.error("No default export found in ", extensionPath);
+        throw new SystemError(
+          "No default export found.",
+          `Script: ${extensionPath}`,
+        );
       }
       this.wallpaperDaemonHandler = wallpaperDaemonHandler.default;
     } else {
-      utils.error(
+      throw new SystemError(
         "Failed to find any wallpaper daemon handler script in " + extensionDir,
         'Run "WallWiz --dwh" to download it if you do not have a wallpaper daemon handler script.',
       );
@@ -123,10 +122,11 @@ export default class WallpaperSetter {
         "50",
         cachePicName,
       ])
-        .catch((_e) => {
-          utils.error(
+        .catch((e) => {
+          throw new SystemError(
             "Failed to create wallpaper cache",
             "Make sure ImageMagick is installed in your system",
+            e,
           );
         });
     };
@@ -168,12 +168,15 @@ export default class WallpaperSetter {
 
   async handleSelection(wallpaper) {
     const { name, uniqueId } = wallpaper;
-
     const promises = [
       this.themeManager.setTheme(uniqueId)
         .catch(
-          (e) => {
-            print(clearTerminal, "Failed to set theme for ", name, uniqueId, e);
+          async (e) => {
+            await utils.notify(
+              `Failed to set theme for ${name} ${uniqueId}.`,
+              e,
+              "critical",
+            );
           },
         ),
       this.setWallpaper(name),

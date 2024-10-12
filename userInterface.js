@@ -44,24 +44,31 @@ class UserInterface {
    * Initialize the user interface
    */
   async init() {
-    // Get initial terminal size
-    [this.terminalWidth, this.terminalHeight] = OS.ttyGetWinSize();
+    try {
+      print(clearTerminal, cursorHide);
+      // Get initial terminal size
+      [this.terminalWidth, this.terminalHeight] = OS.ttyGetWinSize();
 
-    // Ensure terminal is wide enough
-    while (this.containerWidth > this.terminalWidth) {
-      await this.increaseTerminalSize();
-    }
+      // Ensure terminal is wide enough
+      while (this.containerWidth > this.terminalWidth) {
+        await this.increaseTerminalSize();
+      }
 
-    this.calculateCoordinates();
-
-    // Ensure terminal is tall enough
-    while (this.isScreenHeightInsufficient()) {
-      await this.increaseTerminalSize();
       this.calculateCoordinates();
-    }
 
-    this.drawUI();
-    await this.handleKeysPress();
+      // Ensure terminal is tall enough
+      while (this.isScreenHeightInsufficient()) {
+        await this.increaseTerminalSize();
+        this.calculateCoordinates();
+      }
+
+      this.drawUI();
+      await this.handleKeysPress();
+    } catch (error) {
+      print(clearTerminal, cursorShow);
+      OS.exec(["kitty", "@", "set-font-size", "--", "0"]);
+      throw new Error("In UserInterface.init():\n".concat(error));
+    }
   }
 
   /**
@@ -95,26 +102,27 @@ class UserInterface {
    * Increase terminal size if necessary
    */
   async increaseTerminalSize() {
-    const handleError = () =>
-      utils.error(
+    const handleError = () => {
+      throw new SystemError(
         "Insufficient screen size.",
         "You can use pagination, or reduce the image preview size.",
       );
+    };
 
     if (USER_ARGUMENTS.disableAutoScaling) handleError();
 
     try {
       await execAsync(["kitty", "@", "set-font-size", "--", "-1"]);
-    } catch (_e) {
-      utils.error(
+    } catch (e) {
+      throw new SystemError(
         "Terminal size too small.",
         "Either set it manually or enable kitty remote control for automatic scaling.",
+        e,
       );
     }
 
     const [w, h] = OS.ttyGetWinSize();
     if (w === this.terminalWidth && h === this.terminalHeight) {
-      OS.exec(["kitty", "@", "set-font-size", "--", "0"]);
       handleError();
     }
     this.terminalWidth = w;
@@ -196,8 +204,6 @@ class UserInterface {
    * Draw the user interface
    */
   drawUI() {
-    print(clearTerminal, cursorHide);
-
     if (!this.wallpapers) STD.exit(2);
 
     // Draw wallpapers
@@ -295,7 +301,6 @@ class UserInterface {
     const keyMaps = `
 ${styles.header} Key Maps                                        ${styles.reset}
 ${styles.underline}                                                 ${styles.reset}
-
  ${styles.key}k/ArrowUp             ${styles.reset}: Move Up
  ${styles.key}l/ArrowRight          ${styles.reset}: Move Right
  ${styles.key}j/ArrowDown           ${styles.reset}: Move down
@@ -388,8 +393,7 @@ ${styles.underline}                                                 ${styles.res
       await execAsync(
         `kitty @ launch --type=overlay kitten icat --hold --stdin=no --scale-up ${wallpaperPath}`,
       );
-    } catch (error) {
-      utils.error("Toggle fullscreen", error);
+    } catch (_) {
       utils.notify(
         "Failed to launch fullscreen preview.",
         "Make sure kitty remote control is enabled.",

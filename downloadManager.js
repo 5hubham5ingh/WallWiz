@@ -68,9 +68,12 @@ export default class Download {
 
     try {
       await curl.run();
-    } catch (error) {
-      print("Failed to fetch data:");
-      throw error;
+    } catch (e) {
+      throw new SystemError(
+        "Failed to run curl.",
+        "Make sure it is installed and available in the system.",
+        e,
+      );
     }
 
     if (curl.statusCode === 304) {
@@ -78,7 +81,10 @@ export default class Download {
     }
 
     if (curl.failed) {
-      utils.error("Curl Error:", curl.error);
+      throw new SystemError(
+        "Request failed:",
+        `Error: ${curl.error}. Status code: ${curl.statusCode}. Url: ${curl.url}`,
+      );
     }
 
     currentCache.etag = curl.headers.etag;
@@ -126,8 +132,12 @@ export default class Download {
 
     try {
       await execAsync(Download.generateCurlParallelCommand(fileListForCurl));
-    } catch (error) {
-      utils.error("Download failed:", error);
+    } catch (e) {
+      throw new SystemError(
+        "Failed to run curl.",
+        "Make sure it is installed and available in the system.",
+        e,
+      );
     }
   }
 
@@ -165,7 +175,7 @@ export default class Download {
     const match = gitHubUrl.match(githubRegex);
 
     if (!match) {
-      utils.error(`Invalid GitHub URL format`, gitHubUrl);
+      throw new SystemError(`Invalid GitHub URL format`, gitHubUrl);
     }
 
     const [, owner, repo, branch, , directoryPath = ""] = match;

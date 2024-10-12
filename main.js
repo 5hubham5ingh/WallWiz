@@ -15,10 +15,10 @@ class WallWiz {
   }
 
   async run() {
-    // Set the terminal to raw mode for better input handling
-    OS.ttySetRaw();
-
     try {
+      // Set the terminal to raw mode for better input handling
+      OS.ttySetRaw();
+
       // Handle various operations based on user arguments
       this.handleShowKeymaps();
       await this.handleThemeExtensionScriptDownload();
@@ -27,10 +27,14 @@ class WallWiz {
       await this.handleWallpaperSetter();
     } catch (error) {
       // Print any errors that occur during execution
-      print(error);
+      if (error instanceof SystemError) {
+        error.log(USER_ARGUMENTS.inspection);
+      } else if (USER_ARGUMENTS.inspection) {
+        print(error);
+      }
     } finally {
       // Ensure the program exits properly
-      STD.exit();
+      STD.exit(0);
     }
   }
 
@@ -61,6 +65,7 @@ class WallWiz {
       disableNotification: "--disable-notification",
       disableAutoScaling: "--disable-autoscaling",
       processLimit: "--plimit",
+      inspection: "--inspection",
     };
 
     // Define and parse command-line arguments using the 'arg' library
@@ -146,6 +151,9 @@ class WallWiz {
           .num()
           .min(1)
           .desc("Number of execution threads used. (default: auto)"),
+        [argNames.inspection]: arg
+          .flag(false)
+          .desc("Enable verbose error log for inspection."),
         "-d": argNames.wallpapersDirectory,
         "-r": argNames.setRandomWallpaper,
         "-s": argNames.imageSize,
@@ -162,6 +170,7 @@ class WallWiz {
         "-n": argNames.disableNotification,
         "-a": argNames.disableAutoScaling,
         "-x": argNames.processLimit,
+        "-i": argNames.inspection,
       })
       .ex([
         "-d ~/Pics/wallpapers -s 42x10",
@@ -185,11 +194,10 @@ class WallWiz {
       // Initialize and run the theme extension scripts download manager
       const downloadManager = new ThemeExtensionScriptsDownloadManager();
       await downloadManager.init();
-      STD.exit(0);
     } catch (error) {
-      print(
-        "Failed to start Download manager for theme extension scripts.",
-        error,
+      throw new Error(
+        "Failed to start Download manager for theme extension scripts.\n"
+          .concat(error),
       );
     }
   }
@@ -201,11 +209,10 @@ class WallWiz {
       // Initialize and run the wallpaper daemon handler script download manager
       const downloadManager = new WallpaperDaemonHandlerScriptDownloadManager();
       await downloadManager.init();
-      STD.exit(0);
     } catch (error) {
-      print(
-        "Failed to start downloadManager for wallpaper daemon handle script.",
-        error,
+      throw new Error(
+        "Failed to start downloadManager for wallpaper daemon handle script.\n"
+          .concat(error),
       );
     }
   }
@@ -218,9 +225,8 @@ class WallWiz {
       const wallpaperDownloadManager = new WallpaperDownloadManager();
       await wallpaperDownloadManager.init();
     } catch (error) {
-      print(
-        "Failed to initialize WallpaperDownloadManager.",
-        error,
+      throw new Error(
+        "Failed to initialize WallpaperDownloadManager.\n".concat(error),
       );
     }
   }
@@ -231,9 +237,8 @@ class WallWiz {
       const wallpaperSetter = new WallpaperSetter();
       await wallpaperSetter.init();
     } catch (error) {
-      print(
-        "Failed to initialize WallpaperSetter.",
-        error,
+      throw new Error(
+        "Failed to initialize WallpaperSetter.".concat(error),
       );
     }
   }

@@ -1,4 +1,3 @@
 - Use workers for theme handler scripts for parallelism.
 - github api testing remaining.
-- Update type definition to include extensive jsdoc.
-- Custome error, catch it in the main. Pretty rpint if custom else print it as it is.
+- make execAsyn global

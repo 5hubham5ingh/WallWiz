@@ -2,8 +2,6 @@
  * @file Utils.js
  * @description Utility class for process management, notifications, and file operations
  */
-import { ansi } from "../justjs/src/just-js/helpers/ansiStyle.js";
-import { cursorShow } from "../justjs/src/just-js/helpers/cursor.js";
 import { exec as execAsync } from "../justjs/src/process.js";
 
 class Utils {
@@ -43,22 +41,6 @@ class Utils {
     }
     await Promise.all(executing);
   }
-  error(source, error) {
-    print(
-      "\n",
-      ansi.styles(["bold", "red"]),
-      source,
-      ":",
-      ansi.style.reset,
-      "\n",
-      ansi.style.red,
-      error,
-      ansi.style.reset,
-      "\n",
-      cursorShow,
-    );
-    STD.exit();
-  }
 
   /**
    * @method notify
@@ -80,7 +62,7 @@ class Utils {
     try {
       await execAsync(command);
     } catch (e) {
-      this.error("Failed to send notification.", e);
+      throw new SystemError("Failed to send notification.", e);
     }
   }
 

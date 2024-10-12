@@ -61,10 +61,18 @@ class ExtensionScriptsDownloader extends Download {
       },
     );
 
-    filter.run();
+    try {
+      filter.run();
+    } catch (error) {
+      throw new SystemError(
+        "Failed to run fzf.",
+        "Make sure fzf is installed and available in the system.",
+        error,
+      );
+    }
 
     if (!filter.success) {
-      utils.error("Error", filter.stderr || "No item selected.");
+      throw new SystemError("Error", filter.stderr || "No item selected.");
     }
 
     const filteredItem = filter.stdout.split("\n");

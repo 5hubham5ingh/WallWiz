@@ -105,9 +105,9 @@ export default class WallpaperDownloadManager extends Download {
     try {
       const [tempDownloadedWallpapers, error] = OS.readdir(this.destinationDir);
       if (error !== 0) {
-        utils.error(
-          `Failed to read temporary downloaded files`,
-          this.destinationDir,
+        throw new Error(
+          `Failed to read temporary downloaded files: \n` +
+            this.destinationDir,
         );
       }
 
@@ -146,7 +146,10 @@ export default class WallpaperDownloadManager extends Download {
 
       const error = OS.rename(sourceWallpaperPath, destinationWallpaperPath);
       if (error) {
-        utils.error(`Failed to move wallpaper`, `Error code: ${error}`);
+        throw new Error(
+          `Failed to move wallpaper\n` +
+            `Error code: ${error}`,
+        );
       }
       await utils.notify(
         "Download complete:",

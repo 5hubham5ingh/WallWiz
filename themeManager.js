@@ -39,8 +39,7 @@ class Theme {
       await this.loadThemeExtensionScripts();
       await this.createAppThemesFromColours();
     } catch (error) {
-      print("Failed to initialize Theme:\n");
-      throw error;
+      throw new Error("Failed to initialize Theme:\n".concat(error));
     }
   }
 
@@ -59,8 +58,9 @@ class Theme {
           )
           .filter(Boolean);
       } catch (error) {
-        print(`Failed to extract colors from ${wallpaperPath}:`);
-        throw error;
+        throw new Error(
+          `Failed to extract colors from ${wallpaperPath}:\n`.concat(error),
+        );
       }
     };
 
@@ -101,7 +101,7 @@ class Theme {
             !script.setTheme || !script.getDarkThemeConf ||
             !script.getLightThemeConf
           ) {
-            utils.error(
+            throw new SystemError(
               `Error in ${extensionPath}`,
               `Missing required function(s), "setTheme","getDarkThemeConf" or "getLightThemeConf" in the script.`,
             );
@@ -112,13 +112,13 @@ class Theme {
             `${this.wallpaperThemeCacheDir}${fileName}/`;
           ensureDir(this.appThemeCacheDir[fileName]);
         } catch (error) {
-          print(`Failed to load script ${fileName}:`);
-          throw error;
+          throw new Error(`Failed to load script ${fileName}:`.concat(error));
         }
       }
     } catch (error) {
-      print("Failed to load theme extension scripts:");
-      throw error;
+      throw new Error(
+        "Failed to load theme extension scripts:\n".concat(error),
+      );
     }
   }
 
@@ -177,13 +177,9 @@ class Theme {
           );
           print(`Done generating theme for ${scriptName}`);
         } catch (error) {
-          utils.error(
-            `Failed to generate theme config for ${scriptName}:`,
-            error,
-          );
           await utils.notify(
-            "WallWiz",
             `Failed to generate theme config for: ${scriptName}`,
+            error,
             "critical",
           );
         }
@@ -205,11 +201,19 @@ class Theme {
         const [, err] = OS.stat(currentThemePath);
 
         if (err === 0) {
-          return await themeHandler.setTheme(currentThemePath, execAsync);
+          try {
+            return await themeHandler.setTheme(currentThemePath, execAsync);
+          } catch (error) {
+            await utils.notify(
+              `Error in theme handler script "${scriptName}"`,
+              error,
+              "critical",
+            );
+          }
         } else {
-          utils.error(
+          throw new SystemError(
             "Cache miss",
-            `Wallpaper: ${wallpaperName}; Theme path: ${currentThemePath}.`,
+            `Wallpaper: ${wallpaperName}. Theme path: ${currentThemePath}.`,
           );
         }
       },
@@ -244,8 +248,7 @@ class Theme {
       const cacheContent = STD.loadFile(this.wallpaperColoursCacheFilePath);
       this.coloursCache = JSON.parse(cacheContent) || {};
     } catch (error) {
-      utils.error("Failed to read colours cache file:", error);
-      this.coloursCache = {};
+      throw new Error("Failed to read colours cache file:\n".concat(error));
     }
 
     return this.coloursCache[cacheName] || null;
@@ -253,4 +256,3 @@ class Theme {
 }
 
 export { Theme };
-
