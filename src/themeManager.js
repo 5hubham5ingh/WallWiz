@@ -190,35 +190,32 @@ class Theme {
    * Set the theme for a given wallpaper
    * @param {string} wallpaperName - Name of the wallpaper
    */
-  async setTheme(wallpaperName) {
+  async setThemes(wallpaperName) {
     const themeName = this.getThemeName(wallpaperName);
-    const promises = Object.entries(this.themeExtensionScripts).map(
-      async ([scriptName, themeHandler]) => {
-        const currentThemePath = `${
-          this.appThemeCacheDir[scriptName]
-        }${themeName}`;
-        const [, err] = OS.stat(currentThemePath);
 
-        if (err === 0) {
-          try {
-            return await themeHandler.setTheme(currentThemePath, execAsync);
-          } catch (error) {
-            await utils.notify(
-              `Error in theme handler script "${scriptName}"`,
-              error,
-              "critical",
-            );
-          }
-        } else {
-          throw new SystemError(
-            "Cache miss",
-            `Wallpaper: ${wallpaperName}. Theme path: ${currentThemePath}.`,
-          );
+    const setTheme = async ([scriptName, themeHandler]) => {
+      const currentThemePath = `${
+        this.appThemeCacheDir[scriptName]
+      }${themeName}`;
+
+      const [, err] = OS.stat(currentThemePath);
+
+      if (err === 0) {
+        try {
+          await themeHandler.setTheme(currentThemePath, execAsync);
+        } catch (error) {
+          utils.notify(`Error in script: ${scriptName}`, error, "critical");
         }
-      },
-    );
+      } else {
+        throw new Error(
+          "Cache miss\n" +
+            `Wallpaper: ${wallpaperName}. Theme path: ${currentThemePath}.`,
+        );
+      }
+    };
 
-    promises.push(utils.notify("WallWiz", "Theme applied", "normal"));
+    const promises = Object.entries(this.themeExtensionScripts).map(setTheme);
+
     await Promise.all(promises);
   }
 

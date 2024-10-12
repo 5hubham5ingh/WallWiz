@@ -2,6 +2,7 @@ import * as std from "std";
 import * as os from "os";
 import { ansi } from "../../justjs/src/just-js/helpers/ansiStyle.js";
 import { exec as execAsync } from "../../justjs/src/process.js";
+import { clearTerminal } from "../../justjs/src/just-js/helpers/cursor.js";
 
 /**
  * @typedef {import('./types.d.ts').IOs} IOs
@@ -39,7 +40,7 @@ globalThis.SystemError = class SystemError extends Error {
    * @param {string} [description] - Additional description about the error (optional).
    * @param {typeof Error} body
    */
-  constructor(error, description, body) {
+  constructor(error, description, body = "") {
     super(error);
     this.name = error;
     this.description = description;
@@ -57,6 +58,7 @@ globalThis.SystemError = class SystemError extends Error {
    */
   log(inspect) {
     print(
+      clearTerminal,
       "\n",
       ansi.styles(["bold", "red"]),
       this.name,

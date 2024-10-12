@@ -81,7 +81,7 @@ class WallWiz {
           .flag(false)
           .desc("Apply random wallpaper from the directory."),
         [argNames.imageSize]: arg
-          .str("100x30")
+          .str("30x10")
           .reg(/^\d+x\d+$/)
           .desc("Image cell size.")
           .val("WIDTHxHEIGHT")

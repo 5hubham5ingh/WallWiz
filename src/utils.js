@@ -49,15 +49,18 @@ class Utils {
 
     if (USER_ARGUMENTS.disableNotification) return;
 
-    const command = `notify-send -u ${
-      validUrgencies.includes(urgency) ? urgency : validUrgencies[1]
-    } "${title}" "${message}"`;
+    const command = [
+      "notify-send",
+      "-u",
+      validUrgencies.includes(urgency) ? urgency : validUrgencies[1],
+      title,
+      message,
+    ];
 
-    try {
-      await execAsync(command);
-    } catch (e) {
-      throw new SystemError("Failed to send notification.", e);
-    }
+    await execAsync(command)
+      .catch((error) => {
+        throw new SystemError("Failed to send notification.", error);
+      });
   }
 
   /**
