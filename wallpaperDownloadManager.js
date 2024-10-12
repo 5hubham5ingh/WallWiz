@@ -121,6 +121,7 @@ export default class WallpaperDownloadManager extends Download {
         tempWallpapers,
         this.destinationDir,
         this.handleWallpaperSelection.bind(this),
+        this.getWallpaperPath.bind(this),
       );
 
       await UI.init();
@@ -156,5 +157,9 @@ export default class WallpaperDownloadManager extends Download {
       print("Error in handleWallpaperSelection.");
       throw error;
     }
+  }
+
+  getWallpaperPath(wallpaper) {
+    return this.destinationDir.concat(wallpaper.name);
   }
 }

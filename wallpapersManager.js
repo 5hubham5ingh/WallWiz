@@ -161,6 +161,7 @@ export default class WallpaperSetter {
       this.wallpapers,
       this.picCacheDir,
       this.handleSelection.bind(this),
+      this.getWallpaperPath.bind(this),
     );
     await ui.init();
   }
@@ -178,6 +179,10 @@ export default class WallpaperSetter {
       this.setWallpaper(name),
     ];
     await Promise.all(promises);
+  }
+
+  getWallpaperPath(wallpaper) {
+    return USER_ARGUMENTS.wallpapersDirectory.concat(wallpaper.name);
   }
 
   isSupportedImageFormat(name) {
