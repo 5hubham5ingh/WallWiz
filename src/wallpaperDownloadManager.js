@@ -9,6 +9,7 @@ import { ansi } from "../../justjs/src/just-js/helpers/ansiStyle.js";
  * @extends Download
  * @description Manages the process of downloading, filtering, and previewing wallpapers
  */
+"use strip";
 export default class WallpaperDownloadManager extends Download {
   constructor() {
     const downloadDestinationDirectory = `${HOME_DIR}/.cache/WallWiz/tmp/`;
@@ -31,8 +32,9 @@ export default class WallpaperDownloadManager extends Download {
       await this.downloadItemInDestinationDir();
       await this.previewWallpapersForDownload();
     } catch (error) {
-      print("Error in WallpaperDownloadManager's init");
-      throw error;
+      throw new Error(
+        "Failed to Initialize WallpaperDownloadManager:\n" + error,
+      );
     }
   }
 
@@ -58,7 +60,7 @@ export default class WallpaperDownloadManager extends Download {
       wallpaper.name
     ).join("\n");
     const fzfCommand =
-      `fzf -m --bind 'enter:select-all+accept' --layout="reverse" --prompt="\\b" --marker="\\b" --pointer="\\b" --header="Type wallpaper name or category to search for matching wallpaper." --header-first --border=double --border-label=" Wallpapers "`;
+      `fzf -m --bind 'enter:select-all+accept' --layout="reverse" --prompt="\b" --marker="\b" --pointer="\b" --header="Type wallpaper name or category to search for matching wallpaper." --header-first --border=double --border-label=" Wallpapers "`;
 
     const filter = new ProcessSync(fzfCommand, {
       input: availableWallpaperNames,
@@ -123,8 +125,7 @@ export default class WallpaperDownloadManager extends Download {
       await UI.init();
       this.removeTempWallpapers(tempDownloadedWallpapers);
     } catch (error) {
-      print("Failed to preview wallpapers for download:");
-      throw error;
+      throw new Error("Failed to preview wallpapers for download:\n" + error);
     }
   }
 
@@ -153,8 +154,10 @@ export default class WallpaperDownloadManager extends Download {
         "normal",
       );
     } catch (error) {
-      print("Error in handleWallpaperSelection.");
-      throw error;
+      throw new Error(
+        "Error in handleWallpaperSelection. Failed to download " +
+          wallpaper.uniqueId + "\n" + error,
+      );
     }
   }
 

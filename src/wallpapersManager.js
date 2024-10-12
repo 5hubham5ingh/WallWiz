@@ -3,6 +3,7 @@ import { UserInterface } from "./userInterface.js";
 import utils from "./utils.js";
 import { ensureDir } from "../../justjs/src/fs.js";
 
+"use strip";
 export default class WallpaperSetter {
   constructor() {
     this.picCacheDir = HOME_DIR.concat("/.cache/WallWiz/pic/");

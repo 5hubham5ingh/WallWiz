@@ -8,6 +8,7 @@ import { ensureDir } from "../../justjs/src/fs.js";
 /**
  * Theme class manages colors and theme configurations of wallpapers
  */
+"use strip";
 class Theme {
   /**
    * Constructor for the Theme class
@@ -161,8 +162,8 @@ class Theme {
         print(`Generating theme configuration files using ${scriptName}...`);
         try {
           const [darkThemeConfig, lightThemeConfig] = await Promise.all([
-            themeHandler.getDarkThemeConf(colours),
-            themeHandler.getLightThemeConf(colours),
+            themeHandler?.getDarkThemeConf(colours),
+            themeHandler?.getLightThemeConf(colours),
           ]);
 
           const cacheDir = this.appThemeCacheDir[scriptName];
@@ -202,7 +203,7 @@ class Theme {
 
       if (err === 0) {
         try {
-          await themeHandler.setTheme(currentThemePath, execAsync);
+          await themeHandler?.setTheme(currentThemePath, execAsync);
         } catch (error) {
           utils.notify(`Error in script: ${scriptName}`, error, "critical");
         }
@@ -215,7 +216,7 @@ class Theme {
     };
 
     const promises = Object.entries(this.themeExtensionScripts).map(setTheme);
-
+    promises.push(utils.notify("WallWiz", "Applying themes..."));
     await Promise.all(promises);
   }
 

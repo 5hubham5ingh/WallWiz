@@ -7,6 +7,7 @@ import utils from "./utils.js";
  * @typedef {import('./types.d.ts').DownloadItemList} DownloadItemList
  */
 
+"use strip";
 export default class Download {
   /**
    * @param {string[]} sourceRepoUrls
@@ -27,8 +28,7 @@ export default class Download {
       /** @type {ApiCache} */
       this.apiCache = apiCacheFile ? JSON.parse(apiCacheFile) : [];
     } catch (error) {
-      print("Error initializing Download:");
-      throw error;
+      throw new Error("Error initializing Download:\n" + error);
     }
   }
 

@@ -7,6 +7,7 @@ import { ansi } from "../../justjs/src/just-js/helpers/ansiStyle.js";
  * @typedef {import('./types.d.ts').DownloadItemMenu} DownloadItemMenu
  */
 
+"use strip";
 class ExtensionScriptsDownloader extends Download {
   constructor(...all) {
     super(...all);

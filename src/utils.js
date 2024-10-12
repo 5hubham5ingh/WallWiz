@@ -1,3 +1,4 @@
+"use strip";
 class Utils {
   /**
    * @method processLimit
@@ -41,7 +42,7 @@ class Utils {
    * @description Sends a desktop notification or prints to console based on urgency and notification settings
    * @param {string} title - The notification title
    * @param {string} message - The notification message
-   * @param {'normal' | "critical" | 'low' } [urgency='normal'] - The urgency level of the notification ('low', 'normal' or 'critical' )
+   * @param {'normal' | "critical" | 'low' } urgency - default='normal' - The urgency level of the notification ('low', 'normal' or 'critical' )
    * @returns {Promise<void>}
    */
   async notify(title, message, urgency = "normal") {

@@ -17,6 +17,7 @@ import utils from "./utils.js";
  * @typedef {import('./types.d.ts').WallpapersList} WallpapersList
  */
 
+"use strip";
 class UserInterface {
   /**
    * Constructor for the UserInterface class
