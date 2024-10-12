@@ -1,4 +1,3 @@
-import { exec as execAsync } from "../../justjs/src/process.js";
 import {
   clearTerminal,
   cursorHide,

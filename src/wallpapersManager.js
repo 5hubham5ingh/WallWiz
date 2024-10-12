@@ -1,6 +1,5 @@
 import { Theme } from "./themeManager.js";
 import { UserInterface } from "./userInterface.js";
-import { exec as execAsync } from "../../justjs/src/process.js";
 import utils from "./utils.js";
 import { ensureDir } from "../../justjs/src/fs.js";
 

@@ -1,6 +1,7 @@
 import * as std from "std";
 import * as os from "os";
 import { ansi } from "../../justjs/src/just-js/helpers/ansiStyle.js";
+import { exec as execAsync } from "../../justjs/src/process.js";
 
 /**
  * @typedef {import('./types.d.ts').IOs} IOs
@@ -71,3 +72,8 @@ globalThis.SystemError = class SystemError extends Error {
     );
   }
 };
+
+/**
+ * @typedef {typeof execAsync}
+ */
+globalThis.execAsync = execAsync;

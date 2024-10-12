@@ -1,6 +1,5 @@
 import { Curl } from "../../justjs/src/curl.js";
 import { ensureDir } from "../../justjs/src/fs.js";
-import { exec as execAsync } from "../../justjs/src/process.js";
 import utils from "./utils.js";
 
 /**
