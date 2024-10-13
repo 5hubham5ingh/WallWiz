@@ -2,7 +2,6 @@ import { ProcessSync } from "../../justjs/src/process.js";
 import Download from "./downloadManager.js";
 import { UserInterface } from "./userInterface.js";
 import utils from "./utils.js";
-import { ansi } from "../../justjs/src/just-js/helpers/ansiStyle.js";
 
 /**
  * @class WallpaperDownloadManager
@@ -25,17 +24,13 @@ export default class WallpaperDownloadManager extends Download {
    * @returns {Promise<void>}
    */
   async init() {
-    try {
+    await catchAsyncError(async () => {
       this.availableWallpapersInTheRepo = await this.fetchItemListFromRepo();
       this.prepareMenu();
       this.filterWallpapersForPreview();
       await this.downloadItemInDestinationDir();
       await this.previewWallpapersForDownload();
-    } catch (error) {
-      throw new Error(
-        "Failed to Initialize WallpaperDownloadManager:\n" + error,
-      );
-    }
+    }, "WallpaperDownloadManager :: init");
   }
 
   /**
@@ -43,12 +38,14 @@ export default class WallpaperDownloadManager extends Download {
    * @description Prepares the menu of available wallpapers
    */
   prepareMenu() {
-    this.downloadItemMenu = this.availableWallpapersInTheRepo.map(
-      (wallpaper) => ({
-        name: wallpaper.name,
-        downloadUrl: wallpaper.download_url,
-      }),
-    );
+    catchError(() => {
+      this.downloadItemMenu = this.availableWallpapersInTheRepo.map(
+        (wallpaper) => ({
+          name: wallpaper.name,
+          downloadUrl: wallpaper.download_url,
+        }),
+      );
+    }, "prepareMenu");
   }
 
   /**
@@ -56,30 +53,41 @@ export default class WallpaperDownloadManager extends Download {
    * @description Prompts user to filter wallpapers for preview
    */
   filterWallpapersForPreview() {
-    const availableWallpaperNames = this.downloadItemMenu.map((wallpaper) =>
-      wallpaper.name
-    ).join("\n");
-    const fzfCommand =
-      `fzf -m --bind 'enter:select-all+accept' --layout="reverse" --prompt="\b" --marker="\b" --pointer="\b" --header="Type wallpaper name or category to search for matching wallpaper." --header-first --border=double --border-label=" Wallpapers "`;
+    catchError(() => {
+      const availableWallpaperNames = this.downloadItemMenu.map((wallpaper) =>
+        wallpaper.name
+      ).join("\n");
+      const fzfCommand =
+        `fzf -m --bind 'enter:select-all+accept' --layout="reverse" --prompt="\b" --marker="\b" --pointer="\b" --header="Type wallpaper name or category to search for matching wallpaper." --header-first --border=double --border-label=" Wallpapers "`;
 
-    const filter = new ProcessSync(fzfCommand, {
-      input: availableWallpaperNames,
-      useShell: true,
-    });
-
-    if (filter.run()) {
-      const filteredWallpapers = filter.stdout.trim().split("\n");
-      if (filteredWallpapers.length) {
-        print(
-          ansi.styles(["bold", "blue"]),
-          "\n Fetching wallpapers for preview\n",
-          ansi.style.reset,
-        );
-        this.downloadItemList = this.downloadItemMenu.filter((wallpaper) =>
-          filteredWallpapers.includes(wallpaper.name)
+      const filter = new ProcessSync(fzfCommand, {
+        input: availableWallpaperNames,
+        useShell: true,
+      });
+      try {
+        filter.run();
+      } catch (error) {
+        throw new SystemError(
+          "Failed to run fzf.",
+          "Make sure it is installed and available in the system.",
+          error,
         );
       }
-    }
+      if (filter.success) {
+        const filteredWallpapers = filter.stdout.trim().split("\n");
+        if (filteredWallpapers.length) {
+          utils.log("Fetching wallpapers for preview");
+          this.downloadItemList = this.downloadItemMenu.filter((wallpaper) =>
+            filteredWallpapers.includes(wallpaper.name)
+          );
+        }
+      } else {
+        throw new SystemError(
+          "No wallpaper selected.",
+          "Select atleast one wallpaper to download",
+        );
+      }
+    }, "filterWallpapersForPreview");
   }
 
   /**
@@ -88,10 +96,12 @@ export default class WallpaperDownloadManager extends Download {
    * @description Removes temporary wallpaper files
    */
   removeTempWallpapers(wallpapers) {
-    wallpapers.forEach((wallpaperName) => {
-      const filePath = `${this.destinationDir}${wallpaperName}`;
-      OS.remove(filePath);
-    });
+    catchError(() => {
+      wallpapers.forEach((wallpaperName) => {
+        const filePath = `${this.destinationDir}${wallpaperName}`;
+        OS.remove(filePath);
+      });
+    }, "removeTempWallpapers");
   }
 
   /**
@@ -100,7 +110,7 @@ export default class WallpaperDownloadManager extends Download {
    * @returns {Promise<void>}
    */
   async previewWallpapersForDownload() {
-    try {
+    await catchAsyncError(async () => {
       const [tempDownloadedWallpapers, error] = OS.readdir(this.destinationDir);
       if (error !== 0) {
         throw new Error(
@@ -124,9 +134,7 @@ export default class WallpaperDownloadManager extends Download {
 
       await UI.init();
       this.removeTempWallpapers(tempDownloadedWallpapers);
-    } catch (error) {
-      throw new Error("Failed to preview wallpapers for download:\n" + error);
-    }
+    }, "previewWallpapersForDownload");
   }
 
   /**
@@ -136,7 +144,7 @@ export default class WallpaperDownloadManager extends Download {
    * @returns {Promise<void>}
    */
   async handleWallpaperSelection(wallpaper) {
-    try {
+    await catchAsyncError(async () => {
       const sourceWallpaperPath = `${this.destinationDir}${wallpaper.uniqueId}`;
       const destinationWallpaperPath =
         `${USER_ARGUMENTS.wallpapersDirectory}${wallpaper.uniqueId}`;
@@ -153,15 +161,13 @@ export default class WallpaperDownloadManager extends Download {
         destinationWallpaperPath,
         "normal",
       );
-    } catch (error) {
-      throw new Error(
-        "Error in handleWallpaperSelection. Failed to download " +
-          wallpaper.uniqueId + "\n" + error,
-      );
-    }
+    }, "handleWallpaperSelection");
   }
 
   getWallpaperPath(wallpaper) {
-    return this.destinationDir.concat(wallpaper.name);
+    return catchError(
+      () => this.destinationDir.concat(wallpaper.name),
+      "getWallpaperPath",
+    );
   }
 }

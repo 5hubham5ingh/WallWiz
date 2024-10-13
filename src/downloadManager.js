@@ -14,22 +14,20 @@ export default class Download {
    * @param {string} destinationDir
    */
   constructor(sourceRepoUrls, destinationDir) {
-    this.destinationDir = destinationDir;
-    this.sourceRepoUrls = sourceRepoUrls.map(Download.ensureGitHubApiUrl);
+    catchError(() => {
+      this.destinationDir = destinationDir;
+      this.sourceRepoUrls = sourceRepoUrls.map(Download.ensureGitHubApiUrl);
 
-    /** @type {DownloadItemList} */
-    this.downloadItemList = [];
+      /** @type {DownloadItemList} */
+      this.downloadItemList = [];
 
-    this.apiCacheFilePath = `${HOME_DIR}/.cache/WallWiz/apiCache.json`;
+      this.apiCacheFilePath = `${HOME_DIR}/.cache/WallWiz/apiCache.json`;
 
-    try {
       ensureDir(this.destinationDir);
       const apiCacheFile = STD.loadFile(this.apiCacheFilePath);
       /** @type {ApiCache} */
       this.apiCache = apiCacheFile ? JSON.parse(apiCacheFile) : [];
-    } catch (error) {
-      throw new Error("Error initializing Download:\n" + error);
-    }
+    }, "constructor");
   }
 
   /**
@@ -39,76 +37,78 @@ export default class Download {
    * @returns {Promise<any>}
    */
   async fetch(url, headers = {}) {
-    const upsertCache = (updatedData) => {
-      const index = this.apiCache.findIndex((cache) =>
-        cache.url === updatedData.url
-      );
-      if (index !== -1) {
-        this.apiCache[index] = updatedData;
-      } else {
-        this.apiCache.push(updatedData);
+    return await catchAsyncError(async () => {
+      const upsertCache = (updatedData) => {
+        catchError(() => {
+          const index = this.apiCache.findIndex((cache) =>
+            cache.url === updatedData.url
+          );
+          if (index !== -1) {
+            this.apiCache[index] = updatedData;
+          } else {
+            this.apiCache.push(updatedData);
+          }
+          utils.writeFile(JSON.stringify(this.apiCache), this.apiCacheFilePath);
+        }, "upsertCache");
+      };
+
+      const currentCache = this.apiCache.find((cache) => cache.url === url) ||
+        { url };
+
+      const curl = new Curl(url, {
+        parseJson: true,
+        headers: {
+          "if-none-match": currentCache.etag,
+          Authorization: USER_ARGUMENTS.githubApiKey
+            ? `token ${USER_ARGUMENTS.githubApiKey}`
+            : null,
+          ...headers,
+        },
+      });
+
+      try {
+        await curl.run();
+      } catch (e) {
+        throw new SystemError(
+          "Failed to run curl.",
+          "Make sure it is installed and available in the system.",
+          e,
+        );
       }
-      utils.writeFile(JSON.stringify(this.apiCache), this.apiCacheFilePath);
-    };
 
-    const currentCache = this.apiCache.find((cache) => cache.url === url) ||
-      { url };
+      if (curl.statusCode === 304) {
+        return currentCache.data;
+      }
 
-    const curl = new Curl(url, {
-      parseJson: true,
-      headers: {
-        "if-none-match": currentCache.etag,
-        Authorization: USER_ARGUMENTS.githubApiKey
-          ? `token ${USER_ARGUMENTS.githubApiKey}`
-          : null,
-        ...headers,
-      },
-    });
+      if (curl.failed) {
+        throw new SystemError(
+          "Request failed:",
+          `Error: ${curl.error}. Status code: ${curl.statusCode}. Url: ${curl.url}`,
+        );
+      }
 
-    try {
-      await curl.run();
-    } catch (e) {
-      throw new SystemError(
-        "Failed to run curl.",
-        "Make sure it is installed and available in the system.",
-        e,
-      );
-    }
-
-    if (curl.statusCode === 304) {
-      return currentCache.data;
-    }
-
-    if (curl.failed) {
-      throw new SystemError(
-        "Request failed:",
-        `Error: ${curl.error}. Status code: ${curl.statusCode}. Url: ${curl.url}`,
-      );
-    }
-
-    currentCache.etag = curl.headers.etag;
-    currentCache.data = curl.body;
-    upsertCache(currentCache);
-    return curl.body;
+      currentCache.etag = curl.headers.etag;
+      currentCache.data = curl.body;
+      upsertCache(currentCache);
+      return curl.body;
+    }, "fetch");
   }
 
-  /**
-   * Fetch item list from all source repositories
-   * @returns {Promise<DownloadItemList>}
-   */
   async fetchItemListFromRepo() {
-    const responses = await Promise.all(
-      this.sourceRepoUrls.map((url) => this.fetch(url)),
-    );
+    return await catchAsyncError(async () => {
+      const responses = await Promise.all(
+        this.sourceRepoUrls.map((url) => this.fetch(url)),
+      );
 
-    return responses.reduce((acc, itemList) => {
-      if (Array.isArray(itemList)) {
-        Array.prototype.push.apply(acc, itemList);
-      } else {
-        utils.notify("Invalid item list received:", itemList, "critical");
-      }
-      return acc;
-    }, []);
+      return responses.reduce((acc, itemList) => {
+        if (Array.isArray(itemList)) {
+          Array.prototype.push.apply(acc, itemList);
+        } else {
+          utils.notify("Invalid item list received:", itemList, "critical");
+        }
+        return acc;
+      }, []);
+    }, "fetchItemListFromRepo");
   }
 
   /**
@@ -120,24 +120,26 @@ export default class Download {
     itemList = this.downloadItemList,
     destinationDir = this.destinationDir,
   ) {
-    const fileListForCurl = [];
+    await catchAsyncError(async () => {
+      const fileListForCurl = [];
 
-    for (const item of itemList) {
-      fileListForCurl.push([
-        item.downloadUrl,
-        `${destinationDir}/${item.name}`,
-      ]);
-    }
+      for (const item of itemList) {
+        fileListForCurl.push([
+          item.downloadUrl,
+          `${destinationDir}/${item.name}`,
+        ]);
+      }
 
-    try {
-      await execAsync(Download.generateCurlParallelCommand(fileListForCurl));
-    } catch (e) {
-      throw new SystemError(
-        "Failed to run curl.",
-        "Make sure it is installed and available in the system.",
-        e,
-      );
-    }
+      try {
+        await execAsync(Download.generateCurlParallelCommand(fileListForCurl));
+      } catch (e) {
+        throw new SystemError(
+          "Failed to run curl.",
+          "Make sure it is installed and available in the system.",
+          e,
+        );
+      }
+    }, "downloadItemInDestinationDir");
   }
 
   /**
@@ -146,15 +148,17 @@ export default class Download {
    * @returns {string}
    */
   static generateCurlParallelCommand(fileList) {
-    const escapedFileList = fileList.map(([sourceUrl, destPath]) => [
-      sourceUrl.replace(/(["\s'$`\\])/g, "\\$1"),
-      destPath.replace(/(["\s'$`\\])/g, "\\$1"),
-    ]);
+    return catchError(() => {
+      const escapedFileList = fileList.map(([sourceUrl, destPath]) => [
+        sourceUrl.replace(/(["\s'$`\\])/g, "\\$1"),
+        destPath.replace(/(["\s'$`\\])/g, "\\$1"),
+      ]);
 
-    return "curl --parallel --parallel-immediate " +
-      escapedFileList.map(([sourceUrl, destPath]) =>
-        `-o "${destPath}" "${sourceUrl}"`
-      ).join(" ");
+      return "curl --parallel --parallel-immediate " +
+        escapedFileList.map(([sourceUrl, destPath]) =>
+          `-o "${destPath}" "${sourceUrl}"`
+        ).join(" ");
+    }, "generateCurlParallelCommand");
   }
 
   /**
@@ -163,21 +167,23 @@ export default class Download {
    * @returns {string}
    */
   static ensureGitHubApiUrl(gitHubUrl) {
-    const apiUrlRegex =
-      /^https:\/\/api\.github\.com\/repos\/([^\/]+)\/([^\/]+)\/contents\/(.+)(\?ref=.+)?$/;
-    if (apiUrlRegex.test(gitHubUrl)) {
-      return gitHubUrl;
-    }
+    return catchError(() => {
+      const apiUrlRegex =
+        /^https:\/\/api\.github\.com\/repos\/([^\/]+)\/([^\/]+)\/contents\/(.+)(\?ref=.+)?$/;
+      if (apiUrlRegex.test(gitHubUrl)) {
+        return gitHubUrl;
+      }
 
-    const githubRegex =
-      /https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/tree\/([^\/]+)(\/(.+))?/;
-    const match = gitHubUrl.match(githubRegex);
+      const githubRegex =
+        /https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/tree\/([^\/]+)(\/(.+))?/;
+      const match = gitHubUrl.match(githubRegex);
 
-    if (!match) {
-      throw new SystemError(`Invalid GitHub URL format`, gitHubUrl);
-    }
+      if (!match) {
+        throw new SystemError(`Invalid GitHub URL format`, gitHubUrl);
+      }
 
-    const [, owner, repo, branch, , directoryPath = ""] = match;
-    return `https://api.github.com/repos/${owner}/${repo}/contents/${directoryPath}?ref=${branch}`;
+      const [, owner, repo, branch, , directoryPath = ""] = match;
+      return `https://api.github.com/repos/${owner}/${repo}/contents/${directoryPath}?ref=${branch}`;
+    }, "ensureGitHubApiUrl");
   }
 }

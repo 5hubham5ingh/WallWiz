@@ -2,7 +2,10 @@ import * as std from "std";
 import * as os from "os";
 import { ansi } from "../../justjs/src/just-js/helpers/ansiStyle.js";
 import { exec as execAsync } from "../../justjs/src/process.js";
-import { clearTerminal } from "../../justjs/src/just-js/helpers/cursor.js";
+import {
+  clearTerminal,
+  cursorShow,
+} from "../../justjs/src/just-js/helpers/cursor.js";
 
 /**
  * @typedef {import('./types.d.ts').IOs} IOs
@@ -45,7 +48,6 @@ globalThis.SystemError = class SystemError extends Error {
     this.name = error;
     this.description = description;
     this.body = body;
-    // Capture the stack trace (optional)
     if (Error.captureStackTrace) {
       Error.captureStackTrace(this, SystemError);
     }
@@ -58,7 +60,6 @@ globalThis.SystemError = class SystemError extends Error {
    */
   log(inspect) {
     print(
-      clearTerminal,
       "\n",
       ansi.styles(["bold", "red"]),
       this.name,
@@ -69,7 +70,7 @@ globalThis.SystemError = class SystemError extends Error {
       this.description.split(".").map((line) => line.trim()).join("\n"),
       ansi.style.reset,
       "\n",
-      inspect && body,
+      inspect ? this.body : "",
       cursorShow,
     );
   }
@@ -79,3 +80,37 @@ globalThis.SystemError = class SystemError extends Error {
  * @typedef {typeof execAsync}
  */
 globalThis.execAsync = execAsync;
+
+const handleError = (error, blockName) => {
+  if (error instanceof SystemError) throw error;
+  if (!(error instanceof Error)) return;
+  if (error.stackTrace) {
+    error.stackTrace.unshift(blockName);
+  } else {
+    error.stackTrace = [blockName];
+  }
+  throw error;
+};
+
+/**
+ * @param {Function} cb - Callback
+ * @param {string} blockName - Error message / Block name
+ * @returns {Promise<Error | SystemError>}
+ */
+globalThis.catchAsyncError = async (cb, blockName) => {
+  try {
+    return await cb();
+  } catch (error) {
+    handleError(error, blockName);
+  }
+};
+
+globalThis.catchError = (cb, blockName) => {
+  try {
+    return cb();
+  } catch (error) {
+    handleError(error, blockName);
+  }
+};
+
+globalThis.SUCCESS = 0;

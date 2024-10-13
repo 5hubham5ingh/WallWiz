@@ -16,24 +16,15 @@ class WallWiz {
 
   async run() {
     try {
-      // Set the terminal to raw mode for better input handling
       OS.ttySetRaw();
-
-      // Handle various operations based on user arguments
       this.handleShowKeymaps();
       await this.handleThemeExtensionScriptDownload();
       await this.handleWallpaperHandlerScriptDownload();
       await this.handleWallpaperBrowsing();
       await this.handleWallpaperSetter();
-    } catch (error) {
-      // Print any errors that occur during execution
-      if (error instanceof SystemError) {
-        error.log(USER_ARGUMENTS.inspection);
-      } else if (USER_ARGUMENTS.inspection) {
-        print(error);
-      }
+    } catch (status) {
+      this.handleExecutionStatus(status);
     } finally {
-      // Ensure the program exits properly
       STD.exit(0);
     }
   }
@@ -188,70 +179,57 @@ class WallWiz {
   }
 
   async handleThemeExtensionScriptDownload() {
-    // Check if theme extension script download is requested
     if (!USER_ARGUMENTS.downloadThemeExtensionScripts) return;
-    try {
-      // Initialize and run the theme extension scripts download manager
+    return await catchAsyncError(async () => {
       const downloadManager = new ThemeExtensionScriptsDownloadManager();
       await downloadManager.init();
-    } catch (error) {
-      throw new Error(
-        "Failed to start Download manager for theme extension scripts.\n"
-          .concat(error),
-      );
-    }
+    }, "handleThemeExtensionScriptDownload");
   }
 
   async handleWallpaperHandlerScriptDownload() {
-    // Check if wallpaper daemon handler script download is requested
     if (!USER_ARGUMENTS.downloadWallpaperDaemonHandlerScript) return;
-    try {
-      // Initialize and run the wallpaper daemon handler script download manager
+    return await catchAsyncError(async () => {
       const downloadManager = new WallpaperDaemonHandlerScriptDownloadManager();
       await downloadManager.init();
-    } catch (error) {
-      throw new Error(
-        "Failed to start downloadManager for wallpaper daemon handle script.\n"
-          .concat(error),
-      );
-    }
+    }, "handleWallpaperHandlerScriptDownload");
   }
 
   async handleWallpaperBrowsing() {
-    // Check if online wallpaper browsing is requested
     if (!USER_ARGUMENTS.browseWallpaperOnline) return;
-    try {
-      // Initialize and run the wallpaper download manager for online browsing
+
+    return await catchAsyncError(async () => {
       const wallpaperDownloadManager = new WallpaperDownloadManager();
       await wallpaperDownloadManager.init();
-    } catch (error) {
-      throw new Error(
-        "Failed to initialize WallpaperDownloadManager.\n".concat(error),
-      );
-    }
+    }, "handleWallpaperBrowsing");
   }
 
   async handleWallpaperSetter() {
-    try {
-      // Initialize and run the wallpaper setter
+    return await catchAsyncError(async () => {
       const wallpaperSetter = new WallpaperSetter();
       await wallpaperSetter.init();
-    } catch (error) {
-      throw new Error(
-        "Failed to initialize WallpaperSetter.".concat(error),
-      );
-    }
+    }, "handleWallpaperSetter");
   }
 
   handleShowKeymaps() {
-    // Check if showing keymaps is requested
-    if (!USER_ARGUMENTS.showKeyMap) return;
-    // Display keymaps and exit the program
-    UserInterface.printKeyMaps();
-    STD.exit(0);
+    catchError(() => {
+      if (!USER_ARGUMENTS.showKeyMap) return;
+      UserInterface.printKeyMaps();
+    }, "handleShowKeymaps");
+  }
+
+  handleExecutionStatus(status) {
+    if (status === 0) return;
+    if (status instanceof SystemError) {
+      status.log(USER_ARGUMENTS.inspection);
+    } else if (USER_ARGUMENTS.inspection) {
+      const stackTrace = status?.stackTrace?.map((stack, i) => {
+        return " ".repeat(i * 2) + "╰──> " + stack;
+      }).join("\n");
+      print(stackTrace, "\n", status);
+    }
+    STD.exit(status);
   }
 }
 
-// Create an instance of WallWiz and run the application
 const wallWiz = new WallWiz();
 await wallWiz.run();
