@@ -1,3 +1,11 @@
+/*
+ For:            dunst,https://dunst-project.org
+ Author:         https://github.com/5hubham5ingh
+ Prerequisite:   Dunst must be running for the theme to take effect.
+
+ Note: Remove all the theme colour option from the /.config/dunst/dunstrc,
+       as they might overwrite the generated theme.
+ */
 import { getenv, loadFile, open } from "std";
 import { exec } from "os";
 

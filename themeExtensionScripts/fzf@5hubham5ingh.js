@@ -9,6 +9,25 @@
 
 import { getenv, loadFile, open, SEEK_SET } from "std";
 
+const SHELL_CONFIG_FILE = "/.bashrc";
+
+function getDarkThemeConf(colours) {
+  return getThemeConf(colours, true);
+}
+
+function getLightThemeConf(colours) {
+  return getThemeConf(colours, false);
+}
+
+function setTheme(themeConfig) {
+  const fzfConfig = loadFile(themeConfig);
+  updateOrAddEnvVar(
+    getenv("HOME") + SHELL_CONFIG_FILE,
+    "FZF_DEFAULT_OPTS",
+    fzfConfig,
+  );
+}
+
 function hexToRGB(hex) {
   const r = parseInt(hex.slice(1, 3), 16);
   const g = parseInt(hex.slice(3, 5), 16);
@@ -121,21 +140,6 @@ function updateOrAddEnvVar(filePath, variable, value) {
   file.seek(0, SEEK_SET);
   file.puts(fileContent);
   file.close();
-}
-
-function getDarkThemeConf(colours) {
-  return getThemeConf(colours, true);
-}
-function getLightThemeConf(colours) {
-  return getThemeConf(colours, false);
-}
-function setTheme(themeConfig) {
-  const fzfConfig = loadFile(themeConfig);
-  updateOrAddEnvVar(
-    getenv("HOME") + "/.bashrc",
-    "FZF_DEFAULT_OPTS",
-    fzfConfig,
-  );
 }
 
 export { getDarkThemeConf, getLightThemeConf, setTheme };
