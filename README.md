@@ -158,8 +158,6 @@ WallWiz -e -a -d ~/Pictures
 - `swww` wallpaper daemon handler script.
 - VS Code theme extension script.
 - Firefox theme extension script.
-- Dunst notification theme extension script.
-- `fzf` theme extension script.
 
 ## Contributing
 
