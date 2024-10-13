@@ -82,8 +82,7 @@ globalThis.SystemError = class SystemError extends Error {
 globalThis.execAsync = execAsync;
 
 const handleError = (error, blockName) => {
-  if (error instanceof SystemError) throw error;
-  if (!(error instanceof Error)) return;
+  if (error instanceof SystemError || (error === SUCCESS)) throw error;
   if (error.stackTrace) {
     error.stackTrace.unshift(blockName);
   } else {

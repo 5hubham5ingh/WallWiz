@@ -1,4 +1,13 @@
-import { loadfile, setenv } from "std";
+/*
+ For:            fzf, https://junegunn.github.io/fzf
+ Author:         https://github.com/5hubham5ingh
+ Prerequisite:   Shell configuration file. (default: .bashrc)
+
+ Note: The new theme only takes effect in a new shell, or requires
+       sourcing the shell configuration file in already running shell.
+*/
+
+import { getenv, loadFile, open, SEEK_SET } from "std";
 
 function hexToRGB(hex) {
   const r = parseInt(hex.slice(1, 3), 16);
@@ -37,38 +46,6 @@ function rgbToHSL(r, g, b) {
   return [h * 360, s * 100, l * 100];
 }
 
-function hslToRGB(h, s, l) {
-  h /= 360;
-  s /= 100;
-  l /= 100;
-  let r, g, b;
-
-  if (s === 0) {
-    r = g = b = l;
-  } else {
-    const hue2rgb = (p, q, t) => {
-      if (t < 0) t += 1;
-      if (t > 1) t -= 1;
-      if (t < 1 / 6) return p + (q - p) * 6 * t;
-      if (t < 1 / 2) return q;
-      if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-      return p;
-    };
-
-    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-    const p = 2 * l - q;
-    r = hue2rgb(p, q, h + 1 / 3);
-    g = hue2rgb(p, q, h);
-    b = hue2rgb(p, q, h - 1 / 3);
-  }
-
-  return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
-}
-
-function rgbToHex(r, g, b) {
-  return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
-}
-
 function generateTheme(colors, isDark) {
   const sortedColors = [...colors].sort((a, b) => {
     const [, , lA] = rgbToHSL(...hexToRGB(a));
@@ -88,26 +65,77 @@ function generateTheme(colors, isDark) {
     ? sortedColors[Math.floor(midIndex / 2)]
     : sortedColors[Math.floor(midIndex * 1.5)];
 
+  const secondary = sortedColors[Math.floor(midIndex * 0.75)];
+  const tertiary = sortedColors[Math.floor(midIndex * 1.25)];
+
   return {
     background,
     foreground,
     highlight,
     accent,
+    secondary,
+    tertiary,
   };
 }
 
-async function getThemeConf(colors, isDark = true) {
+function getThemeConf(colors, isDark = true) {
   const theme = generateTheme(colors, isDark);
 
-  const config =
-    `--color=fg:${theme.foreground},bg:${theme.background},hl:${theme.highlight},fg+:${theme.accent},bg+:${theme.background},hl+:${theme.highlight},info:${theme.accent},prompt:${theme.highlight},pointer:${theme.accent},marker:${theme.accent},spinner:${theme.highlight},header:${theme.highlight},border:${theme.highlight},gutter:${theme.background}`;
+  const config = `
+    fg:${theme.foreground},
+    bg:${theme.background},
+    hl:${theme.highlight},
+    fg+:${theme.accent},
+    bg+:${theme.secondary},
+    hl+:${theme.highlight},
+    info:${theme.tertiary},
+    prompt:${theme.highlight},
+    pointer:${theme.accent},
+    marker:${theme.accent},
+    spinner:${theme.secondary},
+    header:${theme.highlight},
+    border:${theme.tertiary},
+    gutter:${theme.background},
+    preview-fg:${theme.foreground},
+    preview-bg:${theme.background}
+  `.replace(/\n+|\s/g, "").trim();
 
-  return config;
+  return `--color ${config}`;
 }
 
+function updateOrAddEnvVar(filePath, variable, value) {
+  let fileContent = "";
+
+  const file = open(filePath, "r+");
+  fileContent = file.readAsString();
+
+  const regex = new RegExp(`^\\s*export\\s+${variable}="[^"]*"`, "m");
+  const newEnvLine = `export ${variable}="${value}"`;
+
+  if (regex.test(fileContent)) {
+    fileContent = fileContent.replace(regex, newEnvLine);
+  } else {
+    fileContent += `\n${newEnvLine}\n`;
+  }
+
+  file.seek(0, SEEK_SET);
+  file.puts(fileContent);
+  file.close();
+}
+
+function getDarkThemeConf(colours) {
+  return getThemeConf(colours, true);
+}
+function getLightThemeConf(colours) {
+  return getThemeConf(colours, false);
+}
 function setTheme(themeConfig) {
-  const fzfConfig = loadfile(themeConfig);
-  setenv("FZF_DEFAULT_OPTS", fzfConfig);
+  const fzfConfig = loadFile(themeConfig);
+  updateOrAddEnvVar(
+    getenv("HOME") + "/.bashrc",
+    "FZF_DEFAULT_OPTS",
+    fzfConfig,
+  );
 }
 
-export { getThemeConf, setTheme };
+export { getDarkThemeConf, getLightThemeConf, setTheme };

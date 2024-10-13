@@ -218,7 +218,7 @@ class WallWiz {
   }
 
   handleExecutionStatus(status) {
-    if (status === 0) return;
+    if (status === SUCCESS) STD.exit(0);
     if (status instanceof SystemError) {
       status.log(USER_ARGUMENTS.inspection);
     } else if (USER_ARGUMENTS.inspection) {
@@ -227,7 +227,6 @@ class WallWiz {
       }).join("\n");
       print(stackTrace, "\n", status);
     }
-    STD.exit(status);
   }
 }
 
