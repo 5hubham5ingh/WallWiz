@@ -14,14 +14,19 @@ WallWiz (wallpaper wizard) let you select a wallpaper from a grid menu displayed
 ## Prerequisites
 
 - **Kitty terminal**: For displaying the wallpaper grid in the terminal.
-- **ImageMagick**: For generating color themes.
+- **ImageMagick**: For extracting colours from wallpaper.
 - **Extension scripts**: For setting the wallpaper and themes. You can write your own script or download the required ones from [here](https://github.com/5hubham5ingh/WallWiz/tree/main?tab=readme-ov-file#step-2-get-the-required-extension-scripts).
 
 ## Installation
 ### Step 1: Get the executable binary
 #### Option 1: Download Executable
 
-You can download the executable binary from the [GitHub releases](https://github.com/5hubham5ingh/WallWiz/releases) page.
+- You can download the executable binary from the [GitHub releases](https://github.com/5hubham5ingh/WallWiz/releases) page.
+
+- Or, run 
+```bash
+sudo curl -L $(curl -s https://api.github.com/repos/5hubham5ingh/WallWiz/releases/latest | grep -oP '"browser_download_url": "\K(.*)(?=")' | grep WallWiz) -o /usr/bin/WallWiz && sudo chmod +x /usr/bin/WallWiz
+```
 
 #### Option 2: Build from Source
 
@@ -155,6 +160,8 @@ WallWiz -e -a -d ~/Pictures
 ```
 ## Todo
 - Worker thread pool for handling theme extension scripts.
+- `--hold` argument to enable/diable quit after wallpaper selection.
+- `--daemon` to periodically apply a random wallpaper.
 - `swww` wallpaper daemon handler script.
 - VS Code theme extension script.
 - Firefox theme extension script.
