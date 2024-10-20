@@ -48,6 +48,9 @@ export type UserArguments = {
   /** Disable automatic scaling of wallpapers to screen size */
   disableAutoScaling: boolean;
 
+  /** Set daemon mode to randomly apply wallpaper at set intervel */
+  setInterval: number;
+
   /** Limit the number of processes used for downloading wallpapers */
   processLimit: number;
 

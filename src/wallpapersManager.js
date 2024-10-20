@@ -171,12 +171,19 @@ export default class WallpaperSetter {
 
   async handleSettingRandomWallpaper() {
     await catchAsyncError(async () => {
-      if (!USER_ARGUMENTS.setRandomWallpaper) return;
-      const randomWallpaperIndex = Math.floor(
+      const setRandomWallpaper = async (index = Math.floor(
         Math.random() * this.wallpapers.length,
-      );
-      await this.handleSelection(this.wallpapers[randomWallpaperIndex]);
-      throw SUCCESS;
+      )) => await this.handleSelection(this.wallpapers[index]);
+
+      if (USER_ARGUMENTS.setInterval) {
+        while (true) {
+          OS.setTimeout(() => {}, USER_ARGUMENTS.setInterval);
+          await setRandomWallpaper();
+        }
+      } else if (USER_ARGUMENTS.setRandomWallpaper) {
+        await setRandomWallpaper();
+        throw SUCCESS;
+      }
     }, "handleSettingRandomWallpaper");
   }
 

@@ -55,6 +55,7 @@ class WallWiz {
       showKeyMap: "--show-keymap",
       disableNotification: "--disable-notification",
       disableAutoScaling: "--disable-autoscaling",
+      setInterval: "--set-interval",
       processLimit: "--plimit",
       inspection: "--inspection",
     };
@@ -138,6 +139,11 @@ class WallWiz {
         [argNames.disableAutoScaling]: arg
           .flag(false)
           .desc("Disable auto scale terminal size to fit all images."),
+        [argNames.setInterval]: arg
+          .num(0)
+          .min(0)
+          .max(Number.MAX_SAFE_INTEGER)
+          .desc("Set time interval to periodically apply random wallpaper."),
         [argNames.processLimit]: arg
           .num()
           .min(1)
@@ -160,6 +166,7 @@ class WallWiz {
         "-m": argNames.showKeyMap,
         "-n": argNames.disableNotification,
         "-a": argNames.disableAutoScaling,
+        "-v": argNames.setInterval,
         "-x": argNames.processLimit,
         "-i": argNames.inspection,
       })
