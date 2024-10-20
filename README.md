@@ -140,6 +140,8 @@ WallWiz's functionality can be extended through user-defined JavaScript scripts:
 | `--show-keymap`        | `-m`  | `false`   | Display keymaps for the user interface.                                                         |
 | `--disable-notification`| `-n` | `false`   | Disable desktop notifications.                                                                  |
 | `--disable-autoscaling`| `-a`  | `false`   | Disable auto scaling terminal size to fit all images.                                            |
+| `--set-interval` | `-v` | After random wallpaper at set interval. |
+| `--hold` | `-o` | Hold application open even after the wallpaper has been applied. |
 | `--plimit`             | `-x`     | `auto`    | Number of execution threads used.                                                               |
 | `-h, --help`           |          |           | Print help.                                                                                     |
 | `--version`            |          |           | Print the program version.                                                                      |
@@ -160,8 +162,6 @@ WallWiz -e -a -d ~/Pictures
 ```
 ## Todo
 - Worker thread pool for handling theme extension scripts.
-- `--hold` argument to enable/diable quit after wallpaper selection.
-- `--daemon` to periodically apply a random wallpaper.
 - `swww` wallpaper daemon handler script.
 - VS Code theme extension script.
 - Firefox theme extension script.
