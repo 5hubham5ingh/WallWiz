@@ -66,7 +66,7 @@ class UserInterface {
       this.drawUI();
       await this.handleKeysPress();
     }, "UserInterface :: init").finally(() => {
-      print(cursorShow);
+      print(clearTerminal, cursorShow);
       OS.exec(["kitty", "@", "set-font-size", "--", "0"]);
     });
   }

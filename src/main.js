@@ -56,6 +56,7 @@ class WallWiz {
       disableNotification: "--disable-notification",
       disableAutoScaling: "--disable-autoscaling",
       setInterval: "--set-interval",
+      hold: "--hold",
       processLimit: "--plimit",
       inspection: "--inspection",
     };
@@ -144,6 +145,11 @@ class WallWiz {
           .min(0)
           .max(Number.MAX_SAFE_INTEGER)
           .desc("Set time interval to periodically apply random wallpaper."),
+        [argNames.hold]: arg
+          .flag(true)
+          .desc(
+            "Keep the app running even after the wallpaper has been applyed.",
+          ),
         [argNames.processLimit]: arg
           .num()
           .min(1)
@@ -167,6 +173,7 @@ class WallWiz {
         "-n": argNames.disableNotification,
         "-a": argNames.disableAutoScaling,
         "-v": argNames.setInterval,
+        "-o": argNames.hold,
         "-x": argNames.processLimit,
         "-i": argNames.inspection,
       })

@@ -51,6 +51,9 @@ export type UserArguments = {
   /** Set daemon mode to randomly apply wallpaper at set intervel */
   setInterval: number;
 
+  /** Hold, i.e. Do not quit the app after applying wallpaper. */
+  hold: boolean;
+
   /** Limit the number of processes used for downloading wallpapers */
   processLimit: number;
 

@@ -207,6 +207,7 @@ export default class WallpaperSetter {
         this.setWallpaper(name),
       ];
       await Promise.all(promises);
+      if (!USER_ARGUMENTS.hold) throw SUCCESS;
     }, "handleSelection");
   }
 
