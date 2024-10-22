@@ -140,8 +140,8 @@ WallWiz's functionality can be extended through user-defined JavaScript scripts:
 | `--show-keymap`        | `-m`  | `false`   | Display keymaps for the user interface.                                                         |
 | `--disable-notification`| `-n` | `false`   | Disable desktop notifications.                                                                  |
 | `--disable-autoscaling`| `-a`  | `false`   | Disable auto scaling terminal size to fit all images.                                            |
-| `--set-interval` | `-v` | After random wallpaper at set interval. |
-| `--hold` | `-o` | Hold application open even after the wallpaper has been applied. |
+| `--set-interval` | `-v`| `disabled` | After random wallpaper at set interval. |
+| `--hold` | `-o` | `true` | Hold application open even after the wallpaper has been applied. |
 | `--plimit`             | `-x`     | `auto`    | Number of execution threads used.                                                               |
 | `-h, --help`           |          |           | Print help.                                                                                     |
 | `--version`            |          |           | Print the program version.                                                                      |
