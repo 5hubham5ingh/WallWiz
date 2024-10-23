@@ -1,4 +1,4 @@
-import { ProcessSync } from "../../justjs/src/process.js";
+import { ProcessSync } from "../../qjs-ext-lib/src/process.js";
 import Download from "./downloadManager.js";
 import { UserInterface } from "./userInterface.js";
 import utils from "./utils.js";

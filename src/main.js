@@ -1,5 +1,5 @@
 import * as _ from "./globalConstants.js";
-import arg from "../../justjs/src/arg.js";
+import arg from "../../qjs-ext-lib/src/arg.js";
 import {
   ThemeExtensionScriptsDownloadManager,
   WallpaperDaemonHandlerScriptDownloadManager,

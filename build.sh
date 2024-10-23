@@ -8,9 +8,10 @@ sudo make install &&
 cd .. &&
 
 ## Fetch the required library.
-curl -L -o qjs-ext-lib.zip https://github.com/ctn-malone/qjs-ext-lib/archive/refs/tags/0.12.4.zip &&
-unzip qjs-ext-lib.zip &&
-rm qjs-ext-lib.zip &&
+curl -L -o out.zip https://github.com/ctn-malone/qjs-ext-lib/archive/refs/tags/0.12.4.zip &&
+unzip out.zip &&
+mv qjs-ext-lib-0.12.4 qjs-ext-lib &&
+rm out.zip &&
 
 ## Fetch helper scripts
 git clone --depth 1 https://github.com/5hubham5ingh/justjs.git &&

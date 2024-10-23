@@ -5,12 +5,12 @@ import {
   cursorShow,
   cursorTo,
   eraseDown,
-} from "../../justjs/src/just-js/helpers/cursor.js";
-import { ansi } from "../../justjs/src/just-js/helpers/ansiStyle.js";
+} from "../../justjs/cursor.js";
+import { ansi } from "../../justjs/ansiStyle.js";
 import {
   handleKeysPress,
   keySequences,
-} from "../../justjs/src/just-js/helpers/terminal.js";
+} from "../../justjs/terminal.js";
 import utils from "./utils.js";
 
 /**

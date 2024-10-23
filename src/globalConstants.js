@@ -1,11 +1,10 @@
 import * as std from "std";
 import * as os from "os";
-import { ansi } from "../../justjs/src/just-js/helpers/ansiStyle.js";
-import { exec as execAsync } from "../../justjs/src/process.js";
+import { ansi } from "../../justjs/ansiStyle.js";
+import { exec as execAsync } from "../../qjs-ext-lib/src/process.js";
 import {
-  clearTerminal,
   cursorShow,
-} from "../../justjs/src/just-js/helpers/cursor.js";
+} from "../../justjs/cursor.js";
 
 /**
  * @typedef {import('./types.d.ts').IOs} IOs

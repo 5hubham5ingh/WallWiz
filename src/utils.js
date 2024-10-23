@@ -1,6 +1,6 @@
 "use strip";
 
-import { ansi } from "../../justjs/src/just-js/helpers/ansiStyle.js";
+import { ansi } from "../../justjs/ansiStyle.js";
 
 class Utils {
   /**

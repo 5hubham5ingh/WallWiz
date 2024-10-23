@@ -1,4 +1,4 @@
-import { Curl } from "../../justjs/src/curl.js";
+import { Curl } from "../../qjs-ext-lib/src/curl.js";
 import utils from "./utils.js";
 
 /**

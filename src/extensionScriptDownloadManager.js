@@ -1,6 +1,6 @@
-import { ProcessSync } from "../../justjs/src/process.js";
+import { ProcessSync } from "../../qjs-ext-lib/src/process.js";
 import Download from "./downloadManager.js";
-import { ansi } from "../../justjs/src/just-js/helpers/ansiStyle.js";
+import { ansi } from "../../justjs/ansiStyle.js";
 import utils from "./utils.js";
 
 /**
