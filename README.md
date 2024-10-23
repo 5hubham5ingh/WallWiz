@@ -30,38 +30,14 @@ sudo curl -L $(curl -s https://api.github.com/repos/5hubham5ingh/WallWiz/release
 
 #### Option 2: Build from Source
 
-1. Clone the required library:
-   ```bash
-   git clone https://github.com/5hubham5ingh/justjs.git
-
-3. Clone the project repository:
-   ```bash
-   git clone https://github.com/5hubham5ingh/WallWiz.git
-
-3. Get the qjsc compiler source, build, and install it:
-   ```bash
-   git clone https://github.com/bellard/quickjs.git &&
-   cd quickjs &&
-   make &&
-   sudo make install 
-
-5. Build WallWiz:
-   ```bash
-   cd WallWiz
-   qjsc main.js -o WallWiz
-
-6. Make the binary executable
-   ```bash
-   sudo chmod +x WallWiz
-
-7. Install WallWiz:
-   ```bash
-   sudo cp WallWiz /usr/bin/
-
-
+- Follow the steps written in [build.sh](https://github.com/5hubham5ingh/WallWiz/blob/main/build.sh).
+- Or, run
+```bash
+curl -fsSL https://raw.githubusercontent.com/5hubham5ingh/WallWiz/main/build.sh | sh
+```
 ### Step 2: Get the required extension scripts
 
-#### Option 1: Download prewritten extension scripts
+#### Option 1: Download pre-written extension scripts
 
 ##### Wallpaper daemon handlers
 
