@@ -1,5 +1,4 @@
 import { Curl } from "../../justjs/src/curl.js";
-import { ensureDir } from "../../justjs/src/fs.js";
 import utils from "./utils.js";
 
 /**
@@ -23,7 +22,7 @@ export default class Download {
 
       this.apiCacheFilePath = `${HOME_DIR}/.cache/WallWiz/apiCache.json`;
 
-      ensureDir(this.destinationDir);
+      utils.ensureDir(this.destinationDir);
       const apiCacheFile = STD.loadFile(this.apiCacheFilePath);
       /** @type {ApiCache} */
       this.apiCache = apiCacheFile ? JSON.parse(apiCacheFile) : [];

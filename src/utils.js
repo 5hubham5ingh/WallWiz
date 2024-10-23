@@ -92,6 +92,13 @@ class Utils {
     }, "writeFile");
   }
 
+  /**
+  * @param {string} dir - directory path
+  */
+  ensureDir(dir){
+
+  }
+
   log(message) {
     catchError(() => {
       const fmtMsg = message.split(";")

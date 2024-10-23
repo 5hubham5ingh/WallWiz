@@ -1,5 +1,4 @@
 import utils from "./utils.js";
-import { ensureDir } from "../../justjs/src/fs.js";
 
 /**
  * @typedef {import('./types.d.ts').ColoursCache} ColoursCache
@@ -33,7 +32,7 @@ class Theme {
 
   async init() {
     return await catchAsyncError(async () => {
-      ensureDir(this.wallpaperThemeCacheDir);
+      utils.ensureDir(this.wallpaperThemeCacheDir);
       await this.createColoursCacheFromWallpapers();
       await this.loadThemeExtensionScripts();
       await this.createAppThemesFromColours();
@@ -79,7 +78,7 @@ class Theme {
 
   async loadThemeExtensionScripts() {
     await catchAsyncError(async () => {
-      ensureDir(this.themeExtensionScriptsBaseDir);
+      utils.ensureDir(this.themeExtensionScriptsBaseDir);
       const scriptNames = OS.readdir(this.themeExtensionScriptsBaseDir)[0]
         .filter((name) => name.endsWith(".js") && !name.startsWith("."));
 
@@ -101,7 +100,7 @@ class Theme {
           this.themeExtensionScripts[fileName] = script;
           this.appThemeCacheDir[fileName] =
             `${this.wallpaperThemeCacheDir}${fileName}/`;
-          ensureDir(this.appThemeCacheDir[fileName]);
+          utils.ensureDir(this.appThemeCacheDir[fileName]);
         }, extensionPath);
       }
     }, "loadThemeExtensionScripts");

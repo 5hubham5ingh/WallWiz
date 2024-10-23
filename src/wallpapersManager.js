@@ -1,14 +1,13 @@
 import { Theme } from "./themeManager.js";
 import { UserInterface } from "./userInterface.js";
 import utils from "./utils.js";
-import { ensureDir } from "../../justjs/src/fs.js";
 
 "use strip";
 export default class WallpaperSetter {
   constructor() {
     catchError(() => {
       this.picCacheDir = HOME_DIR.concat("/.cache/WallWiz/pic/");
-      ensureDir(this.picCacheDir);
+      utils.ensureDir(this.picCacheDir);
       this.wallpapers = this.loadWallpapers();
       this.themeManager = new Theme(
         this.picCacheDir,
@@ -73,7 +72,7 @@ export default class WallpaperSetter {
   async loadWallpaperDaemonHandlerScript() {
     return await catchAsyncError(async () => {
       const extensionDir = HOME_DIR.concat("/.config/WallWiz/");
-      ensureDir(extensionDir);
+      utils.ensureDir(extensionDir);
       const scriptNames = OS.readdir(extensionDir)[0]
         .filter((name) =>
           name !== "." && name !== ".." && name.endsWith(".js")

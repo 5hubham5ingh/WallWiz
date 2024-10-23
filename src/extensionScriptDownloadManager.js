@@ -1,6 +1,5 @@
 import { ProcessSync } from "../../justjs/src/process.js";
 import Download from "./downloadManager.js";
-import { ensureDir } from "../../justjs/src/fs.js";
 import { ansi } from "../../justjs/src/just-js/helpers/ansiStyle.js";
 import utils from "./utils.js";
 
@@ -19,7 +18,7 @@ class ExtensionScriptsDownloader extends Download {
        * @type {DownloadItemMenu}
        */
       this.downloadItemMenu;
-      ensureDir(this.tempDir);
+      utils.ensureDir(this.tempDir);
     }, "ExtensionScriptsDownloader :: constructor");
   }
 
