@@ -87,6 +87,7 @@ class Utils {
         throw TypeError("File content to wrtie must be of type string.");
       }
       const fileHandler = STD.open(path, "w+");
+      if(!fileHandler) throw Error("Failed to open file: " + path)
       fileHandler.puts(content);
       fileHandler.close();
     }, "writeFile");

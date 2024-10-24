@@ -92,12 +92,10 @@ class ExtensionScriptsDownloader extends Download {
     catchError(() => {
       for (const item of this.downloadItemMenu) {
         const currFile = this.tempDir.concat(item.name);
-        const tmpFile = STD.open(currFile, "w+");
         const start = item.about.indexOf("/*") + 2;
         const end = item.about.lastIndexOf("*/") - 1;
         const about = item.about.slice(start, end);
-        tmpFile.puts(about);
-        tmpFile.close();
+        utils.writeFile(about,currFile)
         item.tmpFile = currFile;
       }
     }, "writeTempItemInTempDir");

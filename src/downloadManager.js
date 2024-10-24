@@ -21,7 +21,6 @@ export default class Download {
       this.downloadItemList = [];
 
       this.apiCacheFilePath = `${HOME_DIR}/.cache/WallWiz/apiCache.json`;
-
       utils.ensureDir(this.destinationDir);
       const apiCacheFile = STD.loadFile(this.apiCacheFilePath);
       /** @type {ApiCache} */
