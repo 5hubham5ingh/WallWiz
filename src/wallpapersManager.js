@@ -92,7 +92,12 @@ export default class WallpaperSetter {
             `Script: ${extensionPath}`,
           );
         }
-        this.wallpaperDaemonHandler = wallpaperDaemonHandler.default;
+        // this.wallpaperDaemonHandler = wallpaperDaemonHandler.default;
+        this.loadWallpaperDaemonHandler = async (...all) => await utils.workerPromise({
+          scriptPath: extensionPath,
+          functionName: 'default',
+          args: all
+        })
       } else {
         throw new SystemError(
           "Failed to find any wallpaper daemon handler script in " +

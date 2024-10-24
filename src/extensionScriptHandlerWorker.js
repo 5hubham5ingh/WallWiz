@@ -8,6 +8,8 @@ const startWork = async (data) => {
   const {scriptPath, functionName, args} = data;
   const exports = await import(scriptPath);
   const cb = exports?.[functionName];
+    if(!cb) throw new SystemError(`Error in ${scriptPath}:`,
+      `No function named ${functionName} found in ${scriptPath}.`)
   const result = await cb(...args);
   parent.postMessage({type: 'abort', data: result})
   abortWork();
@@ -21,5 +23,5 @@ parent.onmessage = async (e) => {
     case 'start': await startWork(ev.data); break;
     case 'abort': abortWork();
   }
-  })
+  },"Worker :: onmessage")
 }
