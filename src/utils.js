@@ -1,7 +1,6 @@
-"use strip";
-
 import { ansi } from "../../justjs/ansiStyle.js";
 
+"use strip";
 class Utils {
   /**
    * @method processLimit
@@ -38,7 +37,7 @@ class Utils {
       for (const task of tasks) {
         const promise = task().finally(() => executing.delete(promise));
         executing.add(promise);
-        if (executing.size = this.pLimit) {
+        if (executing.size == this.pLimit) {
           await Promise.race(executing);
         }
       }
@@ -87,7 +86,7 @@ class Utils {
         throw TypeError("File content to wrtie must be of type string.");
       }
       const fileHandler = STD.open(path, "w+");
-      if(!fileHandler) throw Error("Failed to open file: " + path)
+      if (!fileHandler) throw Error("Failed to open file: " + path);
       fileHandler.puts(content);
       fileHandler.close();
     }, "writeFile");
@@ -120,32 +119,6 @@ class Utils {
       if (!dirStat) OS.mkdir(currPath);
     });
   }
-
-/**
- * @description - Promisify the extensionScriptHandlerWorker.
- * @param {Object} data - The data to be passed to the worker.
- * @param {string} data.scriptPath - Path to the script to be imported.
- * @param {string} data.functionName - Name of the function to be imported from the imported script.
- * @param {any[]} data.args - Arguments for the function from the imported script.
- * @returns {Promise<any>} A promise that resolves with the result or rejects with error from the import script's execution.
- */
-async workerPromise(data) {
-  return await new Promise((resolve, reject) => {
-    const worker = new OS.Worker('./extensionScriptHandlerWorker.js');
-    worker.postMessage({type:'start',data});
-    worker.onmessage = (e) => {
-      const ev = e.data;
-      switch (ev.type) {
-        case 'abort':
-          worker.onmessage = null;
-          resolve(e.data);
-        case 'error':
-          reject(ev.data);
-      }
-    };
-  });
-};
-
 
   log(message) {
     catchError(() => {

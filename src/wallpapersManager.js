@@ -1,3 +1,4 @@
+import workerPromise from "./promisifiedWorker.js";
 import { Theme } from "./themeManager.js";
 import { UserInterface } from "./userInterface.js";
 import utils from "./utils.js";
@@ -86,18 +87,19 @@ export default class WallpaperSetter {
       if (scriptNames.length) {
         const extensionPath = extensionDir.concat(scriptNames[0]);
         const wallpaperDaemonHandler = await import(extensionPath);
-        if (!wallpaperDaemonHandler.default) {
+        if (!wallpaperDaemonHandler.setWallpaper) {
           throw new SystemError(
             "No default export found.",
             `Script: ${extensionPath}`,
           );
         }
         // this.wallpaperDaemonHandler = wallpaperDaemonHandler.default;
-        this.loadWallpaperDaemonHandler = async (...all) => await utils.workerPromise({
-          scriptPath: extensionPath,
-          functionName: 'default',
-          args: all
-        })
+        this.wallpaperDaemonHandler = async (...all) =>
+          await workerPromise({
+            scriptPath: extensionPath,
+            functionName: "setWallpaper",
+            args: all,
+          });
       } else {
         throw new SystemError(
           "Failed to find any wallpaper daemon handler script in " +
@@ -234,16 +236,16 @@ export default class WallpaperSetter {
     await catchAsyncError(async () => {
       const wallpaperDir =
         `${USER_ARGUMENTS.wallpapersDirectory}/${wallpaperName}`;
-      try {
-        await this.wallpaperDaemonHandler(wallpaperDir);
-        await utils.notify("Wallpaper changed:", wallpaperName, "normal");
-      } catch (error) {
-        await utils.notify(
-          "Error in wallpaper daemon handler script.",
-          error,
-          "critical",
-        );
-      }
+      // try {
+      await this.wallpaperDaemonHandler(wallpaperDir);
+      await utils.notify("Wallpaper changed:", wallpaperName, "normal");
+      // } catch (error) {
+      //   await utils.notify(
+      //     "Error in wallpaper daemon handler script.",
+      //     error,
+      //     "critical",
+      //   );
+      // }
     }, "setWallpaper");
   }
 }

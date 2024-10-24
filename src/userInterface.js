@@ -7,10 +7,7 @@ import {
   eraseDown,
 } from "../../justjs/cursor.js";
 import { ansi } from "../../justjs/ansiStyle.js";
-import {
-  handleKeysPress,
-  keySequences,
-} from "../../justjs/terminal.js";
+import { handleKeysPress, keySequences } from "../../justjs/terminal.js";
 import utils from "./utils.js";
 
 /**
