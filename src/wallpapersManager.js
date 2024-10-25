@@ -86,20 +86,14 @@ export default class WallpaperSetter {
       }
       if (scriptNames.length) {
         const extensionPath = extensionDir.concat(scriptNames[0]);
-        const wallpaperDaemonHandler = await import(extensionPath);
-        if (!wallpaperDaemonHandler.setWallpaper) {
-          throw new SystemError(
-            "No default export found.",
-            `Script: ${extensionPath}`,
-          );
-        }
-        // this.wallpaperDaemonHandler = wallpaperDaemonHandler.default;
         this.wallpaperDaemonHandler = async (...all) =>
+          await catchAsyncError(async ()=>
           await workerPromise({
             scriptPath: extensionPath,
             functionName: "setWallpaper",
             args: all,
-          });
+          })
+            ,"wallpaperDaemonHandler")
       } else {
         throw new SystemError(
           "Failed to find any wallpaper daemon handler script in " +

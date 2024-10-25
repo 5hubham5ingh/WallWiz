@@ -4,7 +4,7 @@
  * @param {string} data.scriptPath - Path to the script to be imported.
  * @param {string} data.functionName - Name of the function to be imported from the imported script.
  * @param {any[]} data.args - Arguments for the function from the imported script.
- * @returns {Promise<any>} A promise that resolves with the result or rejects with error from the import script's execution.
+ * @returns {Promise<any>} A promise that resolves with the result or rejects with error from the worker script.
  */
 export default async function workerPromise(data) {
   return await catchAsyncError(async () => {
@@ -12,16 +12,23 @@ export default async function workerPromise(data) {
       const worker = new OS.Worker(
         "./extensionScriptHandlerWorker.js",
       );
+      const abortWorker = () => {
+            worker.postMessage({type: "abort"})
+            worker.onmessage = null;
+      }
       worker.postMessage({ type: "start", data });
       worker.onmessage = (e) => {
         const ev = e.data;
         switch (ev.type) {
-          case "abort":
-            worker.onmessage = null;
+          case "success":
+            abortWorker();
             resolve(e.data);
             break;
           case "error":
-            reject(ev.data);
+            abortWorker();
+            ev?.data ? 
+            reject( new SystemError('extensionScriptHandlerWorker',"Error in worker script",ev.data))
+            : resolve();
         }
       };
     });
