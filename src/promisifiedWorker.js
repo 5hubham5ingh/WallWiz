@@ -12,23 +12,31 @@ export default async function workerPromise(data) {
       const worker = new OS.Worker(
         "./extensionScriptHandlerWorker.js",
       );
+
       const abortWorker = () => {
-            worker.postMessage({type: "abort"})
-            worker.onmessage = null;
-      }
-      worker.postMessage({ type: "start", data });
+        worker.postMessage({ type: "abort" });
+        worker.onmessage = null;
+      };
+
+      worker.postMessage({ type: "start", data: data });
+
       worker.onmessage = (e) => {
         const ev = e.data;
         switch (ev.type) {
           case "success":
             abortWorker();
-            resolve(e.data);
+            resolve(ev.data);
             break;
-          case "error":
+          case "error": {
             abortWorker();
-            ev?.data ? 
-            reject( new SystemError('extensionScriptHandlerWorker',"Error in worker script",ev.data))
-            : resolve();
+
+            reject(
+              new SystemError(
+                ...ev.data.split(";"),
+              ),
+            );
+            break;
+          }
         }
       };
     });

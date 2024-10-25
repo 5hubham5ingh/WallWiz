@@ -87,13 +87,12 @@ export default class WallpaperSetter {
       if (scriptNames.length) {
         const extensionPath = extensionDir.concat(scriptNames[0]);
         this.wallpaperDaemonHandler = async (...all) =>
-          await catchAsyncError(async ()=>
-          await workerPromise({
-            scriptPath: extensionPath,
-            functionName: "setWallpaper",
-            args: all,
-          })
-            ,"wallpaperDaemonHandler")
+          await catchAsyncError(async () =>
+            await workerPromise({
+              scriptPath: extensionPath,
+              functionName: "setWallpaper",
+              args: all,
+            }), "wallpaperDaemonHandler");
       } else {
         throw new SystemError(
           "Failed to find any wallpaper daemon handler script in " +
@@ -232,7 +231,7 @@ export default class WallpaperSetter {
         `${USER_ARGUMENTS.wallpapersDirectory}/${wallpaperName}`;
       // try {
       await this.wallpaperDaemonHandler(wallpaperDir);
-      await utils.notify("Wallpaper changed:", wallpaperName, "normal");
+      // await utils.notify("Wallpaper changed:", wallpaperName, "normal");
       // } catch (error) {
       //   await utils.notify(
       //     "Error in wallpaper daemon handler script.",

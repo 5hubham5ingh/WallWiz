@@ -85,7 +85,7 @@ class Theme {
 
       for (const fileName of scriptNames) {
         const extensionPath = `${this.themeExtensionScriptsBaseDir}${fileName}`;
-        await catchAsyncError(async () => {
+        await catchError(() => {
           // const script = await import(extensionPath);
           //
           // if (
@@ -100,32 +100,29 @@ class Theme {
 
           const script = {
             setTheme: async (...all) =>
-              await catchAsyncError(async ()=>
-              await workerPromise({
-              scriptPath: extensionPath,
-              functionName: "setTheme",
-              args: all,
-              })
-            ,"setTheme"),
+              await catchAsyncError(async () =>
+                await workerPromise({
+                  scriptPath: extensionPath,
+                  functionName: "setTheme",
+                  args: all,
+                }), "setTheme"),
 
             getDarkThemeConf: async (...all) =>
-              await catchAsyncError(async ()=>
-              await workerPromise({
-              scriptPath: extensionPath,
-              functionName: "getDarkThemeConf",
-              args: all,
-              })
-            ,"getDarkThemeConf"),
+              await catchAsyncError(async () =>
+                await workerPromise({
+                  scriptPath: extensionPath,
+                  functionName: "getDarkThemeConf",
+                  args: all,
+                }), "getDarkThemeConf"),
 
             getLightThemeConf: async (...all) =>
-              await catchAsyncError(async ()=>
-              await workerPromise({
-              scriptPath: extensionPath,
-              functionName: "getLightThemeConf",
-              args: all,
-              })
-            ,"getLightThemeConf"),
-          }
+              await catchAsyncError(async () =>
+                await workerPromise({
+                  scriptPath: extensionPath,
+                  functionName: "getLightThemeConf",
+                  args: all,
+                }), "getLightThemeConf"),
+          };
           this.themeExtensionScripts[fileName] = script;
           this.appThemeCacheDir[fileName] =
             `${this.wallpaperThemeCacheDir}${fileName}/`;
@@ -180,7 +177,7 @@ class Theme {
               themeHandler?.getDarkThemeConf(colours),
               themeHandler?.getLightThemeConf(colours),
             ]);
-
+            print("themeconfig: ", JSON.stringify(darkThemeConfig));
             const cacheDir = this.appThemeCacheDir[scriptName];
             utils.writeFile(
               lightThemeConfig,
@@ -220,11 +217,7 @@ class Theme {
           const [, err] = OS.stat(currentThemePath);
 
           if (err === 0) {
-            try {
-              await themeHandler?.setTheme(currentThemePath, execAsync);
-            } catch (error) {
-              utils.notify(`Error in script: ${scriptName}`, error, "critical");
-            }
+            await themeHandler?.setTheme(currentThemePath);
           } else {
             throw new Error(
               "Cache miss\n" +
@@ -235,8 +228,19 @@ class Theme {
       };
 
       const promises = Object.entries(this.themeExtensionScripts).map(setTheme);
-      promises.push(utils.notify("WallWiz", "Applying themes..."));
-      await Promise.all(promises);
+      await Promise.allSettled(promises).then(async (results) => {
+        for (const result of results) {
+          if (
+            result.status === "rejected" && result.reason instanceof SystemError
+          ) {
+            await utils.notify(
+              result.reason.name,
+              result.reason.description,
+              "critical",
+            );
+          }
+        }
+      });
     }, "setThemes");
   }
 

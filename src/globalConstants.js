@@ -2,9 +2,7 @@ import * as std from "std";
 import * as os from "os";
 import { ansi } from "../../justjs/ansiStyle.js";
 import { exec as execAsync } from "../../qjs-ext-lib/src/process.js";
-import {
-  cursorShow,
-} from "../../justjs/cursor.js";
+import { cursorShow } from "../../justjs/cursor.js";
 
 /**
  * @typedef {import('./types.d.ts').IOs} IOs
@@ -38,13 +36,13 @@ globalThis.SystemError = class SystemError extends Error {
   /**
    * Creates an instance of SystemError.
    *
-   * @param {string} error - The error message describing the issue.
+   * @param {string} name - The error name describing the nature of issue.
    * @param {string} [description] - Additional description about the error (optional).
    * @param {typeof Error} body
    */
-  constructor(error, description, body = "") {
-    super(error);
-    this.name = error;
+  constructor(name, description, body = "") {
+    super(name);
+    this.name = name;
     this.description = description;
     this.body = body;
     if (Error.captureStackTrace) {

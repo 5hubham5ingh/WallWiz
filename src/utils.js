@@ -41,7 +41,7 @@ class Utils {
           await Promise.race(executing);
         }
       }
-      return await Promise.all(executing);
+      return await Promise.allSettled(executing);
     }, "promiseQueueWithLimit");
   }
 
