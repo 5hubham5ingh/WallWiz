@@ -1,4 +1,5 @@
 import utils from "./utils.js";
+import workerPromise from "./promisifiedWorker.js";
 
 /**
  * @typedef {import('./types.d.ts').ColoursCache} ColoursCache
