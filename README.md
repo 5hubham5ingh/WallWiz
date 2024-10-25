@@ -74,27 +74,34 @@ WallWiz's functionality can be extended through user-defined JavaScript scripts:
       "#000000", "#ffaaaa", "#aaffaa", "#aaaaff", "#ffaa00"
     ]
     ```
-- **Wallpaper Daemon Handler**: The single script located in `~/.config/WallWiz/` should default export a function for applying wallpaper.
+- **Wallpaper Daemon Handler**: The single script located in `~/.config/WallWiz/` should export a `setWallpaper` function for applying wallpaper.
 
   **Example**:
   ```javascript
-  import * as os from 'os'
-  async function setWallpaper(wallpaperPath, execAsync){
-    os.exec(["hyprctl", "-q", "hyprpaper unload all"]);
-    os.exec(["hyprctl", "-q", `hyprpaper preload ${wallpaperPath}`]);
-    os.exec(["hyprctl", "-q", `hyprpaper wallpaper eDP-1,${wallpaperPath}`]);
+  export function setWallpaper(wallpaperPath){
+    OS.exec(["hyprctl", "-q", "hyprpaper unload all"]);
+    OS.exec(["hyprctl", "-q", `hyprpaper preload ${wallpaperPath}`]);
+    OS.exec(["hyprctl", "-q", `hyprpaper wallpaper eDP-1,${wallpaperPath}`]);
   }
 
-  export default setWallpaper;
   ```
 
-- **System Calls**: The standard modules of QuickJS, such as `std` and `os`, can be used in the scripts for any necessary system calls.
+- **Global variables and methods**: Checkout [globalConstants](https://github.com/5hubham5ingh/WallWiz/blob/main/src/globalConstants.js) for predefined helpers to use in the extension scripts.
 
-  If you need to run shell commands asynchronously, `execAsync` callback function can be used like this:
+  **Examples:**
   ```javascript
   const activeWallpaper = await execAsync('hyprctl hyrpaper listactive');
   // or as an array
   const activeWallpaper = await execAsync(['hyprctl', 'hyprpaper', 'listactive']);
+  ```
+  ```javascript
+  export function setWallpaper(wallpaperPath) {
+  catchError(()=>{
+    OS.exec(["hyprctl", "-q", "hyprpaper unload all"]);
+    OS.exec(["hyprctl", "-q", `hyprpaper preload ${wallpaperPath}`]);
+    OS.exec(["hyprctl", "-q", `hyprpaper wallpaper eDP-1,${wallpaperPath}`]);
+  },"setWallpaper")
+  }
   ```
 
 ## Usage
