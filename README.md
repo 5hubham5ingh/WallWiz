@@ -96,11 +96,11 @@ WallWiz's functionality can be extended through user-defined JavaScript scripts:
   ```
   ```javascript
   export function setWallpaper(wallpaperPath) {
-  catchError(()=>{
-    OS.exec(["hyprctl", "-q", "hyprpaper unload all"]);
-    OS.exec(["hyprctl", "-q", `hyprpaper preload ${wallpaperPath}`]);
-    OS.exec(["hyprctl", "-q", `hyprpaper wallpaper eDP-1,${wallpaperPath}`]);
-  },"setWallpaper")
+    catchError(()=>{
+      OS.exec(["hyprctl", "-q", "hyprpaper unload all"]);
+      OS.exec(["hyprctl", "-q", `hyprpaper preload ${wallpaperPath}`]);
+      OS.exec(["hyprctl", "-q", `hyprpaper wallpaper eDP-1,${wallpaperPath}`]);
+    },"setWallpaper")
   }
   ```
 
@@ -144,10 +144,6 @@ WallWiz -l -d ~/Pictures/wallpapers
 WallWiz -e -a -d ~/Pictures
 ```
 ## Todo
-- Build.sh to build the project from source.
-- Bump qjs-extension version.
-- Move the quicksj helper to different repo and update export path.
-- Worker thread pool for handling theme extension scripts.
 - `swww` wallpaper daemon handler script.
 - VS Code theme extension script.
 - Firefox theme extension script.
