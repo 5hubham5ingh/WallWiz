@@ -85,18 +85,46 @@ class Theme {
       for (const fileName of scriptNames) {
         const extensionPath = `${this.themeExtensionScriptsBaseDir}${fileName}`;
         await catchAsyncError(async () => {
-          const script = await import(extensionPath);
+          // const script = await import(extensionPath);
+          //
+          // if (
+          //   !script?.setTheme || !script?.getDarkThemeConf ||
+          //   !script?.getLightThemeConf
+          // ) {
+          //   throw new SystemError(
+          //     `Error in ${extensionPath}`,
+          //     `Missing required function(s), "setTheme","getDarkThemeConf" or "getLightThemeConf" in the script.`,
+          //   );
+          // }
 
-          if (
-            !script?.setTheme || !script?.getDarkThemeConf ||
-            !script?.getLightThemeConf
-          ) {
-            throw new SystemError(
-              `Error in ${extensionPath}`,
-              `Missing required function(s), "setTheme","getDarkThemeConf" or "getLightThemeConf" in the script.`,
-            );
+          const script = {
+            setTheme: async (...all) =>
+              await catchAsyncError(async ()=>
+              await workerPromise({
+              scriptPath: extensionPath,
+              functionName: "setTheme",
+              args: all,
+              })
+            ,"setTheme"),
+
+            getDarkThemeConf: async (...all) =>
+              await catchAsyncError(async ()=>
+              await workerPromise({
+              scriptPath: extensionPath,
+              functionName: "getDarkThemeConf",
+              args: all,
+              })
+            ,"getDarkThemeConf"),
+
+            getLightThemeConf: async (...all) =>
+              await catchAsyncError(async ()=>
+              await workerPromise({
+              scriptPath: extensionPath,
+              functionName: "getLightThemeConf",
+              args: all,
+              })
+            ,"getLightThemeConf"),
           }
-
           this.themeExtensionScripts[fileName] = script;
           this.appThemeCacheDir[fileName] =
             `${this.wallpaperThemeCacheDir}${fileName}/`;
