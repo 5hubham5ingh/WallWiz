@@ -90,14 +90,14 @@ export default class WallpaperSetter {
           await catchAsyncError(async () =>
             await workerPromise({
               scriptPath: extensionPath,
-              functionName: "setWallpaper",
+              functionName: ["setWallpaper"],
               args: all,
             }), "wallpaperDaemonHandler");
       } else {
         throw new SystemError(
           "Failed to find any wallpaper daemon handler script in " +
             extensionDir,
-          'Run "WallWiz -w" to download it if you do not have a wallpaper daemon handler script.',
+          'Run "WallWiz -w" to download it.',
         );
       }
     }, "loadWallpaperDaemonHandlerScript");

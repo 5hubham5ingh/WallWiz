@@ -96,6 +96,14 @@ class Theme {
                   args: all,
                 }), "setTheme"),
 
+            getThemes: async (...all) =>
+              await catchAsyncError(async () =>
+                await workerPromise({
+                  scriptPath: extensionPath,
+                  functionName: ['getDarkThemeConf',"getLightThemeConf"],
+                  args: all,
+                }), "getTheme"),
+
             getDarkThemeConf: async (...all) =>
               await catchAsyncError(async () =>
                 await workerPromise({
@@ -162,11 +170,11 @@ class Theme {
             `Generating theme configuration files using ${scriptName}...`,
           );
           try {
-            const [darkThemeConfig, lightThemeConfig] = await Promise.all([
-              themeHandler?.getDarkThemeConf(colours),
-              themeHandler?.getLightThemeConf(colours),
-            ]);
-            print("themeconfig: ", JSON.stringify(darkThemeConfig));
+            const [darkThemeConfig, lightThemeConfig] = await themeHandler.getThemes(colours)
+            //   await Promise.all([
+            //   themeHandler?.getDarkThemeConf(colours),
+            //   themeHandler?.getLightThemeConf(colours),
+            // ]);
             const cacheDir = this.appThemeCacheDir[scriptName];
             utils.writeFile(
               lightThemeConfig,

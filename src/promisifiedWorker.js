@@ -2,7 +2,7 @@
  * @description - Promisify the extensionScriptHandlerWorker.
  * @param {Object} data - The data to be passed to the worker.
  * @param {string} data.scriptPath - Path to the script to be imported.
- * @param {string} data.functionName - Name of the function to be imported from the imported script.
+ * @param {string[]} data.functionNames - Name of the function to be imported from the imported script.
  * @param {any[]} data.args - Arguments for the function from the imported script.
  * @returns {Promise<any>} A promise that resolves with the result or rejects with error from the worker script.
  */

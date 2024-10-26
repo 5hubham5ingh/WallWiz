@@ -10,8 +10,10 @@ const parent = OS.Worker.parent;
  */
 const startWork = async (data) => {
   await catchAsyncError(async () => {
-    const { scriptPath, functionName, args } = data;
+    const { scriptPath, functionNames, args } = data;
     const exports = await import(scriptPath);
+    const results = [];
+    for(const functionName of functionNames){
     const cb = exports?.[functionName];
     if (!cb) {
       parent.postMessage({
@@ -21,11 +23,11 @@ const startWork = async (data) => {
           "No function named " + functionName + " found."
         ),
       });
-      return;
+      break;
     }
     try {
       const result = await cb(...args);
-      parent.postMessage({ type: "success", data: result });
+        results.push(result)
     } catch (error) {
       parent.postMessage({
         type: "error",
@@ -37,7 +39,9 @@ const startWork = async (data) => {
               error.message
         ),
       });
-    }
+    }}
+
+      parent.postMessage({ type: "success", data: results });
   }, "startWork");
 };
 
