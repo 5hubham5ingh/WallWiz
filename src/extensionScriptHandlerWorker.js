@@ -18,7 +18,7 @@ const startWork = async (data) => {
         type: "error",
         data: (
           "Error in " + scriptPath + ";" +
-          "No funstion named " + functionName + " found."
+          "No function named " + functionName + " found."
         ),
       });
       return;
@@ -31,7 +31,7 @@ const startWork = async (data) => {
         type: "error",
         data: (
           error instanceof SystemError
-            ? error.error + ";" + error.description + ":" +
+            ? error.error + ";" + error.description + ": " +
               JSON.stringify(error.body)
             : "Error in " + scriptPath + ";" + error.name + ": " +
               error.message

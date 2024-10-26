@@ -86,19 +86,8 @@ class Theme {
       for (const fileName of scriptNames) {
         const extensionPath = `${this.themeExtensionScriptsBaseDir}${fileName}`;
         await catchError(() => {
-          // const script = await import(extensionPath);
-          //
-          // if (
-          //   !script?.setTheme || !script?.getDarkThemeConf ||
-          //   !script?.getLightThemeConf
-          // ) {
-          //   throw new SystemError(
-          //     `Error in ${extensionPath}`,
-          //     `Missing required function(s), "setTheme","getDarkThemeConf" or "getLightThemeConf" in the script.`,
-          //   );
-          // }
 
-          const script = {
+          const extensionScript = {
             setTheme: async (...all) =>
               await catchAsyncError(async () =>
                 await workerPromise({
@@ -123,7 +112,7 @@ class Theme {
                   args: all,
                 }), "getLightThemeConf"),
           };
-          this.themeExtensionScripts[fileName] = script;
+          this.themeExtensionScripts[fileName] = extensionScript;
           this.appThemeCacheDir[fileName] =
             `${this.wallpaperThemeCacheDir}${fileName}/`;
           utils.ensureDir(this.appThemeCacheDir[fileName]);
@@ -217,7 +206,7 @@ class Theme {
           const [, err] = OS.stat(currentThemePath);
 
           if (err === 0) {
-            await themeHandler?.setTheme(currentThemePath);
+            await themeHandler.setTheme(currentThemePath);
           } else {
             throw new Error(
               "Cache miss\n" +
@@ -227,20 +216,8 @@ class Theme {
         }, "setTheme");
       };
 
-      const promises = Object.entries(this.themeExtensionScripts).map(setTheme);
-      await Promise.allSettled(promises).then(async (results) => {
-        for (const result of results) {
-          if (
-            result.status === "rejected" && result.reason instanceof SystemError
-          ) {
-            await utils.notify(
-              result.reason.name,
-              result.reason.description,
-              "critical",
-            );
-          }
-        }
-      });
+      const promises = Object.entries(this.themeExtensionScripts).map(async (...all) => await setTheme(...all));
+      await utils.promiseQueueWithLimit(promises) 
     }, "setThemes");
   }
 
