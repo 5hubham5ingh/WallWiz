@@ -5,7 +5,7 @@ const parent = OS.Worker.parent;
 /**
  * @param {Object} data
  * @param {string} data.scriptPath - Path to the script to be imported.
- * @param {string} data.functionName - Name of the function to be imported from the imported script.
+ * @param {string[]} data.functionNames - Name of the function to be imported from the imported script.
  * @param {any[]} data.args - Arguments for the function from the imported script.
  */
 const startWork = async (data) => {

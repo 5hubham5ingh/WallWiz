@@ -1,3 +1,8 @@
+/*
+ For:            hyprpaper, https://github.com/hyprwm/hyprpaper
+ Author:         https://github.com/5hubham5ingh
+ Prerequisite:   hyprpaper daemon should be running
+*/
 
 export function setWallpaper(wallpaperPath) {
   catchError(()=>{
