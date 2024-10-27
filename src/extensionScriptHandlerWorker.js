@@ -32,18 +32,18 @@ const startWork = async (data) => {
         error instanceof SystemError
           ? parent.postMessage({
             type: "systemError",
-            data: (
-              error.error + ";" +
-              error.description + ": " +
-              JSON.stringify(error.body)
-            ),
+            data: [
+              error.name,
+              error.description,
+              JSON.stringify(error.body ?? ""),
+            ],
           })
           : parent.postMessage({
             type: "error",
-            data: (
-              "Error in " + scriptPath + ";" + error.name + ": " +
-              error.message
-            ),
+            data: [
+              scriptPath,
+              JSON.stringify(error),
+            ],
           });
       }
     }

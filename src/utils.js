@@ -43,32 +43,29 @@ class Utils {
           await Promise.race(executing);
         }
       }
-      return await Promise.allSettled(executing);
+      return await Promise.all(executing);
     }, "promiseQueueWithLimit");
   }
 
   /**
    * @method notify
-   * @description Sends a desktop notification or prints to console based on urgency and notification settings
+   * @description Send a desktop notification.
    * @param {string} title - The notification title
    * @param {string} message - The notification message
-   * @param {'normal' | "critical" | 'low' } urgency - default='normal' - The urgency level of the notification ('low', 'normal' or 'critical' )
+   * @param {'normal' | 'critical' | 'low' } urgency - The urgency level of the notification (default='normal')
    * @returns {Promise<void>}
    */
-  async notify(title, message, urgency = "normal") {
+  async notify(title, message = "", urgency = "normal") {
     await catchAsyncError(async () => {
-      const validUrgencies = ["low", "normal", "critical"];
-
       if (USER_ARGUMENTS.disableNotification) return;
 
       const command = [
         "notify-send",
         "-u",
-        validUrgencies.includes(urgency) ? urgency : validUrgencies[1],
+        urgency,
         title,
         message,
       ];
-
       await execAsync(command)
         .catch((error) => {
           throw new SystemError("Failed to send notification.", error);

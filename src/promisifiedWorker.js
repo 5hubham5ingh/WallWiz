@@ -28,18 +28,23 @@ export default async function workerPromise(data) {
             break;
           case "error": {
             abortWorker();
+            const [fileName, cause] = ev.data;
             reject(
               new Error(
-                ...ev.data.split(";"),
+                `Error in "${fileName}"`,
+                { cause: cause },
               ),
             );
             break;
           }
           case "systemError": {
             abortWorker();
+            const [name, description, body] = ev.data;
             reject(
               new SystemError(
-                ...ev.data.split(";"),
+                name,
+                description,
+                JSON.parse(body),
               ),
             );
           }

@@ -229,16 +229,8 @@ export default class WallpaperSetter {
     await catchAsyncError(async () => {
       const wallpaperDir =
         `${USER_ARGUMENTS.wallpapersDirectory}/${wallpaperName}`;
-      // try {
       await this.wallpaperDaemonHandler(wallpaperDir);
-      // await utils.notify("Wallpaper changed:", wallpaperName, "normal");
-      // } catch (error) {
-      //   await utils.notify(
-      //     "Error in wallpaper daemon handler script.",
-      //     error,
-      //     "critical",
-      //   );
-      // }
+      await utils.notify("New wallpaper", wallpaperName);
     }, "setWallpaper");
   }
 }

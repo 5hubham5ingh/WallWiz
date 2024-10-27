@@ -40,7 +40,7 @@ globalThis.SystemError = class SystemError extends Error {
    * @param {string} [description] - Additional description about the error (optional).
    * @param {typeof Error} body
    */
-  constructor(name, description, body = "") {
+  constructor(name, description, body) {
     super(name);
     this.name = name;
     this.description = description;
@@ -55,7 +55,7 @@ globalThis.SystemError = class SystemError extends Error {
    *
    * @param {boolean} inspect - Wheather to print the error body or not for inspection.
    */
-  log(inspect) {
+  log(inspect) { //TODO: restructure optput to math that of js error log.
     print(
       "\n",
       ansi.styles(["bold", "red"]),
@@ -64,7 +64,7 @@ globalThis.SystemError = class SystemError extends Error {
       ansi.style.reset,
       "\n",
       ansi.style.red,
-      this.description.split(".").map((line) => line.trim()).join("\n"),
+      this.description?.split(".").map((line) => line.trim()).join("\n"),
       ansi.style.reset,
       "\n",
       inspect ? this.body : "",
@@ -81,7 +81,7 @@ globalThis.execAsync = execAsync;
 const handleError = (error, blockName) => {
   if (error instanceof SystemError || (error === SUCCESS)) throw error;
   if (error.stackTrace) {
-    error.stackTrace.unshift(blockName);
+    error.stackTrace.unshift(blockName ?? "anonymous");
   } else {
     error.stackTrace = [blockName];
   }
