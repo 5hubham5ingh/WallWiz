@@ -35,7 +35,7 @@ class Theme {
     return await catchAsyncError(async () => {
       utils.ensureDir(this.wallpaperThemeCacheDir);
       await this.createColoursCacheFromWallpapers();
-      await this.loadThemeExtensionScripts();
+      this.loadThemeExtensionScripts();
       await this.createAppThemesFromColours();
     }, "Theme :: init");
   }
@@ -77,54 +77,35 @@ class Theme {
     }, "createColoursCacheFromWallpapers");
   }
 
-  async loadThemeExtensionScripts() {
-    await catchAsyncError(async () => {
+  loadThemeExtensionScripts() {
+    catchError(() => {
       utils.ensureDir(this.themeExtensionScriptsBaseDir);
       const scriptNames = OS.readdir(this.themeExtensionScriptsBaseDir)[0]
         .filter((name) => name.endsWith(".js") && !name.startsWith("."));
 
       for (const fileName of scriptNames) {
         const extensionPath = `${this.themeExtensionScriptsBaseDir}${fileName}`;
-        await catchError(() => {
+        const extensionScript = {
+          setTheme: async (...all) =>
+            await catchAsyncError(async () =>
+              await workerPromise({
+                scriptPath: extensionPath,
+                functionNames: ["setTheme"],
+                args: all,
+              }), "setTheme"),
 
-          const extensionScript = {
-            setTheme: async (...all) =>
-              await catchAsyncError(async () =>
-                await workerPromise({
-                  scriptPath: extensionPath,
-                  functionName: "setTheme",
-                  args: all,
-                }), "setTheme"),
-
-            getThemes: async (...all) =>
-              await catchAsyncError(async () =>
-                await workerPromise({
-                  scriptPath: extensionPath,
-                  functionName: ['getDarkThemeConf',"getLightThemeConf"],
-                  args: all,
-                }), "getTheme"),
-
-            getDarkThemeConf: async (...all) =>
-              await catchAsyncError(async () =>
-                await workerPromise({
-                  scriptPath: extensionPath,
-                  functionName: "getDarkThemeConf",
-                  args: all,
-                }), "getDarkThemeConf"),
-
-            getLightThemeConf: async (...all) =>
-              await catchAsyncError(async () =>
-                await workerPromise({
-                  scriptPath: extensionPath,
-                  functionName: "getLightThemeConf",
-                  args: all,
-                }), "getLightThemeConf"),
-          };
-          this.themeExtensionScripts[fileName] = extensionScript;
-          this.appThemeCacheDir[fileName] =
-            `${this.wallpaperThemeCacheDir}${fileName}/`;
-          utils.ensureDir(this.appThemeCacheDir[fileName]);
-        }, extensionPath);
+          getThemes: async (...all) =>
+            await catchAsyncError(async () =>
+              await workerPromise({
+                scriptPath: extensionPath,
+                functionNames: ["getDarkThemeConf", "getLightThemeConf"],
+                args: all,
+              }), "getTheme"),
+        };
+        this.themeExtensionScripts[fileName] = extensionScript;
+        this.appThemeCacheDir[fileName] =
+          `${this.wallpaperThemeCacheDir}${fileName}/`;
+        utils.ensureDir(this.appThemeCacheDir[fileName]);
       }
     }, "loadThemeExtensionScripts");
   }
@@ -150,50 +131,59 @@ class Theme {
         }, "isThemeConfCached");
       };
 
-      for (const wp of this.wallpaper) {
-        const colours = this.getCachedColours(wp.uniqueId);
+      const createThemeConfFromWallpaperColours = async (
+        wallpaper,
+        colours,
+      ) => {
+        await catchAsyncError(async () => {
+          for (
+            const [scriptName, themeHandler] of Object.entries(
+              this.themeExtensionScripts,
+            )
+          ) {
+            if (isThemeConfCached(wallpaper.uniqueId, scriptName)) continue;
+
+            try {
+              utils.log(
+                `Generating theme config for wallpaper: "${wallpaper.name}" using "${scriptName}".`,
+              );
+              const [darkThemeConfig, lightThemeConfig] = await themeHandler
+                .getThemes(colours);
+              const cacheDir = this.appThemeCacheDir[scriptName];
+              utils.writeFile(
+                lightThemeConfig,
+                `${cacheDir}${this.getThemeName(wallpaper.uniqueId, "light")}`,
+              );
+              utils.writeFile(
+                darkThemeConfig,
+                `${cacheDir}${this.getThemeName(wallpaper.uniqueId, "dark")}`,
+              );
+            } catch (error) {
+              await utils.notify(
+                `Failed to generate theme config for: ${scriptName}`,
+                error,
+                "critical",
+              );
+            }
+          }
+        }, "createThemeConfFromWallpaperColours");
+      };
+
+      const getTaskPromiseCallBacks = [];
+      for (const wallpaper of this.wallpaper) {
+        const colours = this.getCachedColours(wallpaper.uniqueId);
         if (!colours) {
           throw new Error(
             "Cache miss\n" +
-              `Wallpaper: ${wp.name}, Colours cache id: ${wp.uniqueId}`,
+              `Wallpaper: ${wallpaper.name}, Colours cache id: ${wallpaper.uniqueId}`,
           );
         }
 
-        for (
-          const [scriptName, themeHandler] of Object.entries(
-            this.themeExtensionScripts,
-          )
-        ) {
-          if (isThemeConfCached(wp.uniqueId, scriptName)) continue;
-
-          utils.log(
-            `Generating theme configuration files using ${scriptName}...`,
-          );
-          try {
-            const [darkThemeConfig, lightThemeConfig] = await themeHandler.getThemes(colours)
-            //   await Promise.all([
-            //   themeHandler?.getDarkThemeConf(colours),
-            //   themeHandler?.getLightThemeConf(colours),
-            // ]);
-            const cacheDir = this.appThemeCacheDir[scriptName];
-            utils.writeFile(
-              lightThemeConfig,
-              `${cacheDir}${this.getThemeName(wp.uniqueId, "light")}`,
-            );
-            utils.writeFile(
-              darkThemeConfig,
-              `${cacheDir}${this.getThemeName(wp.uniqueId, "dark")}`,
-            );
-            utils.log(`Done generating theme for ${scriptName}`);
-          } catch (error) {
-            await utils.notify(
-              `Failed to generate theme config for: ${scriptName}`,
-              error,
-              "critical",
-            );
-          }
-        }
+        getTaskPromiseCallBacks.push(
+          () => createThemeConfFromWallpaperColours(wallpaper, colours),
+        );
       }
+      await utils.promiseQueueWithLimit(getTaskPromiseCallBacks);
     }, "createAppThemesFromColours");
   }
 
@@ -224,8 +214,12 @@ class Theme {
         }, "setTheme");
       };
 
-      const promises = Object.entries(this.themeExtensionScripts).map(async (...all) => await setTheme(...all));
-      await utils.promiseQueueWithLimit(promises) 
+      const getTaskPromiseCallBacks = Object.entries(
+        this.themeExtensionScripts,
+      ).map(
+        (...all) => async () => await setTheme(...all),
+      );
+      await utils.promiseQueueWithLimit(getTaskPromiseCallBacks);
     }, "setThemes");
   }
 

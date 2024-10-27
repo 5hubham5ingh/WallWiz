@@ -71,7 +71,7 @@ export default class WallpaperSetter {
   }
 
   async loadWallpaperDaemonHandlerScript() {
-    return await catchAsyncError(async () => {
+    return await catchError(() => {
       const extensionDir = HOME_DIR.concat("/.config/WallWiz/");
       utils.ensureDir(extensionDir);
       const scriptNames = OS.readdir(extensionDir)[0]
@@ -90,7 +90,7 @@ export default class WallpaperSetter {
           await catchAsyncError(async () =>
             await workerPromise({
               scriptPath: extensionPath,
-              functionName: ["setWallpaper"],
+              functionNames: ["setWallpaper"],
               args: all,
             }), "wallpaperDaemonHandler");
       } else {

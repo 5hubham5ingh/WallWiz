@@ -26,16 +26,18 @@ class Utils {
   /**
    * @method promiseQueueWithLimit
    * @description Executes an array of promise-returning functions with a concurrency limit.
-   * @param {Function[]} tasks - Array of functions that, well called, return a promise.
+   * @param {Function[]} getTaskPromises - Array of functions that, when called, return a promise.
    * @returns {Promise<void>}
    */
-  async promiseQueueWithLimit(tasks) {
+  async promiseQueueWithLimit(getTaskPromises) {
     return await catchAsyncError(async () => {
       this.pLimit = (this.pLimit || USER_ARGUMENTS.pLimit) ??
         await this.processLimit();
       const executing = new Set();
-      for (const task of tasks) {
-        const promise = task().finally(() => executing.delete(promise));
+      for (const getTaskPromise of getTaskPromises) {
+        const promise = getTaskPromise().finally(() =>
+          executing.delete(promise)
+        );
         executing.add(promise);
         if (executing.size == this.pLimit) {
           await Promise.race(executing);

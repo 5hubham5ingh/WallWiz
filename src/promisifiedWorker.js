@@ -12,7 +12,6 @@ export default async function workerPromise(data) {
       const worker = new OS.Worker(
         "./extensionScriptHandlerWorker.js",
       );
-
       const abortWorker = () => {
         worker.postMessage({ type: "abort" });
         worker.onmessage = null;
@@ -29,13 +28,20 @@ export default async function workerPromise(data) {
             break;
           case "error": {
             abortWorker();
-
+            reject(
+              new Error(
+                ...ev.data.split(";"),
+              ),
+            );
+            break;
+          }
+          case "systemError": {
+            abortWorker();
             reject(
               new SystemError(
                 ...ev.data.split(";"),
               ),
             );
-            break;
           }
         }
       };
