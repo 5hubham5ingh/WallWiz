@@ -51,6 +51,9 @@ export type UserArguments = {
   /** Set daemon mode to randomly apply wallpaper at set intervel */
   setInterval: number;
 
+  /** Set a callback function to conditionally modify the arguments at setInterval */
+  setIntervalCallback: Promise<null>;
+
   /** Hold, i.e. Do not quit the app after applying wallpaper. */
   hold: boolean;
 

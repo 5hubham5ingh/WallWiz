@@ -176,8 +176,13 @@ export default class WallpaperSetter {
 
       if (USER_ARGUMENTS.setInterval) {
         while (true) {
-          OS.setTimeout(() => {}, USER_ARGUMENTS.setInterval);
           await setRandomWallpaper();
+          OS.setTimeout(
+            () => {
+              STD.evalScript(USER_ARGUMENTS.setIntervalCallback);
+            },
+            USER_ARGUMENTS.setInterval,
+          );
         }
       } else if (USER_ARGUMENTS.setRandomWallpaper) {
         await setRandomWallpaper();

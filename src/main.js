@@ -56,6 +56,7 @@ class WallWiz {
       disableNotification: "--disable-notification",
       disableAutoScaling: "--disable-autoscaling",
       setInterval: "--set-interval",
+      setIntervalCallback: "--set-interval-callback",
       hold: "--hold",
       processLimit: "--plimit",
       inspection: "--inspection",
@@ -144,7 +145,16 @@ class WallWiz {
           .num(0)
           .min(0)
           .max(Number.MAX_SAFE_INTEGER)
-          .desc("Set time interval to periodically apply random wallpaper."),
+          .desc(
+            "Set time interval to periodically set random wallpaper.",
+          ),
+        [argNames.setIntervalCallback]: arg
+          .str("")
+          .val("JavaScript")
+          .cust(STD.evalScript)
+          .desc(
+            "Set a callback function to conditionally modify the arguments at setInterval.",
+          ),
         [argNames.hold]: arg
           .flag(true)
           .desc(
@@ -173,6 +183,7 @@ class WallWiz {
         "-n": argNames.disableNotification,
         "-a": argNames.disableAutoScaling,
         "-v": argNames.setInterval,
+        "-c": argNames.setIntervalCallback,
         "-o": argNames.hold,
         "-x": argNames.processLimit,
         "-i": argNames.inspection,
@@ -180,6 +191,7 @@ class WallWiz {
       .ex([
         "-d ~/Pics/wallpapers -s 42x10",
         "-l -p 4x4",
+        `-v 30000 -c "((args, h = new Date().getHours()) => h >= 6 && h < 18 ? args.enableLightTheme = true : args.enableLightTheme = false)(USER_ARGUMENTS)"`,
       ])
       .ver("0.0.1-alpha.8")
       .parse();
