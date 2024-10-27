@@ -236,10 +236,10 @@ class WallWiz {
     if (status instanceof SystemError) {
       status.log(USER_ARGUMENTS.inspection);
     } else if (USER_ARGUMENTS.inspection) {
-      const stackTrace = status?.stackTrace?.map((stack, i) => {
-        return " ".repeat(i * 2) + "╰──> " + stack;
+      const stackTrace = status?.stackTrace?.map((stack) => {
+        return " at " + stack;
       }).join("\n");
-      print(stackTrace, "\n", status);
+      print(status, "\n", stackTrace);
     }
   }
 }

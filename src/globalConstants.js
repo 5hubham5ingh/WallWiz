@@ -55,7 +55,7 @@ globalThis.SystemError = class SystemError extends Error {
    *
    * @param {boolean} inspect - Wheather to print the error body or not for inspection.
    */
-  log(inspect) { //TODO: restructure optput to math that of js error log.
+  log(inspect) {
     print(
       "\n",
       ansi.styles(["bold", "red"]),
@@ -81,7 +81,7 @@ globalThis.execAsync = execAsync;
 const handleError = (error, blockName) => {
   if (error instanceof SystemError || (error === SUCCESS)) throw error;
   if (error.stackTrace) {
-    error.stackTrace.unshift(blockName ?? "anonymous");
+    error.stackTrace.push(blockName ?? "anonymous");
   } else {
     error.stackTrace = [blockName];
   }
