@@ -1,23 +1,11 @@
-import * as std from "std";
-import * as os from "os";
+import * as std from "../../qjs-ext-lib/src/std.js";
+import * as os from "../../qjs-ext-lib/src/os.js";
 import { ansi } from "../../justjs/ansiStyle.js";
 import { exec as execAsync } from "../../qjs-ext-lib/src/process.js";
 import { cursorShow } from "../../justjs/cursor.js";
 
-/**
- * @typedef {import('./types.d.ts').IOs} IOs
- * @typedef {import('./types.d.ts').IStd} IStd
- * @typedef {import('./types.d.ts').UserArguments} UserArguments
- */
-
-/**
- * @type {IOs}
- */
 globalThis.OS = os;
 
-/**
- * @type {IStd}
- */
 globalThis.STD = std;
 
 /**
@@ -73,9 +61,6 @@ globalThis.SystemError = class SystemError extends Error {
   }
 };
 
-/**
- * @typedef {typeof execAsync}
- */
 globalThis.execAsync = execAsync;
 
 const handleError = (error, blockName) => {
