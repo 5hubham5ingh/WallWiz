@@ -123,7 +123,8 @@ WallWiz's functionality can be extended through user-defined JavaScript scripts:
 | `--show-keymap`        | `-m`  | `false`   | Display keymaps for the user interface.                                                         |
 | `--disable-notification`| `-n` | `false`   | Disable desktop notifications.                                                                  |
 | `--disable-autoscaling`| `-a`  | `false`   | Disable auto scaling terminal size to fit all images.                                            |
-| `--set-interval` | `-v`| `disabled` | After random wallpaper at set interval. |
+| `--set-interval` | `-v`| `disabled` | Apply random wallpaper periodically at set interval. |
+| `--set-interval-callback`| `-c`| `none` | Set an [IIFE](https://developer.mozilla.org/en-US/docs/Glossary/IIFE) to conditionally modify the arguments at setInterval. |
 | `--hold` | `-o` | `true` | Hold application open even after the wallpaper has been applied. |
 | `--plimit`             | `-x`     | `auto`    | Number of execution threads used.                                                               |
 | `-h, --help`           |          |           | Print help.                                                                                     |
@@ -131,17 +132,20 @@ WallWiz's functionality can be extended through user-defined JavaScript scripts:
 
 **Example:**
 ```bash
-# Browse online wallpapers
-WallWiz -d ~/Pictures -u https://github.com/D3Ext/aesthetic-wallpapers/tree/main/images;https://github.com/5hubham5ingh/WallWiz/tree/wallpapers
-
-# Download theme extension scripts
+# Download theme extension scripts.
 WallWiz -t -d ~/Pictures
 
-# Apply wallpaper and light theme
+# Apply wallpaper and light theme.
 WallWiz -l -d ~/Pictures/wallpapers
 
-# Enable grid view and disable terminal auto-scaling
+# Enable grid view and disable terminal auto-scaling.
 WallWiz -e -a -d ~/Pictures
+
+# Set dark or light theme based on the hour of the day.
+WallWiz -v 3600000 -c "(globalThis.USER_ARGUMENTS ??= {})[ 'enableLightTheme' ] = ((h) => h >= 6 && h < 18)(new Date().getHours())"
+
+# Browse online wallpapers.
+WallWiz -d ~/Pictures -u https://github.com/D3Ext/aesthetic-wallpapers/tree/main/images;https://github.com/5hubham5ingh/WallWiz/tree/wallpapers
 ```
 ## Todo
 - `swww` wallpaper daemon handler script.

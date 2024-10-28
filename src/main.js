@@ -7,6 +7,7 @@ import {
 import WallpaperDownloadManager from "./wallpaperDownloadManager.js";
 import WallpaperSetter from "./wallpapersManager.js";
 import { UserInterface } from "./userInterface.js";
+import { ansi } from "../../justjs/ansiStyle.js";
 
 "use strip";
 class WallWiz {
@@ -190,10 +191,36 @@ class WallWiz {
         "-i": argNames.inspection,
       })
       .ex([
-        "-d ~/Pics/wallpapers -s 42x10",
-        "-l -p 4x4",
-        `-v 30000 -c "((args = globalThis.USER_ARGUMENTS, h = new Date().getHours()) => { if (args) args.enableLightTheme = h >= 6 && h < 18; })()"`,
-      ])
+        [
+          "-t -d ~/Pictures",
+          "Download theme extension scripts.",
+        ],
+        [
+          "-l -d ~/Pictures/wallpapers",
+          "Apply wallpaper and light theme.",
+        ],
+        [
+          "-e -a -d ~/Pictures",
+          "Enable grid view and disable terminal auto-scaling.",
+        ],
+        [
+          "-v 3600000 -c \"(globalThis.USER_ARGUMENTS ??= {})[ 'enableLightTheme' ] = ((h) => h >= 6 && h < 18)(new Date().getHours())\"",
+          "Set dark or light theme based on the hour of the day.",
+        ],
+        [
+          "-d ~/Pictures -u https://github.com/D3Ext/aesthetic-wallpapers/tree/main/images;https://github.com/5hubham5ingh/WallWiz/tree/wallpapers",
+          "Browse online wallpapers.",
+        ],
+      ].map(
+        ([command, description]) =>
+          command.concat(
+            "\n",
+            ansi.style.grey,
+            ansi.style.italic,
+            `- ${description}`,
+            ansi.style.reset,
+          ),
+      ))
       .ver("0.0.1-alpha.9")
       .parse();
 
