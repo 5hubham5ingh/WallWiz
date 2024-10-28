@@ -11,7 +11,7 @@ class Utils {
     return await catchAsyncError(async () => {
       try {
         const threads = await execAsync("nproc");
-        return parseInt(threads, 10);
+        return parseInt(threads, 10) - 1; // Number of available threads minus parent thread
       } catch (e) {
         this.notify(
           "Failed to get process limit. Using default value = 4",
