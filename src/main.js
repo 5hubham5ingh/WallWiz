@@ -194,7 +194,7 @@ class WallWiz {
         "-l -p 4x4",
         `-v 30000 -c "((args = globalThis.USER_ARGUMENTS, h = new Date().getHours()) => { if (args) args.enableLightTheme = h >= 6 && h < 18; })()"`,
       ])
-      .ver("0.0.1-alpha.8")
+      .ver("0.0.1-alpha.9")
       .parse();
 
     // Convert parsed arguments to a more convenient object format
