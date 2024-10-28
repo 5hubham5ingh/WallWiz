@@ -66,7 +66,7 @@ class WallWiz {
     const userArguments = arg
       .parser({
         [argNames.wallpapersDirectory]: arg
-          .path(".")
+          .path(OS.getcwd()[0])
           .env("WALLPAPER_DIR")
           .check()
           .map((path) => path.concat("/"))
@@ -150,7 +150,8 @@ class WallWiz {
           ),
         [argNames.setIntervalCallback]: arg
           .str("")
-          .val("JavaScript")
+          .env("WW_CB")
+          .val("JavaScript IIFE")
           .cust(STD.evalScript)
           .desc(
             "Set a callback function to conditionally modify the arguments at setInterval.",
@@ -191,7 +192,7 @@ class WallWiz {
       .ex([
         "-d ~/Pics/wallpapers -s 42x10",
         "-l -p 4x4",
-        `-v 30000 -c "((args, h = new Date().getHours()) => h >= 6 && h < 18 ? args.enableLightTheme = true : args.enableLightTheme = false)(USER_ARGUMENTS)"`,
+        `-v 30000 -c "((args = globalThis.USER_ARGUMENTS, h = new Date().getHours()) => { if (args) args.enableLightTheme = h >= 6 && h < 18; })()"`,
       ])
       .ver("0.0.1-alpha.8")
       .parse();
