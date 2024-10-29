@@ -142,11 +142,9 @@ function generateTheme(colors, isDark) {
 
 function generateBtopConfig(theme, isDark) {
   const invertIfLight = (color) =>
-    isDark
-      ? color
-      : rgbToHex(...hslToRGB(
-        ...rgbToHSL(...hexToRGB(color)).map((v, i) => i === 2 ? 100 - v : v),
-      ));
+    isDark ? color : rgbToHex(...hslToRGB(
+      ...rgbToHSL(...hexToRGB(color)).map((v, i) => i === 2 ? 100 - v : v),
+    ));
 
   const config = `
 # Main background

@@ -95,7 +95,7 @@ class ExtensionScriptsDownloader extends Download {
         const start = item.about.indexOf("/*") + 2;
         const end = item.about.lastIndexOf("*/") - 1;
         const about = item.about.slice(start, end);
-        utils.writeFile(about,currFile)
+        utils.writeFile(about, currFile);
         item.tmpFile = currFile;
       }
     }, "writeTempItemInTempDir");

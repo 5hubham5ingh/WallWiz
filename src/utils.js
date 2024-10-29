@@ -2,25 +2,26 @@ import { ansi } from "../../justjs/ansiStyle.js";
 
 "use strip";
 class Utils {
+  constructor() {
+    return Utils.createProxyWithErrorHandling(this);
+  }
   /**
    * @method processLimit
    * @description Determines the number of available CPU threads
    * @returns {Promise<number>} The number of CPU threads or the default pLimit if unable to determine
    */
   async processLimit() {
-    return await catchAsyncError(async () => {
-      try {
-        const threads = await execAsync("nproc");
-        return parseInt(threads, 10) - 1; // Number of available threads minus parent thread
-      } catch (e) {
-        this.notify(
-          "Failed to get process limit. Using default value = 4",
-          e,
-          "critical",
-        );
-        return 4;
-      }
-    }, "processLimit");
+    try {
+      const threads = await execAsync("nproc");
+      return parseInt(threads, 10) - 1; // Number of available threads minus parent thread
+    } catch (e) {
+      this.notify(
+        "Failed to get process limit. Using default value = 4",
+        e,
+        "critical",
+      );
+      return 4;
+    }
   }
 
   /**
@@ -30,21 +31,17 @@ class Utils {
    * @returns {Promise<void>}
    */
   async promiseQueueWithLimit(getTaskPromises) {
-    return await catchAsyncError(async () => {
-      this.pLimit = (this.pLimit || USER_ARGUMENTS.pLimit) ??
-        await this.processLimit();
-      const executing = new Set();
-      for (const getTaskPromise of getTaskPromises) {
-        const promise = getTaskPromise().finally(() =>
-          executing.delete(promise)
-        );
-        executing.add(promise);
-        if (executing.size == this.pLimit) {
-          await Promise.race(executing);
-        }
+    this.pLimit = (this.pLimit || USER_ARGUMENTS.pLimit) ??
+      await this.processLimit();
+    const executing = new Set();
+    for (const getTaskPromise of getTaskPromises) {
+      const promise = getTaskPromise().finally(() => executing.delete(promise));
+      executing.add(promise);
+      if (executing.size == this.pLimit) {
+        await Promise.race(executing);
       }
-      return await Promise.all(executing);
-    }, "promiseQueueWithLimit");
+    }
+    return await Promise.all(executing);
   }
 
   /**
@@ -56,21 +53,19 @@ class Utils {
    * @returns {Promise<void>}
    */
   async notify(title, message = "", urgency = "normal") {
-    await catchAsyncError(async () => {
-      if (USER_ARGUMENTS.disableNotification) return;
+    if (USER_ARGUMENTS.disableNotification) return;
 
-      const command = [
-        "notify-send",
-        "-u",
-        urgency,
-        title,
-        message,
-      ];
-      await execAsync(command)
-        .catch((error) => {
-          throw new SystemError("Failed to send notification.", error);
-        });
-    }, "notify");
+    const command = [
+      "notify-send",
+      "-u",
+      urgency,
+      title,
+      message,
+    ];
+    await execAsync(command)
+      .catch((error) => {
+        throw new SystemError("Failed to send notification.", error);
+      });
   }
 
   /**
@@ -80,15 +75,28 @@ class Utils {
    * @param {string} path - The path of the file to write to
    */
   writeFile(content, path) {
-    catchError(() => {
-      if (typeof content !== "string") {
-        throw TypeError("File content to wrtie must be of type string.");
-      }
-      const fileHandler = STD.open(path, "w+");
-      if (!fileHandler) throw Error("Failed to open file: " + path);
-      fileHandler.puts(content);
-      fileHandler.close();
-    }, "writeFile");
+    if (typeof content !== "string") {
+      throw TypeError("File content to wrtie must be of type string.");
+    }
+    const errObj = {};
+    let fileHandler = STD.open(path, "w+", errObj);
+    if (errObj.errno === 2) {
+      this.ensureDir(
+        path.split("/")
+          .map((dir, depth, step, end = step.length) =>
+            depth === (end - 1) ? "" : dir
+          )
+          .join("/"),
+      );
+      fileHandler = STD.open(path, "w+", errObj);
+    }
+    if (!fileHandler) {
+      throw Error(
+        "Failed to open file: " + path + "\nError code: " + `${errObj.errno}`,
+      );
+    }
+    fileHandler.puts(content);
+    fileHandler.close();
   }
 
   /**
@@ -120,13 +128,58 @@ class Utils {
   }
 
   log(message) {
-    catchError(() => {
-      const fmtMsg = message.split(";")
-        .map((line) => ` ${ansi.style.brightGreen}◉ ${line}${ansi.style.reset}`)
-        .join("\n");
+    const fmtMsg = message.split(";")
+      .map((line) => ` ${ansi.style.brightGreen}◉ ${line}${ansi.style.reset}`)
+      .join("\n");
 
-      print(fmtMsg);
-    }, "log");
+    print(fmtMsg);
+  }
+
+  static createProxyWithErrorHandling(TargetClass) {
+    return new Proxy(TargetClass, {
+      construct(target, args) {
+        const instance = new target(...args);
+        return new Proxy(instance, {
+          get(obj, prop) {
+            const originalMethod = obj[prop];
+            if (typeof originalMethod === "function") {
+              return function (...methodArgs) {
+                // Check if the original method is async
+                const isAsync =
+                  originalMethod.constructor.name === "AsyncFunction";
+
+                if (isAsync) {
+                  return originalMethod.apply(obj, methodArgs).catch(
+                    (error) => {
+                      const methodName = prop.toString();
+                      const updatedError = new Error(
+                        `Error in ${target.name}::${methodName}: ${error.message}`,
+                      );
+                      updatedError.stack =
+                        `${updatedError.stack}\nCaused by: ${error.stack}`;
+                      throw updatedError;
+                    },
+                  );
+                } else {
+                  try {
+                    return originalMethod.apply(obj, methodArgs);
+                  } catch (error) {
+                    const methodName = prop.toString();
+                    const updatedError = new Error(
+                      `Error in ${target.name}::${methodName}: ${error.message}`,
+                    );
+                    updatedError.stack =
+                      `${updatedError.stack}\nCaused by: ${error.stack}`;
+                    throw updatedError;
+                  }
+                }
+              };
+            }
+            return originalMethod;
+          },
+        });
+      },
+    });
   }
 }
 
