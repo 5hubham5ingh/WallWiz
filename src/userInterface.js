@@ -330,7 +330,7 @@ ${styles.underline}                                                 ${styles.res
 ${styles.underline}                                                 ${styles.reset}
 `;
       print(keyMaps);
-      throw SUCCESS;
+      throw EXIT;
     }, "printKeyMaps");
   }
 

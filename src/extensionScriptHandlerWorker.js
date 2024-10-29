@@ -28,21 +28,23 @@ const startWork = async (data) => {
       try {
         const result = await cb(...args);
         results.push(result);
-      } catch (error) {
-        error instanceof SystemError
+      } catch (status) {
+        if (status === EXIT) continue;
+
+        status instanceof SystemError
           ? parent.postMessage({
             type: "systemError",
             data: [
-              error.name,
-              error.description,
-              JSON.stringify(error.body ?? ""),
+              status.name,
+              status.description,
+              JSON.stringify(status.body ?? ""),
             ],
           })
           : parent.postMessage({
             type: "error",
             data: [
               scriptPath,
-              JSON.stringify(error),
+              JSON.stringify(status),
             ],
           });
       }

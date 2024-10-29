@@ -186,7 +186,7 @@ export default class WallpaperSetter {
         }
       } else if (USER_ARGUMENTS.setRandomWallpaper) {
         await setRandomWallpaper();
-        throw SUCCESS;
+        throw EXIT;
       }
     }, "handleSettingRandomWallpaper");
   }
@@ -211,7 +211,7 @@ export default class WallpaperSetter {
         this.setWallpaper(name),
       ];
       await Promise.all(promises);
-      if (!USER_ARGUMENTS.hold) throw SUCCESS;
+      if (!USER_ARGUMENTS.hold) throw EXIT;
     }, "handleSelection");
   }
 

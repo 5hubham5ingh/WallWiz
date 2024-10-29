@@ -272,7 +272,7 @@ class WallWiz {
   }
 
   handleExecutionStatus(status) {
-    if (status === SUCCESS) STD.exit(0);
+    if (status === EXIT) STD.exit(0);
     if (status instanceof SystemError) {
       status.log(USER_ARGUMENTS.inspection);
     } else if (USER_ARGUMENTS.inspection) {

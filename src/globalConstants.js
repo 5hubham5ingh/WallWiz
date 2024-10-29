@@ -64,7 +64,7 @@ globalThis.SystemError = class SystemError extends Error {
 globalThis.execAsync = execAsync;
 
 const handleError = (error, blockName) => {
-  if (error instanceof SystemError || (error === SUCCESS)) throw error;
+  if (error instanceof SystemError || (error === EXIT)) throw error;
   if (error.stackTrace) {
     error.stackTrace.push(blockName ?? "anonymous");
   } else {
@@ -94,4 +94,4 @@ globalThis.catchError = (cb, blockName) => {
   }
 };
 
-globalThis.SUCCESS = 0;
+globalThis.EXIT = "exit";
