@@ -58,7 +58,7 @@ export default class WallpaperDownloadManager extends Download {
         wallpaper.name
       ).join("\n");
       const fzfCommand =
-        `fzf -m --bind 'enter:select-all+accept' --layout="reverse" --prompt="\b" --marker="\b" --pointer="\b" --header="Type wallpaper name or category to search for matching wallpaper." --header-first --border=double --border-label=" Wallpapers "`;
+        `fzf -m --bind 'enter:select-all+accept' --layout="reverse" --highlight-line --prompt="\b " --marker="\b" --pointer="\b" --header="Type wallpaper name or category to filter out matching group of wallpapers." --header-first --border=double --border-label=" Wallpapers "`;
 
       const filter = new ProcessSync(fzfCommand, {
         input: availableWallpaperNames,
@@ -84,7 +84,7 @@ export default class WallpaperDownloadManager extends Download {
       } else {
         throw new SystemError(
           "No wallpaper selected.",
-          "Select atleast one wallpaper to download",
+          "Select atleast one wallpaper to preview.",
         );
       }
     }, "filterWallpapersForPreview");
