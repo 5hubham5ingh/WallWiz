@@ -29,7 +29,7 @@ class Utils {
    */
   async promiseQueueWithLimit(getTaskPromises) {
     return await catchAsyncError(async () => {
-      this.pLimit = (this.pLimit || USER_ARGUMENTS.pLimit) ??
+      this.pLimit ??= USER_ARGUMENTS.pLimit ??
         await this.processLimit();
       const executing = new Set();
       for (const getTaskPromise of getTaskPromises) {
