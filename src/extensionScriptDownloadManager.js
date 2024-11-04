@@ -147,7 +147,41 @@ class WallpaperDaemonHandlerScriptDownloadManager
         "Wallpaper daemon handler script.",
       );
       await this.downloadItemInDestinationDir();
+      this.removeOldScripts();
     }, "WallpaperDaemonHandlerScriptDownloadManager :: init");
+  }
+
+  removeOldScripts() {
+    catchError(() => {
+      const [content, error] = OS.readdir(this.destinationDir);
+      if (error) {
+        throw new Error(
+          `Failed to read file stat for "${this.destinationDir}".\n Error code: ${error}`,
+        );
+      }
+      const scripts = content.filter((name) =>
+        name.endsWith(".js") && !name.startsWith(".")
+      );
+      const orderedScripts = scripts.sort((scriptA, scriptB) => {
+        const [[scriptAStat, err1], [scriptBStat, err2]] = [
+          OS.stat(this.destinationDir.concat(scriptA)),
+          OS.stat(this.destinationDir.concat(scriptB)),
+        ];
+        if (err1 || err2) {
+          throw new Error(`Failed to read stat for:
+"${
+            err1
+              ? scriptA.concat("Error code", err1)
+              : scriptB.concat("Error code", err2)
+          }".`);
+        }
+        return scriptAStat.ctime > scriptBStat.ctime;
+      });
+
+      for (let i = 0; i < orderedScripts.length - 1; i++) {
+        OS.remove(this.destinationDir.concat(orderedScripts[i]));
+      }
+    }, "removeOldScripts");
   }
 }
 
