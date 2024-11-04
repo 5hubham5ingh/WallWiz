@@ -158,7 +158,7 @@ class WallWiz {
             "Set a callback function to conditionally modify the arguments at setInterval.",
           ),
         [argNames.hold]: arg
-          .flag(true)
+          .flag(false)
           .desc(
             "Keep the app running even after the wallpaper has been applyed.",
           ),
