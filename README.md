@@ -194,7 +194,7 @@ WallWiz's functionality can be extended through user-defined JavaScript scripts:
 | `--set-interval-callback` | `-c`     | `none`                                                    | Inject JS to modify the arguments at setInterval.                                                                 |
 | `--hold`                  | `-o`     | `flase`                                                    | Hold application open even after the wallpaper has been applied.                                                  |
 | `--plimit`                | `-x`     | `auto`                                                    | Number of execution threads used.                                                                                 |
-| `-h, --help`              |          |                                                           | Print help.                                                                                                       |
+| `--help`              |     `-h`     |                                                           | Print help.                                                                                                       |
 | `--version`               |          |                                                           | Print the program version.                                                                                        |
 
 **Example:**
