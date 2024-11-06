@@ -218,7 +218,7 @@ WallWiz -d ~/Pictures -u https://github.com/D3Ext/aesthetic-wallpapers/tree/main
 
 ## Todo
 
-- `swww` wallpaper daemon handler script.
+- Neovim theme extension script.
 - VS Code theme extension script.
 - Firefox theme extension script.
 
