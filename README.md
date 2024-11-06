@@ -237,6 +237,9 @@ Contributions are welcome! Feel free to submit pull requests.
 - To contribute wallpapers, visit the
   [wallpapers repository](https://github.com/5hubham5ingh/WallWiz/tree/wallpapers).
 
+## Thanks
+- [ctn-malone](https://github.com/ctn-malone/qjs-ext-lib) for showing how to work with QuickJs and the awesome extensions library.
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
