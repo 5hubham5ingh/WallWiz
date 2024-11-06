@@ -187,15 +187,15 @@ WallWiz's functionality can be extended through user-defined JavaScript scripts:
 | `--browse`                | `-b`     | `false`                                                   | Browse wallpapers online.                                                                                         |
 | `--repo-url`              | `-u`     | `https://github.com/5hubham5ingh/WallWiz/tree/wallpapers` | Wallpaper repository GitHub URL(s). Can also be set using the `WALLPAPER_REPO_URLS` environment variable.         |
 | `--api-key`               | `-k`     | `None`                                                    | GitHub API key for increasing API's rate limit. Can also be set using the `GITHUB_API_KEY` environment variable.  |
-| `--show-keymap`           | `-m`     | `false`                                                   | Display keymaps for the user interface.                                                                           |
+| `--show-keymap`           | `-m`     | `false`                                                   | Print keymaps for the user interface.                                                                           |
 | `--disable-notification`  | `-n`     | `false`                                                   | Disable desktop notifications.                                                                                    |
 | `--disable-autoscaling`   | `-a`     | `false`                                                   | Disable auto scaling terminal size to fit all images.                                                             |
 | `--set-interval`          | `-v`     | `disabled`                                                | Apply random wallpaper periodically at set interval.                                                              |
 | `--set-interval-callback` | `-c`     | `none`                                                    | Inject JS to modify the arguments at setInterval.                                                                 |
 | `--hold`                  | `-o`     | `flase`                                                    | Hold application open even after the wallpaper has been applied.                                                  |
 | `--plimit`                | `-x`     | `auto`                                                    | Number of execution threads used.                                                                                 |
-| `--help`              |     `-h`     |                                                           | Print help.                                                                                                       |
-| `--version`               |          |                                                           | Print the program version.                                                                                        |
+| `--help`              |     `-h`     |  `false`                                                         | Print help.                |
+| `--version`               |          |                                                           | Print the program version.         |
 
 **Example:**
 
