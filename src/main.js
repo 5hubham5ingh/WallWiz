@@ -221,7 +221,7 @@ class WallWiz {
             ansi.style.reset,
           ),
       ))
-      .ver("0.0.1-alpha.9")
+      .ver("0.0.1")
       .parse();
 
     // Convert parsed arguments to a more convenient object format
