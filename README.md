@@ -21,7 +21,7 @@ You can contribute in two ways:
 
 ## Wallpaper Repositories
 
-If you have a wallpaper collection hosted elsewhere, please add it to this list.
+If you have a wallpaper collection github repo then you can add it to this list for others to find.
 
 1. [**Aesthetic Wallpapers by D3Ext**](https://github.com/D3Ext/aesthetic-wallpapers)
 2. [**Aesthetic Wallpapers by ronit18**](https://github.com/ronit18/Asthetic-Wallpapers)
@@ -48,11 +48,3 @@ I respect the work of all artists, and it's important that credit is given where
 ## License
 
 Please make sure that the wallpapers you upload are your own work or properly licensed for sharing. If you're using wallpapers from other sources, ensure that you have the right to distribute them. For any wallpapers shared, you must respect the original artist's licensing terms.
-
-## Enjoy!
-
-Feel free to explore, share, and contribute! Together, we can build a beautiful collection of wallpapers for everyone to enjoy.
-
----
-
-**Happy customizing!**
