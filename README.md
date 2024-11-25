@@ -1,6 +1,10 @@
 # WallWiz
 
-https://github.com/user-attachments/assets/26a494b5-0457-4bbf-b44e-c1f34410b3f2
+
+
+https://github.com/user-attachments/assets/adc5bbb0-2f75-4dc8-85a9-46963582e71f
+
+
 
 WallWiz (wallpaper wizard) let you select a wallpaper from a grid menu displayed
 in a terminal emulator (Kitty) and apply not only the wallpaper but also
