@@ -132,36 +132,30 @@ function selectDistinctColors(colors, count) {
 }
 
 function generateTheme(colors, isDark) {
-  /* This function was wrtitten for kitty terminal theme so it is restricted ot 6 colours,
-     modify it ot produce more colours for the vs code theem.
+  /* This function now supports VS Code themes by including 24 additional colors
+     beyond the standard set used in the Kitty terminal theme.
   */
+
+  // Sort colors by luminance
   const sortedColors = [...colors].sort((a, b) => {
     const [, , lA] = rgbToHSL(...hexToRGB(a));
     const [, , lB] = rgbToHSL(...hexToRGB(b));
     return isDark ? lA - lB : lB - lA;
   });
 
+  // Select background and foreground based on theme brightness
   const backgroundIndex = isDark ? 0 : sortedColors.length - 1;
   const foregroundIndex = isDark ? sortedColors.length - 1 : 0;
 
   const background = sortedColors[backgroundIndex];
   const foreground = sortedColors[foregroundIndex];
 
+  // Select other primary colors for the theme
   const midIndex = Math.floor(sortedColors.length / 2);
   const selection = sortedColors[midIndex];
   const cursor = isDark
     ? sortedColors[Math.floor(midIndex / 2)]
     : sortedColors[Math.floor(midIndex * 1.5)];
-
-  // Select 6 distinct colors from the middle of the sorted array
-  const middleColors = sortedColors.slice(
-    Math.floor(sortedColors.length / 4),
-    Math.floor(sortedColors.length * 3 / 4),
-  );
-  const [color1, color2, color3, color4, color5, color6] = selectDistinctColors(
-    middleColors,
-    6,
-  );
 
   const black = isDark
     ? sortedColors[1]
@@ -170,26 +164,42 @@ function generateTheme(colors, isDark) {
     ? sortedColors[sortedColors.length - 2]
     : sortedColors[1];
 
+  // Remove the primary theme colors from the sorted list
+  const remainingColors = sortedColors.filter(
+    (color) =>
+      color !== background &&
+      color !== foreground &&
+      color !== selection &&
+      color !== cursor &&
+      color !== black &&
+      color !== white,
+  );
+
+  // Assign the remaining colors to color1, color2, ..., color24
+  const additionalColors = remainingColors.slice(0, 24);
+  const additionalColorsMap = additionalColors.reduce((acc, color, index) => {
+    acc[`color${index + 1}`] = color;
+    return acc;
+  }, {});
+
+  // Return the theme object
   return {
     background,
     foreground,
     selection,
     cursor,
-    color1,
-    color2,
-    color3,
-    color4,
-    color5,
-    color6,
     black,
     white,
+    ...additionalColorsMap,
   };
 }
 
 function generateThemeConfig(theme, isDark) {
+  /* theme has total 30 colors */
+
   const invertIfLight = (color) => isDark ? color : invertLightness(color);
 
-  // example kitty terminal emulator config
+  /* example kitty terminal emulator config */
   const config = `
 cursor ${invertIfLight(theme.cursor)}
 cursor_text_color ${theme.background}
@@ -267,6 +277,7 @@ color15 ${
   }
 `.trim();
 
+  /* modify theme object to include colors from the theme */
   const vscodeTheme = {
     "$schema": "vscode://schemas/color-theme",
     "name": "WallWiz",
@@ -1335,7 +1346,8 @@ color15 ${
       },
     ],
   };
-  return config;
+
+  return JSON.stringify(vscodeTheme);
 }
 
 function getDarkThemeConf(colors) {
