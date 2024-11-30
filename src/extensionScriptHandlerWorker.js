@@ -1,7 +1,7 @@
 import * as _ from "./globalConstants.js";
 import tinycolor from "./tinyColour.js";
 
-globalThis.color = tinycolor;
+globalThis.colour = tinycolor;
 
 const parent = OS.Worker.parent;
 
