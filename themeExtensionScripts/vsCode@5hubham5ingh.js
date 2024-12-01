@@ -2,155 +2,19 @@
  For:            Visual studio code
  Author:         https://github.com/5hubham5ingh
  Prerequisite:   Installed and enabled WallWiz-theme in vscode from vscode marketplace.
+ Version:        0.0.1
  */
 
-function hexToRGB(hex) {
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  return [r, g, b];
-}
-
-function rgbToHSL(r, g, b) {
-  r /= 255;
-  g /= 255;
-  b /= 255;
-  const max = Math.max(r, g, b);
-  const min = Math.min(r, g, b);
-  let h, s, l = (max + min) / 2;
-
-  if (max === min) {
-    h = s = 0;
-  } else {
-    const d = max - min;
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-    switch (max) {
-      case r:
-        h = (g - b) / d + (g < b ? 6 : 0);
-        break;
-      case g:
-        h = (b - r) / d + 2;
-        break;
-      case b:
-        h = (r - g) / d + 4;
-        break;
-    }
-    h /= 6;
-  }
-
-  return [h * 360, s * 100, l * 100];
-}
-
-function hslToRGB(h, s, l) {
-  h /= 360;
-  s /= 100;
-  l /= 100;
-  let r, g, b;
-
-  if (s === 0) {
-    r = g = b = l;
-  } else {
-    const hue2rgb = (p, q, t) => {
-      if (t < 0) t += 1;
-      if (t > 1) t -= 1;
-      if (t < 1 / 6) return p + (q - p) * 6 * t;
-      if (t < 1 / 2) return q;
-      if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-      return p;
-    };
-
-    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-    const p = 2 * l - q;
-    r = hue2rgb(p, q, h + 1 / 3);
-    g = hue2rgb(p, q, h);
-    b = hue2rgb(p, q, h - 1 / 3);
-  }
-
-  return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
-}
-
-function rgbToHex(r, g, b) {
-  return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
-}
-
-function calculateContrast(rgb1, rgb2) {
-  const luminance = (rgb) => {
-    const a = rgb.map((v) => {
-      v /= 255;
-      return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
-    });
-    return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
-  };
-  const l1 = luminance(rgb1);
-  const l2 = luminance(rgb2);
-  return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
-}
-
-function adjustColorForReadability(baseColor, textColor, minContrast = 4) {
-  let rgb1 = hexToRGB(baseColor);
-  let rgb2 = hexToRGB(textColor);
-  let hsl2 = rgbToHSL(...rgb2);
-
-  const maxIterations = 20;
-  let iterations = 0;
-
-  while (
-    calculateContrast(rgb1, rgb2) < minContrast && iterations < maxIterations
-  ) {
-    if (hsl2[2] > 50) {
-      hsl2[2] = Math.min(hsl2[2] + 5, 95);
-    } else {
-      hsl2[2] = Math.max(hsl2[2] - 5, 5);
-    }
-    rgb2 = hslToRGB(...hsl2);
-    iterations++;
-  }
-
-  if (calculateContrast(rgb1, rgb2) < minContrast) {
-    const bgLuminance = rgbToHSL(...rgb1)[2];
-    return bgLuminance > 50 ? "#000000" : "#ffffff";
-  }
-
-  return rgbToHex(...rgb2);
-}
-
-function invertLightness(hex) {
-  let [h, s, l] = rgbToHSL(...hexToRGB(hex));
-  l = 100 - l; // Invert lightness
-  return rgbToHex(...hslToRGB(h, s, l));
-}
-
-function selectDistinctColors(colors, count) {
-  const distinctColors = [];
-  const step = Math.floor(colors.length / count);
-
-  for (let i = 0; i < count; i++) {
-    distinctColors.push(colors[i * step]);
-  }
-
-  return distinctColors;
-}
-
 function generateTheme(colors, isDark) {
-  /* This function now supports VS Code themes by including 24 additional colors
-     beyond the standard set used in the Kitty terminal theme.
-  */
-
-  // Sort colors by luminance
-  const sortedColors = [...colors].sort((a, b) => {
-    const [, , lA] = rgbToHSL(...hexToRGB(a));
-    const [, , lB] = rgbToHSL(...hexToRGB(b));
-    return isDark ? lA - lB : lB - lA;
+  const sortedColors = colors.sort((a, b) => {
+    const la = Color(a).getLuminance();
+    const lb = Color(b).getLuminance();
+    return isDark ? la - lb : lb - la;
   });
 
-  // Select background and foreground based on theme brightness
-  const backgroundIndex = isDark ? 0 : sortedColors.length - 1;
-  const foregroundIndex = isDark ? sortedColors.length - 1 : 0;
+  const background = sortedColors[0];
+  const foreground = sortedColors[colors.length - 1];
 
-  const background = sortedColors[backgroundIndex];
-  const foreground = sortedColors[foregroundIndex];
-
-  // Select other primary colors for the theme
   const midIndex = Math.floor(sortedColors.length / 2);
   const selection = sortedColors[midIndex];
   const cursor = isDark
@@ -164,256 +28,476 @@ function generateTheme(colors, isDark) {
     ? sortedColors[sortedColors.length - 2]
     : sortedColors[1];
 
-  // Remove the primary theme colors from the sorted list
-  const remainingColors = sortedColors.filter(
-    (color) =>
-      color !== background &&
-      color !== foreground &&
-      color !== selection &&
-      color !== cursor &&
-      color !== black &&
-      color !== white,
+  return Object.assign(
+    {
+      background,
+      foreground,
+      selection,
+      cursor,
+      black,
+      white,
+    },
+    ...sortedColors.filter(
+      (color) =>
+        color !== selection ||
+        color !== cursor,
+    )
+      .map((color, i) => ({
+        [`color${i + 1}`]: adjustColorForReadability(background, color),
+      })),
   );
+}
 
-  // Assign the remaining colors to color1, color2, ..., color24
-  const additionalColors = remainingColors.slice(0, 24);
-  const additionalColorsMap = additionalColors.reduce((acc, color, index) => {
-    acc[`color${index + 1}`] = color;
-    return acc;
-  }, {});
+function adjustColorForReadability(background, foreground) {
+  const fg = Color(foreground);
+  while (!Color.isReadable(background, foreground)) {
+    fg.brighten(1).saturate(1);
+    const hex = fg.toHex();
+    if (hex === "000000" || hex === "ffffff") {
+      return Color(foreground).brighten().saturate().toHexString();
+    }
+  }
 
-  // Return the theme object
-  return {
-    background,
-    foreground,
-    selection,
-    cursor,
-    black,
-    white,
-    ...additionalColorsMap,
-  };
+  return fg.toHexString();
 }
 
 function generateThemeConfig(theme, isDark) {
-  /* theme has total 30 colors */
-
-  const invertIfLight = (color) => isDark ? color : invertLightness(color);
-
   const vscodeTheme = {
-    "$schema": "vscode://schemas/color-theme",
-    "name": `WallWiz ${isDark ? "Dark" : "Light"}`,
-    "author": "Shubham Singh",
-    "maintainers": ["Shubham Singh <ss.dev.me@gmail.com>"],
-    "semanticClass": `theme.wallwiz.${isDark ? "dark" : "light"}`,
+    "name": "WallWiz Theme",
     "semanticHighlighting": true,
-
-    "wallwiz": {
-      "base": [
-        theme.background,
-        theme.foreground,
-        invertIfLight(theme.selection),
-        invertIfLight(theme.color3),
-        invertIfLight(theme.color4),
-        invertIfLight(theme.color5),
-        invertIfLight(theme.color6),
-        invertIfLight(theme.cursor),
-        theme.color1,
-        theme.color2,
-        theme.color3,
-      ],
-      "ansi": [
-        isDark ? theme.black : theme.white,
-        invertIfLight(theme.color1),
-        invertIfLight(theme.color2),
-        invertIfLight(theme.color3),
-        invertIfLight(theme.color4),
-        invertIfLight(theme.color5),
-        invertIfLight(theme.color6),
-        isDark ? theme.white : theme.black,
-        adjustColorForReadability(
-          theme.background,
-          invertIfLight(theme.color1),
-        ),
-        adjustColorForReadability(
-          theme.background,
-          invertIfLight(theme.color2),
-        ),
-        adjustColorForReadability(
-          theme.background,
-          invertIfLight(theme.color3),
-        ),
-        adjustColorForReadability(
-          theme.background,
-          invertIfLight(theme.color4),
-        ),
-        adjustColorForReadability(
-          theme.background,
-          invertIfLight(theme.color5),
-        ),
-        adjustColorForReadability(
-          theme.background,
-          invertIfLight(theme.color6),
-        ),
-        adjustColorForReadability(
-          theme.background,
-          isDark ? theme.white : theme.black,
-        ),
-        theme.foreground,
-      ],
-      "brightOther": [
-        invertIfLight(theme.color3),
-        invertIfLight(theme.color4),
-      ],
-      "other": [
-        theme.background,
-        theme.foreground,
-        isDark ? theme.black : theme.white,
-        invertIfLight(theme.selection),
-        theme.color3,
-      ],
-    },
-
     "colors": {
-      // Terminal Colors
-      "terminal.background": theme.background,
-      "terminal.foreground": theme.foreground,
-      "terminal.ansiBrightBlack": invertIfLight(theme.color3),
-      "terminal.ansiBrightRed": adjustColorForReadability(
-        theme.background,
-        invertIfLight(theme.color1),
-      ),
-      "terminal.ansiBrightGreen": adjustColorForReadability(
-        theme.background,
-        invertIfLight(theme.color2),
-      ),
-      "terminal.ansiBrightYellow": adjustColorForReadability(
-        theme.background,
-        invertIfLight(theme.color3),
-      ),
-      "terminal.ansiBrightBlue": adjustColorForReadability(
-        theme.background,
-        invertIfLight(theme.color4),
-      ),
-      "terminal.ansiBrightMagenta": adjustColorForReadability(
-        theme.background,
-        invertIfLight(theme.color5),
-      ),
-      "terminal.ansiBrightCyan": adjustColorForReadability(
-        theme.background,
-        invertIfLight(theme.color6),
-      ),
-      "terminal.ansiBrightWhite": theme.foreground,
-      "terminal.ansiBlack": isDark ? theme.black : theme.white,
-      "terminal.ansiRed": invertIfLight(theme.color1),
-      "terminal.ansiGreen": invertIfLight(theme.color2),
-      "terminal.ansiYellow": invertIfLight(theme.color3),
-      "terminal.ansiBlue": invertIfLight(theme.color4),
-      "terminal.ansiMagenta": invertIfLight(theme.color5),
-      "terminal.ansiCyan": invertIfLight(theme.color6),
-      "terminal.ansiWhite": isDark ? theme.white : theme.black,
-
-      // Editor Colors
-      "editor.background": theme.background,
+      // General
+      "editor.background": isDark
+        ? Color(theme.background).darken().toHexString()
+        : Color(theme.background).lighten().toHexString(),
       "editor.foreground": theme.foreground,
-      "editorLineNumber.foreground": invertIfLight(theme.color3),
-      "editor.selectionBackground": invertIfLight(theme.selection),
-      "editor.selectionHighlightBackground": adjustColorForReadability(
-        theme.background,
-        invertIfLight(theme.selection),
-        0.3,
-      ),
+      "textLink.foreground": "#569cd6",
+      "textLink.activeForeground": "#569cd6",
+      "editor.selectionForeground": theme.foreground,
+      "editorCursor.foreground": theme.cursor,
 
-      // UI Colors
-      "foreground": theme.foreground,
-      "focusBorder": invertIfLight(theme.color3),
-      "selection.background": invertIfLight(theme.selection),
-
-      // Status Bar
-      "statusBar.background": isDark ? theme.black : theme.white,
-      "statusBar.foreground": theme.foreground,
-
-      // Activity Bar
-      "activityBar.background": isDark ? theme.black : theme.white,
-      "activityBar.foreground": theme.foreground,
-      "activityBar.inactiveForeground": invertIfLight(theme.color3),
+      // Title Bar
+      "titleBar.activeBackground": theme.background,
+      "titleBar.activeForeground": theme.foreground,
+      "titleBar.inactiveBackground": Color(theme.background).lighten()
+        .toHexString(),
+      "titleBar.inactiveForeground": Color(theme.foreground).lighten()
+        .toHexString(),
 
       // Side Bar
-      "sideBar.background": isDark ? theme.black : theme.white,
+      "sideBar.background": theme.black,
       "sideBar.foreground": theme.foreground,
 
+      // Status bar
+      "statusBar.background": theme.background,
+      "statusBar.foreground": theme.foreground,
+      "statusBar.debuggingBackground": Color(theme.background).brighten()
+        .saturate()
+        .toHexString(),
+      "statusBar.debuggingForeground": Color(theme.foreground).brighten()
+        .saturate()
+        .toHexString(),
+      "statusBar.border": "#000",
+
+      // Activity bar
+      "activityBar.background": theme.background,
+      "activityBar.foreground": theme.foreground,
+      "activityBar.activeBorder": Color(theme.background).brighten()
+        .toHexString(),
+      "activityBar.inactiveForeground": Color(theme.foreground).lighten()
+        .toHexString(),
+      "activityBar.activeFocusBorder": theme.white,
+      "activityBar.border": theme.black,
+
+      // Remove borders
+      "tab.border": "#00000000",
+      "sideBar.border": "#00000000",
+      "panel.border": "#00000000",
+      "titleBar.border": "#00000000",
+      "focusBorder": "#00000000",
+      "window.activeBorder": "#00000000",
+      "contrastBorder": "#00000000",
+
+      // Set borders to white (unless covered by another section)
+      "button.border": theme.white,
+      "input.border": theme.white,
+      "dropdown.border": theme.white,
+      "editor.lineHighlightBorder": theme.white,
+      "editor.selectionBackground": theme.white,
+      "editor.findMatchHighlightBorder": theme.white, // another way to show would be nice
+
+      // Panel
+      "panelTitle.inactiveForeground": theme.white,
+      "panelTitle.activeForeground": theme.white,
+
+      // Badges
+      "activityBarBadge.background": theme.white,
+      "activityBarBadge.foreground": theme.black,
+      "badge.background": theme.white,
+      "badge.foreground": theme.black,
+
       // List
-      "list.activeSelectionBackground": invertIfLight(theme.selection),
-      "list.activeSelectionForeground": theme.foreground,
-      "list.hoverBackground": adjustColorForReadability(
-        theme.background,
-        invertIfLight(theme.selection),
-        0.2,
-      ),
+      "list.activeSelectionIconForeground": theme.background,
+      "list.focusHighlightForeground": theme.foreground,
+      "list.activeSelectionBackground": theme.white,
+      "list.activeSelectionForeground": theme.background,
+      "list.dropBackground": theme.white,
+      "list.focusBackground": theme.white,
+      "list.focusForeground": theme.black,
+      "list.highlightForeground": theme.background,
+      "list.hoverBackground": theme.white,
+      "list.hoverForeground": theme.black,
+      "list.inactiveSelectionBackground": theme.background,
+      "list.inactiveSelectionForeground": theme.foreground,
+      "list.inactiveSelectionIconForeground": theme.black,
+      "list.matchHighlightBackground": theme.cursor,
+      "list.matchHighlightForeground": theme.black,
+      "list.selectionBackground": theme.white,
+      "list.selectionForeground": theme.black,
+      "list.selectionIconForeground": theme.black,
+      "list.warningForeground": theme.cursor,
 
-      // Input
-      "input.background": isDark ? theme.black : theme.white,
-      "input.foreground": theme.foreground,
+      // Inlay type inferences
+      "editorInlayHint.background": "#000",
+      "editorInlayHint.foreground": Color(theme.color1).lighten().toHexString(),
 
-      // Button
-      "button.background": invertIfLight(theme.cursor),
-      "button.foreground": theme.background,
+      // Editor tabs
+      "tab.inactiveBackground": theme.black,
+      "tab.inactiveForeground": theme.foreground,
+      "tab.activeBackground": theme.background,
+      "tab.activeForeground": theme.foreground,
+      "tab.activeBorder": "#000",
+      "editorGroupHeader.tabsBackground": theme.black,
+      "sideBySideEditor.horizontalBorder": theme.black,
+      "sideBySideEditor.verticalBorder": theme.black,
 
-      // Dropdown
-      "dropdown.background": isDark ? theme.black : theme.white,
-      "dropdown.foreground": theme.foreground,
+      // Errors
+      "editorWarning.background": "#ffb51669",
+      "editorError.background": "#ff000069",
+
+      // Line nums
+      "editorLineNumber.activeForeground": theme.background,
+      "editorLineNumber.foreground": theme.foreground,
+
+      // Peek view
+      "peekView.border": theme.background,
+      "peekViewEditor.background": theme.black,
+      "peekViewResult.background": theme.background,
+      "peekViewTitle.background": theme.background,
+      "peekViewEditor.matchHighlightBackground": theme.white,
+      "peekViewTitleDescription.foreground": theme.foreground,
+
+      // Menu bar
+      "menubar.selectionForeground": "#000",
+      "menubar.selectionBackground": "#fff",
+      "menu.border": "#000",
+
+      // Notifications center
+      "notificationCenter.border": "#fff",
+      "notificationCenterHeader.background": "#000",
+      "notificationCenterHeader.foreground": "#fff",
+
+      // Notifications
+      "notifications.background": theme.background,
+      "notifications.foreground": theme.foreground,
+
+      // Quick picker
+      "quickInput.background": "#000",
+      "quickInput.foreground": "#fff",
+      "quickInputList.focusBackground": "#fff",
+      "quickInputList.focusForeground": "#000",
+      "quickInputList.focusIconForeground": "#000",
+      "pickerGroup.border": "#fff",
+
+      // Symbol icons (outline, breadcrumbs, suggest)
+      "symbolIcon.classForeground": "#4EC9B0",
+      "symbolIcon.structForeground": "#4EC9B0",
+      "symbolIcon.enumeratorForeground": "#4EC9B0",
+      "symbolIcon.enumeratorMemberForeground": "#9CDCFE",
+      "symbolIcon.constantForeground": "#9CDCFE",
+      "symbolIcon.moduleForeground": "#fff",
+      "symbolIcon.functionForeground": "#FFEC8B",
+      "symbolIcon.methodForeground": "#FFEC8B",
+      "symbolIcon.objectForeground": "#F1644B", // impl block
+      "symbolIcon.typeParameterForeground": "#4EC9B0",
+
+      // Scrollbar
+      "scrollbarSlider.background": "#ffffff69",
+      "scrollbarSlider.hoverBackground": "#fff",
+      "scrollbarSlider.activeBackground": "#fff",
+
+      // Settings
+      "keybindingTable.rowsBackground": "#000",
+      "keybindingLabel.bottomBorder": "#000",
+
+      // Keybinding label colors
+      "keybindingLabel.foreground": "#000",
+      "keybindingLabel.background": "#fff",
+      "keybindingLabel.border": "#fff",
+
+      // Terminal
+      "terminal.findMatchBackground": "#fff",
+      "terminal.findMatchHighlightBorder": "#ffffff69",
+      "terminal.selectionForeground": "#000",
+      "terminal.selectionBackground": "#fff",
+      "terminal.foreground": "#fff",
+      "terminal.background": "#000",
+
+      // Widgets
+      "editorWidget.border": "#fff",
+      "editorWidget.background": "#000",
+      "editorHoverWidget.background": "#000",
+      "editorHoverWidget.foreground": "#fff",
+      "editorHoverWidget.border": "#fff",
+
+      // Jupyter
+      "notebook.cellBorderColor": "#ffffff69",
+      "notebook.focusedEditorBorder": "#fff",
+      "notebook.outputContainerBorderColor": "#ffffff69",
     },
-
     "tokenColors": [
-      // Comments
       {
-        "scope": ["comment", "punctuation.definition.comment"],
+        "scope": [
+          "",
+          "meta.selector",
+          "keyword",
+          "keyword.other",
+          "keyword.control.directive",
+          "punctuation.section.directive",
+        ],
         "settings": {
-          "foreground": invertIfLight(theme.color3),
+          "foreground": theme.color1,
+          "fontStyle": "bold",
+        },
+      },
+      {
+        "scope": [
+          "keyword.operator.quantifier.regexp",
+          "punctuation.definition.tag",
+          "keyword.control",
+          "punctuation.separator",
+          "punctuation.terminator",
+          "punctuation.accessor",
+          "punctuation.bracket",
+          "punctuation.section",
+        ],
+        "settings": {
+          "foreground": theme.color2,
+        },
+      },
+      {
+        "scope": [
+          "support.other.escape.special.regexp",
+          "constant.character.escape.regexp",
+          "constant.language",
+          "meta.preprocessor",
+          "constant.other.placeholder",
+          "constant.character",
+          "keyword.other.special-method",
+        ],
+        "settings": {
+          "foreground": theme.color3,
+        },
+      },
+      {
+        "scope": [
+          "meta.character.set.regexp",
+          "meta.preprocessor.string",
+          "string.regexp",
+          "constant.character.escape",
+          "constant.other.character-class.regexp",
+        ],
+        "settings": {
+          "foreground": theme.color4,
+        },
+      },
+      {
+        "scope": [
+          "meta.function.decorator.python",
+          "entity.name.function.decorator.python",
+          "source.css entity.other.attribute-name",
+          "source.css.less entity.other.attribute-name.id",
+          "source.scss entity.other.attribute-name",
+          "meta.preprocessor.numeric",
+          "keyword.operator",
+          "keyword.control.conditional",
+          "keyword.operator.logical",
+          "keyword.operator.comparison",
+        ],
+        "settings": {
+          "foreground": theme.color5,
           "fontStyle": "italic",
         },
       },
-      // Strings
       {
-        "scope": ["string"],
+        "scope": [
+          "meta.attribute",
+          "meta.item-access",
+          "meta.structure.dictionary.key.python",
+          "invalid",
+          "variable",
+          "meta.definition.variable.name",
+          "support.variable",
+          "entity.name.variable",
+          "variable.parameter",
+          "variable.other",
+          "variable.language",
+        ],
         "settings": {
-          "foreground": invertIfLight(theme.color2),
+          "foreground": theme.color6,
         },
       },
-      // Keywords
       {
-        "scope": ["keyword", "storage.type", "storage.modifier"],
+        "scope": [
+          "meta.function-call",
+          "storage",
+          "markup.heading",
+          "keyword.other.unit",
+          "meta.object-literal.key",
+          "meta.object-literal.key entity.name.function",
+          "entity.name.function.call",
+          "support.function",
+        ],
         "settings": {
-          "foreground": invertIfLight(theme.color5),
-          "fontStyle": "italic",
+          "foreground": theme.background,
         },
       },
-      // Functions
       {
-        "scope": ["entity.name.function", "support.function"],
+        "scope": [
+          "meta.diff.header",
+          "markup.inserted",
+          "storage.type",
+          "support.constant.property-value",
+          "support.constant.font-name",
+          "support.constant.media-type",
+          "support.constant.media",
+          "constant.other.color.rgb-value",
+          "constant.other.rgb-value",
+          "support.constant.color",
+          "storage.type.primitive",
+        ],
         "settings": {
-          "foreground": invertIfLight(theme.color4),
+          "foreground": theme.white,
         },
       },
-      // Classes
       {
-        "scope": ["entity.name.type", "entity.name.class"],
+        "scope": [
+          "markup.deleted",
+          "storage.modifier",
+          "constant.sha.git-rebase",
+          "keyword.control.flow",
+          "keyword.control.import",
+        ],
         "settings": {
-          "foreground": invertIfLight(theme.color6),
-          "fontStyle": "italic",
+          "foreground": theme.color9,
         },
       },
-      // Variables
       {
-        "scope": ["variable", "variable.other.readwrite"],
+        "scope": [
+          "markup.changed",
+          "string",
+          "storage.modifier.import.java",
+          "variable.language.wildcard.java",
+          "storage.modifier.package.java",
+          "string.quoted",
+          "string.interpolated",
+          "string.template",
+        ],
+        "settings": {
+          "foreground": theme.color10,
+        },
+      },
+      {
+        "scope": [
+          "constant.numeric",
+          "constant.other.color.rgb-value",
+          "constant.other.rgb-value",
+          "support.constant.color",
+          "string.tag",
+          "variable.language.this",
+          "constant.language.boolean",
+          "constant.language.null",
+        ],
+        "settings": {
+          "foreground": theme.color11,
+        },
+      },
+      {
+        "scope": [
+          "entity.name.tag",
+          "string.value",
+          "entity.name.function",
+          "support.function",
+          "support.constant.handlebars",
+          "meta.function.identifier",
+        ],
         "settings": {
           "foreground": theme.foreground,
         },
       },
-      // Constants
       {
-        "scope": ["constant", "variable.other.constant"],
+        "scope": [
+          "entity.name.tag.css",
+          "punctuation.definition.template-expression.begin.js",
+          "punctuation.definition.template-expression.begin.ts",
+          "punctuation.definition.template-expression.end.ts",
+          "punctuation.definition.template-expression.end.js",
+          "meta.return-type",
+          "support.class",
+          "support.type",
+          "entity.name.type",
+          "entity.name.class",
+          "source.cs storage.type",
+          "storage.type.class",
+          "storage.type.function",
+        ],
         "settings": {
-          "foreground": invertIfLight(theme.color1),
+          "foreground": theme.color13,
+        },
+      },
+      {
+        "scope": [
+          "entity.other.attribute-name",
+          "support.type.vendored.property-name",
+          "support.type.property-name",
+          "variable.css",
+          "variable.scss",
+          "variable.other.less",
+          "meta.type.cast.expr",
+          "meta.type.new.expr",
+          "support.constant.math",
+          "support.constant.dom",
+          "support.constant.json",
+          "entity.other.inherited-class",
+          "support.type.property-name.json",
+        ],
+        "settings": {
+          "foreground": theme.color14,
+        },
+      },
+      {
+        "scope": [
+          "mutable",
+          "storage.modifier.mut",
+          "emphasis",
+          "strong",
+          "markup.underline",
+          "markup.bold",
+          "markup.italic",
+        ],
+        "settings": {
+          "fontStyle": "underline bold italic",
+        },
+      },
+      {
+        "scope": [
+          "comment",
+          "string.quoted.docstring",
+          "comment.line",
+          "comment.block",
+        ],
+        "settings": {
+          "foreground": "#292826",
         },
       },
     ],
@@ -432,10 +516,16 @@ function getLightThemeConf(colors) {
   return generateThemeConfig(theme, false);
 }
 
-function setTheme(themeConfPath) {
+function setTheme(
+  themeConfPath = HOME_DIR.concat(
+    "/.cache/WallWiz/themes/vsCode@5hubham5ingh.js/663097375123.webp-dark.conf",
+  ),
+) {
   const config = STD.loadFile(themeConfPath);
+  const themeDir =
+    "/.vscode/extensions/ssdev.wallwiz-theme-0.0.2/themes/wallwiz-theme.json";
   const vscodeThemeFile = STD.open(
-    HOME_DIR.concat(".vscode/extensions/wallwiz-theme.json"),
+    HOME_DIR.concat(themeDir),
     "w",
   );
   if (!vscodeThemeFile) return;
