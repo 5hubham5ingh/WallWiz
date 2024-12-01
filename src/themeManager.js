@@ -45,7 +45,7 @@ class Theme {
       const getColoursFromWallpaper = async (wallpaperPath) => {
         return await catchAsyncError(async () => {
           const result = await execAsync(
-            `magick ${wallpaperPath} -format %c -depth 8 -colors 30 histogram:info:`,
+            `magick ${wallpaperPath} -format %c -define histogram:method=kmeans -colors 16 histogram:info:`,
           );
           return result.split("\n")
             .flatMap((line) =>
