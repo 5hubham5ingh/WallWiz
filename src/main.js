@@ -49,6 +49,7 @@ class WallWiz {
       enablePagination: "--enable-pagination",
       gridSize: "--grid-size",
       downloadThemeExtensionScripts: "--theme-extensions",
+      colorExtractionCommand: "--color-backend",
       downloadWallpaperDaemonHandlerScript: "--wallpaper-handler",
       browseWallpaperOnline: "--browse",
       wallpaperRepositoryUrls: "--repo-url",
@@ -113,6 +114,11 @@ class WallWiz {
         [argNames.downloadThemeExtensionScripts]: arg
           .flag(false)
           .desc("Download theme extension scripts."),
+        [argNames.colorExtractionCommand]: arg
+          .str(
+            "magick {} -format %c -define histogram:method=kmeans -colors 16 histogram:info:",
+          )
+          .desc("Set color extraction command."),
         [argNames.downloadWallpaperDaemonHandlerScript]: arg
           .flag(false)
           .desc("Download wallpaper handler script."),
@@ -177,6 +183,7 @@ class WallWiz {
         "-g": argNames.gridSize,
         "-l": argNames.enableLightTheme,
         "-t": argNames.downloadThemeExtensionScripts,
+        "-c": argNames.colorExtractionCommand,
         "-w": argNames.downloadWallpaperDaemonHandlerScript,
         "-b": argNames.browseWallpaperOnline,
         "-u": argNames.wallpaperRepositoryUrls,
@@ -185,7 +192,7 @@ class WallWiz {
         "-n": argNames.disableNotification,
         "-a": argNames.disableAutoScaling,
         "-v": argNames.setInterval,
-        "-c": argNames.setIntervalCallback,
+        "-f": argNames.setIntervalCallback,
         "-o": argNames.hold,
         "-x": argNames.processLimit,
         "-i": argNames.inspection,

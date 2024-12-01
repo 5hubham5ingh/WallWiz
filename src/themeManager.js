@@ -1,5 +1,6 @@
 import utils from "./utils.js";
 import workerPromise from "./promisifiedWorker.js";
+import Color from "./Color/color.js";
 
 /**
  * @typedef {import('./types.d.ts').ColoursCache} ColoursCache
@@ -45,13 +46,14 @@ class Theme {
       const getColoursFromWallpaper = async (wallpaperPath) => {
         return await catchAsyncError(async () => {
           const result = await execAsync(
-            `magick ${wallpaperPath} -format %c -define histogram:method=kmeans -colors 16 histogram:info:`,
+            USER_ARGUMENTS.colorExtractionCommand.replace("{}", wallpaperPath),
           );
           return result.split("\n")
             .flatMap((line) =>
-              line.split(" ").filter((word) => word.startsWith("#"))
+              line.split(" ").filter((word) => Color(word).isValid())
             )
-            .filter(Boolean);
+            .filter(Boolean)
+            .map((color) => Color(color).toHexString());
         }, "getColoursFromWallpaper");
       };
 

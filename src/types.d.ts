@@ -27,6 +27,9 @@ export type UserArguments = {
   /** Download additional scripts to support theme extensions */
   downloadThemeExtensionScripts: boolean;
 
+  /** Set color extraction backend command */
+  colorExtractionCommand: string;
+
   /** Download a script to manage wallpaper daemon handlers */
   downloadWallpaperDaemonHandlerScript: boolean;
 
