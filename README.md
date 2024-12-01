@@ -221,6 +221,8 @@ WallWiz -d ~/Pictures -u https://github.com/D3Ext/aesthetic-wallpapers/tree/main
 - Neovim theme extension script.
 - VS Code theme extension script.
 - Firefox theme extension script.
+- User specified color extraction method using ImageMagick.
+- Preview generated color palette.
 
 ## Contributing
 

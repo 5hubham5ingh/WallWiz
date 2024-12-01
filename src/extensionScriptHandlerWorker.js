@@ -1,4 +1,7 @@
 import * as _ from "./globalConstants.js";
+import Color from "./Color/color.js";
+
+globalThis.Color = Color;
 
 const parent = OS.Worker.parent;
 

@@ -7,8 +7,6 @@
        sourcing the shell configuration file in already running shell.
 */
 
-import { getenv, loadFile, open, SEEK_SET } from "std";
-
 const SHELL_CONFIG_FILE = "/.bashrc";
 
 function getDarkThemeConf(colours) {
@@ -20,9 +18,9 @@ function getLightThemeConf(colours) {
 }
 
 function setTheme(themeConfig) {
-  const fzfConfig = loadFile(themeConfig);
+  const fzfConfig = STD.loadFile(themeConfig);
   updateOrAddEnvVar(
-    getenv("HOME") + SHELL_CONFIG_FILE,
+    STD.getenv("HOME") + SHELL_CONFIG_FILE,
     "FZF_DEFAULT_OPTS",
     fzfConfig,
   );
@@ -125,7 +123,7 @@ function getThemeConf(colors, isDark = true) {
 function updateOrAddEnvVar(filePath, variable, value) {
   let fileContent = "";
 
-  const file = open(filePath, "r+");
+  const file = STD.open(filePath, "r+");
   fileContent = file.readAsString();
 
   const regex = new RegExp(`^\\s*export\\s+${variable}="[^"]*"`, "m");
@@ -137,7 +135,6 @@ function updateOrAddEnvVar(filePath, variable, value) {
     fileContent += `\n${newEnvLine}\n`;
   }
 
-  file.seek(0, SEEK_SET);
   file.puts(fileContent);
   file.close();
 }
