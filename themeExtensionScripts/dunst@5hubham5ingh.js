@@ -1,6 +1,7 @@
 /*
  For:            dunst,https://dunst-project.org
  Author:         https://github.com/5hubham5ingh
+ Version:        0.0.1
  Prerequisite:   Dunst must be running for the theme to take effect.
 
  Note: Remove all the theme colour option from the /.config/dunst/dunstrc,

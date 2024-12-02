@@ -1,6 +1,7 @@
 /*
  For:            fzf, https://junegunn.github.io/fzf
  Author:         https://github.com/5hubham5ingh
+ Version:        0.0.1
  Prerequisite:   Shell configuration file. (default: .bashrc)
 
  Note: The new theme only takes effect in a new shell, or requires

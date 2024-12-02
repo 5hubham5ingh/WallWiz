@@ -1,6 +1,7 @@
 /*
  For:            Btop, https://github.com/aristocratos/btop
  Author:         https://github.com/5hubham5ingh
+ Version:        0.0.1
  Prerequisite:   Edit the ~/.config/btop/btop.conf file to add this line-
                  color_theme = "WallWiz.theme"
 
