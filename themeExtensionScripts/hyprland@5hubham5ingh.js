@@ -9,81 +9,6 @@
        So, to override the default theme colours, source the WallWizTheme.conf at the bottom.
 */
 
-function hexToRGB(hex) {
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  return [r, g, b];
-}
-
-function rgbToHSL(r, g, b) {
-  r /= 255;
-  g /= 255;
-  b /= 255;
-  const max = Math.max(r, g, b);
-  const min = Math.min(r, g, b);
-  let h, s, l = (max + min) / 2;
-
-  if (max === min) {
-    h = s = 0;
-  } else {
-    const d = max - min;
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-    switch (max) {
-      case r:
-        h = (g - b) / d + (g < b ? 6 : 0);
-        break;
-      case g:
-        h = (b - r) / d + 2;
-        break;
-      case b:
-        h = (r - g) / d + 4;
-        break;
-    }
-    h /= 6;
-  }
-
-  return [h * 360, s * 100, l * 100];
-}
-
-function hslToRGB(h, s, l) {
-  h /= 360;
-  s /= 100;
-  l /= 100;
-  let r, g, b;
-
-  if (s === 0) {
-    r = g = b = l;
-  } else {
-    const hue2rgb = (p, q, t) => {
-      if (t < 0) t += 1;
-      if (t > 1) t -= 1;
-      if (t < 1 / 6) return p + (q - p) * 6 * t;
-      if (t < 1 / 2) return q;
-      if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-      return p;
-    };
-
-    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-    const p = 2 * l - q;
-    r = hue2rgb(p, q, h + 1 / 3);
-    g = hue2rgb(p, q, h);
-    b = hue2rgb(p, q, h - 1 / 3);
-  }
-
-  return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
-}
-
-function rgbToHex(r, g, b) {
-  return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
-}
-
-function invertLightness(hex) {
-  let [h, s, l] = rgbToHSL(...hexToRGB(hex));
-  l = 100 - l; // Invert lightness
-  return rgbToHex(...hslToRGB(h, s, l));
-}
-
 function selectDistinctColors(colors, count) {
   const distinctColors = [];
   const step = Math.floor(colors.length / count);
@@ -96,10 +21,10 @@ function selectDistinctColors(colors, count) {
 }
 
 function generateTheme(colors, isDark) {
-  const sortedColors = [...colors].sort((a, b) => {
-    const [, , lA] = rgbToHSL(...hexToRGB(a));
-    const [, , lB] = rgbToHSL(...hexToRGB(b));
-    return isDark ? lA - lB : lB - lA;
+  const sortedColors = colors.sort((a, b) => {
+    const la = Color(a).getLuminance();
+    const lb = Color(b).getLuminance();
+    return isDark ? la - lb : lb - la;
   });
 
   const backgroundIndex = isDark ? 0 : sortedColors.length - 1;
@@ -147,37 +72,31 @@ function generateTheme(colors, isDark) {
   };
 }
 
-function generateHyprlandConfig(theme, isDark) {
-  const invertIfLight = (color) => isDark ? color : invertLightness(color);
-
+function generateHyprlandConfig(theme) {
   const config = `
 general {
-    col.active_border = rgba(${invertIfLight(theme.color3).slice(1)}ee) rgba(${
-    invertIfLight(theme.color4).slice(1)
-  }ee) 45deg
-    col.inactive_border = rgba(${theme.selection.slice(1)}aa)
+    col.active_border = ${Color(theme.color3).toRgbString()} ${
+    Color(theme.color4).toRgbString()
+  } 45deg
+    col.inactive_border = ${Color(theme.selection).toRgbString()}
 }
 
 decoration {
-    col.shadow = rgba(${theme.black.slice(1)}ee)
-    col.shadow_inactive = rgba(${theme.black.slice(1)}aa)
+    col.shadow = ${Color(theme.black).toRgbString()}
+    col.shadow_inactive = ${Color(theme.black).toRgbString()}
 }
 
 misc {
-    background_color = rgb(${theme.background.slice(1)})
+    background_color = ${Color(theme.background).toRgbString()}
 }
 
 decoration {
-    col.shadow_inactive = rgba(${theme.black.slice(1)}aa)
+    col.shadow_inactive = ${Color(theme.black).toRgbString()}
 }
 
 # Window rules
-windowrulev2 = bordercolor rgba(${
-    invertIfLight(theme.color1).slice(1)
-  }ee), fullscreen:1
-windowrulev2 = bordercolor rgba(${
-    invertIfLight(theme.color2).slice(1)
-  }ee), floating:1
+windowrulev2 = bordercolor ${Color(theme.color1).toRgbString()}, fullscreen:1
+windowrulev2 = bordercolor ${Color(theme.color2).toRgbString()}, floating:1
 `.trim();
 
   return config;
@@ -185,12 +104,12 @@ windowrulev2 = bordercolor rgba(${
 
 function getDarkThemeConf(colors) {
   const theme = generateTheme(colors, true);
-  return generateHyprlandConfig(theme, true);
+  return generateHyprlandConfig(theme);
 }
 
 function getLightThemeConf(colors) {
   const theme = generateTheme(colors, false);
-  return generateHyprlandConfig(theme, false);
+  return generateHyprlandConfig(theme);
 }
 
 function setTheme(themeConfPath) {
