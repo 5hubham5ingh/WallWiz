@@ -9,115 +9,168 @@
        So, to override the default theme colours, source the WallWizTheme.conf at the bottom.
 */
 
-function selectDistinctColors(colors, count) {
-  const distinctColors = [];
-  const step = Math.floor(colors.length / count);
+function calculateColorHarmony(baseColor) {
+  const tinyBase = Color(baseColor);
 
-  for (let i = 0; i < count; i++) {
-    distinctColors.push(colors[i * step]);
-  }
-
-  return distinctColors;
+  // Advanced color harmony calculations
+  return {
+    complementary: tinyBase.complement().toHexString(),
+    splitCompplementary: [
+      tinyBase.spin(150).toHexString(),
+      tinyBase.spin(210).toHexString(),
+    ],
+    analogous: [
+      tinyBase.spin(-30).toHexString(),
+      tinyBase.spin(30).toHexString(),
+    ],
+    triadic: [
+      tinyBase.spin(120).toHexString(),
+      tinyBase.spin(240).toHexString(),
+    ],
+  };
 }
 
-function generateTheme(colors, isDark) {
-  const sortedColors = colors.sort((a, b) => {
-    const la = Color(a).getLuminance();
-    const lb = Color(b).getLuminance();
-    return isDark ? la - lb : lb - la;
+function selectColorPalette(colors, isDark) {
+  // Analyze color properties
+  const colorAnalysis = colors.map((color) => {
+    const tinyColor = Color(color);
+    return {
+      original: color,
+      hue: tinyColor.toHsl().h,
+      saturation: tinyColor.toHsl().s,
+      luminance: tinyColor.getLuminance(),
+      brightness: tinyColor.getBrightness(),
+    };
   });
 
-  const backgroundIndex = isDark ? 0 : sortedColors.length - 1;
-  const foregroundIndex = isDark ? sortedColors.length - 1 : 0;
+  const sortedColors = colorAnalysis.sort((a, b) => {
+    // Prioritize colors with balanced properties
+    const scoreA = Math.abs(a.saturation - 0.5) * 2 +
+      Math.abs(a.luminance - (isDark ? 0.2 : 0.8));
+    const scoreB = Math.abs(b.saturation - 0.5) * 2 +
+      Math.abs(b.luminance - (isDark ? 0.2 : 0.8));
 
-  const background = sortedColors[backgroundIndex];
-  const foreground = sortedColors[foregroundIndex];
+    return scoreA - scoreB;
+  });
 
-  const midIndex = Math.floor(sortedColors.length / 2);
-  const selection = sortedColors[midIndex];
-  const cursor = isDark
-    ? sortedColors[Math.floor(midIndex / 2)]
-    : sortedColors[Math.floor(midIndex * 1.5)];
+  return sortedColors.map((color) => color.original);
+}
 
-  // Select 6 distinct colors from the middle of the sorted array
-  const middleColors = sortedColors.slice(
-    Math.floor(sortedColors.length / 4),
-    Math.floor(sortedColors.length * 3 / 4),
-  );
-  const [color1, color2, color3, color4, color5, color6] = selectDistinctColors(
-    middleColors,
-    6,
-  );
+function generateTheme(colors, isDark = true) {
+  // Ensure we have enough colors
+  if (colors.length < 10) {
+    throw new Error("Insufficient colors for theme generation");
+  }
 
-  const black = isDark
-    ? sortedColors[1]
-    : sortedColors[sortedColors.length - 2];
-  const white = isDark
-    ? sortedColors[sortedColors.length - 2]
-    : sortedColors[1];
+  // Select and analyze color palette
+  const sortedColors = selectColorPalette(colors, isDark);
+
+  // Create color harmony groups
+  const baseColor = sortedColors[Math.floor(sortedColors.length / 2)];
+  const harmony = calculateColorHarmony(baseColor);
+
+  // Refined color selection
+  const background = isDark
+    ? Color(sortedColors[0]).darken(10).toHexString()
+    : Color(sortedColors[sortedColors.length - 1]).lighten(10).toHexString();
+
+  const foreground = isDark
+    ? Color(sortedColors[sortedColors.length - 1]).lighten(20).toHexString()
+    : Color(sortedColors[0]).darken(20).toHexString();
 
   return {
     background,
     foreground,
-    selection,
-    cursor,
-    color1,
-    color2,
-    color3,
-    color4,
-    color5,
-    color6,
-    black,
-    white,
+    // Use color harmony for more coherent color selection
+    selection: harmony.complementary,
+    cursor: harmony.splitCompplementary[0],
+
+    // Distributed accent colors from harmony groups
+    color1: harmony.analogous[0],
+    color2: harmony.analogous[1],
+    color3: harmony.triadic[0],
+    color4: harmony.triadic[1],
+    color5: harmony.splitCompplementary[1],
+    color6: baseColor,
+
+    black: isDark
+      ? Color(sortedColors[1]).darken(20).toHexString()
+      : Color(sortedColors[sortedColors.length - 2]).lighten(20).toHexString(),
+
+    white: isDark
+      ? Color(sortedColors[sortedColors.length - 2]).lighten(30).toHexString()
+      : Color(sortedColors[1]).darken(30).toHexString(),
   };
 }
 
 function generateHyprlandConfig(theme) {
   const config = `
 general {
-    col.active_border = ${Color(theme.color3).toRgbString()} ${
-    Color(theme.color4).toRgbString()
-  } 45deg
-    col.inactive_border = ${Color(theme.selection).toRgbString()}
+  # Active border with gradient and angle for visual depth
+  col.active_border = rgb(${
+    Color(theme.color4).setAlpha(0.7).toHexString().substring(1)
+  }) rgb(${theme.color3.substring(1)}) 45deg
+  
+  # Inactive border with reduced saturation
+  col.inactive_border = rgb(${
+    Color(theme.selection).desaturate(30).toHexString().substring(1)
+  })
+  
+  col.nogroup_border = rgb(${theme.color1.substring(1)})
+  col.nogroup_border_active = rgb(${theme.color2.substring(1)})
 }
 
 decoration {
-    col.shadow = ${Color(theme.black).toRgbString()}
-    col.shadow_inactive = ${Color(theme.black).toRgbString()}
+  # Subtle, slightly transparent shadow
+  col.shadow = rgba(${
+    Color(theme.black).setAlpha(0.4).toRgbString().replace(/^rgba?\(/, "")
+      .replace(/\)$/, "")
+  })
+  col.shadow_inactive = rgba(${
+    Color(theme.black).setAlpha(0.2).toRgbString().replace(/^rgba?\(/, "")
+      .replace(/\)$/, "")
+  })
+}
+
+group {
+  col.border_active = rgb(${theme.color5.substring(1)})
+  col.border_inactive = rgb(${theme.color6.substring(1)})
+  col.border_locked_active = rgb(${theme.color1.substring(1)})
+  col.border_locked_inactive = rgb(${theme.color2.substring(1)})
+  
+  groupbar {
+    text_color = rgb(${theme.foreground.substring(1)})
+    col.active = rgb(${theme.color3.substring(1)})
+    col.inactive = rgb(${theme.color4.substring(1)})
+    col.locked_active = rgb(${theme.color5.substring(1)})
+    col.locked_inactive = rgb(${theme.color6.substring(1)})
+  }
 }
 
 misc {
-    background_color = ${Color(theme.background).toRgbString()}
+  # Background with slight variation
+  background_color = rgb(${theme.background.substring(1)})
+  
+  # Splash color with intentional harmony
+  col.splash = rgb(${theme.cursor.substring(1)})
 }
-
-decoration {
-    col.shadow_inactive = ${Color(theme.black).toRgbString()}
-}
-
-# Window rules
-windowrulev2 = bordercolor ${Color(theme.color1).toRgbString()}, fullscreen:1
-windowrulev2 = bordercolor ${Color(theme.color2).toRgbString()}, floating:1
 `.trim();
 
   return config;
 }
 
-function getDarkThemeConf(colors) {
-  const theme = generateTheme(colors, true);
-  return generateHyprlandConfig(theme);
-}
+const getDarkThemeConf = (colors) =>
+  generateHyprlandConfig(generateTheme(colors, true));
 
-function getLightThemeConf(colors) {
-  const theme = generateTheme(colors, false);
-  return generateHyprlandConfig(theme);
-}
+const getLightThemeConf = (colors) =>
+  generateHyprlandConfig(generateTheme(colors, false));
 
 function setTheme(themeConfPath) {
-  const newConfig = loadFile(themeConfPath);
-  const oldConfigPath = getenv("HOME").concat(
+  const newConfig = STD.loadFile(themeConfPath);
+  const oldConfigPath = HOME_DIR.concat(
     "/.config/hypr/WallWizTheme.conf",
   );
-  const oldConfig = open(oldConfigPath, "w+");
+  const oldConfig = STD.open(oldConfigPath, "w+");
   oldConfig.puts(newConfig);
   oldConfig.flush();
   oldConfig.close();
