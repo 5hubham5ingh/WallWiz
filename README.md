@@ -93,14 +93,14 @@ WallWiz's functionality can be extended through user-defined JavaScript scripts:
 
   - `async function getLightThemeConf(colorHexArray){}` and
     `async function getDarkThemeConf(colorHexArray){}`: These functions generate
-    theme configuration files from an array of up to 30 hex color codes derived
+    theme configuration files from an array of up to 16 (by default) hex color codes derived
     from the selected wallpaper and return them as strings. These functions will
     only be called when the cached theme configuration file either does not
     exist or is outdated.
 
     **Example Array**:
     ```javascript
-    // Array of up to 30 colors derived from the wallpaper, ordered by their frequency in the wallpaper
+    // Array of up to 16 colors derived from the wallpaper, ordered by their frequency in the wallpaper
     [
       "#1a1a1a",
       "#2e2e2e",
@@ -118,20 +118,6 @@ WallWiz's functionality can be extended through user-defined JavaScript scripts:
       "#ff7f00",
       "#ffff00",
       "#7fff00",
-      "#00ff00",
-      "#00ff7f",
-      "#00ffff",
-      "#007fff",
-      "#0000ff",
-      "#7f00ff",
-      "#ff00ff",
-      "#ff007f",
-      "#ffffff",
-      "#000000",
-      "#ffaaaa",
-      "#aaffaa",
-      "#aaaaff",
-      "#ffaa00",
     ];
     ```
 - **Wallpaper Daemon Handler**: The single script located in
@@ -182,7 +168,8 @@ WallWiz's functionality can be extended through user-defined JavaScript scripts:
 | `--padding`               | `-p`     | `1x1`                                                     | Container padding in cells. Format: `VERTICLExHORIZONTAL`.                                                        |
 | `--enable-pagination`     | `-e`     | `false`                                                   | Display wallpapers in a fixed-size grid. Remaining wallpapers will be displayed in the next grid upon navigation. |
 | `--grid-size`             | `-g`     | `4x4`                                                     | Wallpaper grid size. Format: `WIDTHxHEIGHT`.                                                                      |
-| `--theme-extensions`      | `-t`     | `false`                                                   | Download theme extension scripts.                                                                                 |
+| `--theme-extensions`      | `-t`     | `false`                                                   | Download theme extension scripts.  |
+| `--color-backend`         | `-c`     | `magick {} -format %c -define histogram:method=kmeans -colors 16 histogram:info:` | Set color extraction command.  |
 | `--wallpaper-handler`     | `-w`     | `false`                                                   | Download wallpaper handler script.                                                                                |
 | `--browse`                | `-b`     | `false`                                                   | Browse wallpapers online.                                                                                         |
 | `--repo-url`              | `-u`     | `https://github.com/5hubham5ingh/WallWiz/tree/wallpapers` | Wallpaper repository GitHub URL(s). Can also be set using the `WALLPAPER_REPO_URLS` environment variable.         |
@@ -191,7 +178,7 @@ WallWiz's functionality can be extended through user-defined JavaScript scripts:
 | `--disable-notification`  | `-n`     | `false`                                                   | Disable desktop notifications.                                                                                    |
 | `--disable-autoscaling`   | `-a`     | `false`                                                   | Disable auto scaling terminal size to fit all images.                                                             |
 | `--set-interval`          | `-v`     | `disabled`                                                | Apply random wallpaper periodically at set interval.                                                              |
-| `--set-interval-callback` | `-c`     | `none`                                                    | Inject JS to modify the arguments at setInterval.                                                                 |
+| `--set-interval-callback` | `-f`     | `none`                                                    | Inject JS to modify the arguments at setInterval.                                                                 |
 | `--hold`                  | `-o`     | `flase`                                                    | Hold application open even after the wallpaper has been applied.                                                  |
 | `--plimit`                | `-x`     | `auto`                                                    | Number of execution threads used.                                                                                 |
 | `--help`              |     `-h`     |  `false`                                                         | Print help.                |
