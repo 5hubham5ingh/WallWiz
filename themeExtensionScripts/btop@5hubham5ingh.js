@@ -7,8 +7,6 @@
  Note: The theme only takes effect after restarting btop.
 */
 
-import { getenv, loadFile, open } from "std";
-
 function hexToRGB(hex) {
   const r = parseInt(hex.slice(1, 3), 16);
   const g = parseInt(hex.slice(3, 5), 16);
@@ -249,11 +247,11 @@ function getLightThemeConf(colors) {
 }
 
 function setTheme(themeConfPath) {
-  const btopThemeConf = open(
-    getenv("HOME").concat("/.config/btop/themes/WallWiz.theme"),
+  const btopThemeConf = STD.open(
+    HOME_DIR.concat("/.config/btop/themes/WallWiz.theme"),
     "w+",
   );
-  const conf = loadFile(themeConfPath);
+  const conf = STD.loadFile(themeConfPath);
   btopThemeConf.puts(conf);
   btopThemeConf.close();
 }

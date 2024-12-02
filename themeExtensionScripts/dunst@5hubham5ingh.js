@@ -6,8 +6,6 @@
  Note: Remove all the theme colour option from the /.config/dunst/dunstrc,
        as they might overwrite the generated theme.
  */
-import { getenv, loadFile, open } from "std";
-import { exec } from "os";
 
 function hexToRGB(hex) {
   const r = parseInt(hex.slice(1, 3), 16);
@@ -107,9 +105,9 @@ function getLightThemeConf(colours) {
 }
 
 function setTheme(newThemeConfigPath) {
-  const dunstConfigPath = getenv("HOME").concat("/.config/dunst/dunstrc");
-  const dunstOldConfig = loadFile(dunstConfigPath);
-  const newThemeConfig = loadFile(newThemeConfigPath);
+  const dunstConfigPath = HOME_DIR.concat("/.config/dunst/dunstrc");
+  const dunstOldConfig = STD.loadFile(dunstConfigPath);
+  const newThemeConfig = STD.loadFile(newThemeConfigPath);
   let filterOut = false;
   let updated = false;
   const updatedConfig = dunstOldConfig.split("\n")
@@ -131,12 +129,12 @@ function setTheme(newThemeConfigPath) {
     .join("\n") + "\n" + newThemeConfig;
 
   if (!updated) dunstOldConfig.concat("\n", newThemeConfig);
-  const dunstConfig = open(dunstConfigPath, "w+");
+  const dunstConfig = STD.open(dunstConfigPath, "w+");
 
   dunstConfig.puts(updatedConfig);
   dunstConfig.close();
 
-  exec(["pkill", "dunst"]);
+  OS.exec(["pkill", "dunst"]);
 }
 
 export { getDarkThemeConf, getLightThemeConf, setTheme };
