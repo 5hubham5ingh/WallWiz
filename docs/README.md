@@ -1,5 +1,6 @@
 
-![ww](https://github.com/user-attachments/assets/c763dce7-3393-4f2e-9007-13308c243201)
+![ww](https://github.com/user-attachments/assets/a2b79672-8186-4d78-a040-f966afa7bb0a)
+
 
 <div align = center>
 WallWiz (wallpaper wizard) is terminal based wallpaper and system theme manager for linux.
