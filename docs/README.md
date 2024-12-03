@@ -8,10 +8,10 @@ WallWiz (wallpaper wizard) is terminal based wallpaper and system theme manager 
 
 ---
 
-**[<kbd> <br> Install <br> </kbd>](https://github.com/user-attachments/assets/26a494b5-0457-4bbf-b44e-c1f34410b3f2)** 
-**[<kbd> <br> Setup <br> </kbd>](https://github.com/user-attachments/assets/26a494b5-0457-4bbf-b44e-c1f34410b3f2)** 
-**[<kbd> <br> Usage <br> </kbd>](https://github.com/user-attachments/assets/26a494b5-0457-4bbf-b44e-c1f34410b3f2)** 
-**[<kbd> <br> Extensions <br> </kbd>](https://github.com/user-attachments/assets/26a494b5-0457-4bbf-b44e-c1f34410b3f2)**
+**[<kbd> <br> Install <br> </kbd>](https://github.com/5hubham5ingh/WallWiz/edit/dev/docs/Installation.md)** 
+**[<kbd> <br> Setup <br> </kbd>](https://github.com/5hubham5ingh/WallWiz/edit/dev/docs/Setup.md)** 
+**[<kbd> <br> Usage <br> </kbd>](https://github.com/5hubham5ingh/WallWiz/edit/dev/docs/Usage.md)** 
+**[<kbd> <br> Extensions <br> </kbd>](https://github.com/5hubham5ingh/WallWiz/edit/dev/docs/Usage.md)**
 
 ---
 
