@@ -1,49 +1,60 @@
-## Prerequisites
+# Installation
 
-- **Kitty terminal**: For displaying the wallpaper grid in the terminal.
-- **ImageMagick**: For extracting colours from wallpaper.
-- **Extension scripts**: For setting the wallpaper and themes. You can write
-  your own script or download the required ones from
-  [here](https://github.com/5hubham5ingh/WallWiz/tree/main?tab=readme-ov-file#step-2-get-the-required-extension-scripts).
+## Option 1: Download Executable
 
-## Installation
+### Step 1: Download the Binary  
 
-### Step 1: Get the executable binary
-
-#### Option 1: Download Executable
-
-- You can download the executable binary from the
-  [GitHub releases](https://github.com/5hubham5ingh/WallWiz/releases) page.
-
-- Or, run
+### Quick Command  
+If you prefer a single-line command to perform all steps mentioned below, use the following:  
 
 ```bash
 sudo curl -L $(curl -s https://api.github.com/repos/5hubham5ingh/WallWiz/releases/latest | grep -oP '"browser_download_url": "\K(.*)(?=")' | grep WallWiz) -o /usr/bin/WallWiz && sudo chmod +x /usr/bin/WallWiz
 ```
+### Else
+Download the executable binary from the [GitHub releases](https://github.com/5hubham5ingh/WallWiz/releases) page.  
 
-#### Option 2: Build from Source
+Alternatively, run the following command to fetch the latest release directly:  
 
-- Follow the steps written in
-  [build.sh](https://github.com/5hubham5ingh/WallWiz/blob/main/build.sh).
-- Or, run
+```bash
+curl -L $(curl -s https://api.github.com/repos/5hubham5ingh/WallWiz/releases/latest | grep -oP '"browser_download_url": "\K(.*)(?=")' | grep WallWiz) -o WallWiz
+```
+
+### Step 2: Make the Binary Executable  
+Once downloaded, ensure the binary has executable permissions by running:  
+
+```bash
+chmod +x WallWiz
+```
+
+### Step 3: Move the Binary to the System Path  
+To make the binary globally accessible, move it to a directory included in your system's `PATH`, such as `/usr/bin`:  
+
+```bash
+sudo mv WallWiz /usr/bin/
+```
+
+After completing these steps, you can run `WallWiz` from any terminal session.  
+
+## Option 2: Build from Source
+
+- Simply run:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/5hubham5ingh/WallWiz/main/build.sh | sh
 ```
 
+- Or follow these steps to build from source:
 
-##### Prerequisites  
+### Prerequisites  
+
+Ensure the following dependencies are installed on your system:  
 
 - **Git**: Required for cloning repositories.  
 - **Curl**: Required for downloading files.  
 - **Unzip**: Required for extracting archives.  
 - **Make and GCC**: Required for building the QuickJS source code.  
 
-Ensure these dependencies are installed on your system before proceeding.  
-
----
-
-###### Build and Installation Steps  
+### Build and Installation Steps  
 
 1. **Fetch QuickJS Source Code**  
    Clone the QuickJS repository, build the source code, and install the QuickJS compiler and interpreter:  
@@ -89,21 +100,11 @@ Ensure these dependencies are installed on your system before proceeding.
    sudo cp WallWiz /usr/bin/  
    ```  
 
----
-
-After running the script, WallWiz will be successfully installed.  
+After completing these steps, WallWiz will be successfully installed.  
 
 For additional setup and usage instructions, refer to the [Setup Guide](https://github.com/5hubham5ingh/WallWiz/blob/dev/docs/Setup.md) and [Usage Guide](https://github.com/5hubham5ingh/WallWiz/blob/dev/docs/Usage.md).  
 
----  
+### Notes
 
- **Notes**
 - Ensure you have sufficient permissions for installing system-wide binaries (`sudo`).  
 - The script assumes the default shell is `bash`. Adjust commands if using another shell.  
-
----
-
-### Step 2: Get the required extension scripts
-
-[See extensions](https://github.com/5hubham5ingh/WallWiz/blob/dev/docs/Extensions.md)
-
