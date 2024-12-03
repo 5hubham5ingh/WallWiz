@@ -1,7 +1,11 @@
+# Extension
+Extensions may be acquired through either of the following two methods:
+- Download Pre-written extensions.
+- Write your own extensions.
+  
+## 1. Pre-written extensions
 
-# Download Pre-written extensions
-
-## Wallpaper daemon handlers
+### Wallpaper daemon handlers
 
 - Download it from [here](https://github.com/5hubham5ingh/WallWiz/tree/main/wallpaperDaemonHandlerScripts), and put it in `~/.config/WallWiz/`.
 - Or, run
@@ -9,7 +13,7 @@
   WallWiz -w
   ```
 
-## Theme extension scripts
+### Theme extension scripts
 
 - Download it from [here](https://github.com/5hubham5ingh/WallWiz/tree/main/themeExtensionScripts), and put it in `~/.config/WallWiz/themeExtensionScripts/`.
 - Or, run
@@ -21,7 +25,7 @@ _**Note:**_ [curl](https://github.com/curl/curl) and
 [fzf](https://github.com/junegunn/fzf) are required to download and filter
 script from command line.
 
-# Custom user defined extensions
+## 2. User defined extensions
 
 WallWiz's functionality can be extended through user-defined JavaScript scripts:
 
@@ -58,7 +62,7 @@ WallWiz's functionality can be extended through user-defined JavaScript scripts:
     OS.exec(["hyprctl", "-q", `hyprpaper wallpaper eDP-1,${wallpaperPath}`]);
   }
   ```
- ### Global Variables and Methods
+ #### Global Variables and Methods
    QuickJs's [OS](https://quickjs-ng.github.io/quickjs/stdlib#qjsos-module) and [STD](https://quickjs-ng.github.io/quickjs/stdlib#qjsstd-module) modules, along with a built-in [Color library](https://github.com/5hubham5ingh/WallWiz/blob/dev/docs/Color.md) and few other helper [methods](https://github.com/5hubham5ingh/WallWiz/blob/dev/src/globalConstants.js), are available in the global scope. This allows them to be used directly in the extension script.
 
   **Examples:**
