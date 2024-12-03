@@ -58,7 +58,8 @@ WallWiz's functionality can be extended through user-defined JavaScript scripts:
     OS.exec(["hyprctl", "-q", `hyprpaper wallpaper eDP-1,${wallpaperPath}`]);
   }
   ```
-  **Global Variables and Methods**: QuickJs's [OS](https://quickjs-ng.github.io/quickjs/stdlib#qjsos-module) and [STD](https://quickjs-ng.github.io/quickjs/stdlib#qjsstd-module) modules, along with a helper [Color library](https://github.com/5hubham5ingh/WallWiz/blob/dev/docs/Color.md) few other helper [methods](https://github.com/5hubham5ingh/WallWiz/blob/dev/src/globalConstants.js), are available in the global scope. This allows them to be used directly in the extension script.
+ ### Global Variables and Methods
+   QuickJs's [OS](https://quickjs-ng.github.io/quickjs/stdlib#qjsos-module) and [STD](https://quickjs-ng.github.io/quickjs/stdlib#qjsstd-module) modules, along with a helper [Color library](https://github.com/5hubham5ingh/WallWiz/blob/dev/docs/Color.md) few other helper [methods](https://github.com/5hubham5ingh/WallWiz/blob/dev/src/globalConstants.js), are available in the global scope. This allows them to be used directly in the extension script.
 
   **Examples:**
   ```javascript
