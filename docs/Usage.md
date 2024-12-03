@@ -13,7 +13,8 @@ WallWiz is a versatile wallpaper manager with a variety of options for customizi
 | `--padding`               | `-p`     | `1x1`                                                     | Container padding in cells. Format: `VERTICLExHORIZONTAL`.                                                        |
 | `--enable-pagination`     | `-e`     | `false`                                                   | Display wallpapers in a fixed-size grid. Remaining wallpapers will be displayed in the next grid upon navigation. |
 | `--grid-size`             | `-g`     | `4x4`                                                     | Wallpaper grid size. Format: `WIDTHxHEIGHT`.                                                                      |
-| `--theme-extensions`      | `-t`     | `false`                                                   | Download theme extension scripts.                                                                                 |
+| `--theme-extensions`      | `-t`     | `false`                                                   | Download theme extension scripts.                                                                             |
+| `--color-backend`         | `-c`     | `magick {} -format %c -define histogram:method=kmeans -colors 16 histogram:info:` | Set color extraction command.  |
 | `--wallpaper-handler`     | `-w`     | `false`                                                   | Download wallpaper handler script.                                                                                |
 | `--browse`                | `-b`     | `false`                                                   | Browse wallpapers online.                                                                                         |
 | `--repo-url`              | `-u`     | `https://github.com/5hubham5ingh/WallWiz/tree/wallpapers` | Wallpaper repository GitHub URL(s). Can also be set using the `WALLPAPER_REPO_URLS` environment variable.         |
@@ -22,7 +23,7 @@ WallWiz is a versatile wallpaper manager with a variety of options for customizi
 | `--disable-notification`  | `-n`     | `false`                                                   | Disable desktop notifications.                                                                                    |
 | `--disable-autoscaling`   | `-a`     | `false`                                                   | Disable auto scaling terminal size to fit all images.                                                             |
 | `--set-interval`          | `-v`     | `disabled`                                                | Apply random wallpaper periodically at set interval.                                                              |
-| `--set-interval-callback` | `-c`     | `none`                                                    | Inject JS to modify the arguments at setInterval.                                                                 |
+| `--set-interval-callback` | `-f`     | `none`                                                    | Inject JS to modify the arguments at setInterval.                                                                 |
 | `--hold`                  | `-o`     | `flase`                                                    | Hold application open even after the wallpaper has been applied.                                                  |
 | `--plimit`                | `-x`     | `auto`                                                    | Number of execution threads used.                                                                                 |
 | `--help`              |     `-h`     |  `false`                                                         | Print help.                |
@@ -94,6 +95,14 @@ Downloads theme extension scripts.
 WallWiz -t -d ~/Pictures  
 ```  
 
+### `--color-backend` (`-c`)  
+Define color extraction command.  
+
+**Example:**  
+```bash  
+WallWiz -c "matugen image {} -j hex"
+```
+
 ### `--wallpaper-handler` (`-w`)  
 Downloads the wallpaper handler script.  
 
@@ -158,7 +167,7 @@ Applies a random wallpaper periodically at the specified interval (in millisecon
 WallWiz -v 3600000 -d ~/Pictures  
 ```  
 
-### `--set-interval-callback` (`-c`)  
+### `--set-interval-callback` (`-f`)  
 Injects a JavaScript snippet to modify arguments for `setInterval`.  
 
 **Example:**  
@@ -224,4 +233,4 @@ WallWiz --version
 
 ---
 
-For more information, check out the [FAQ](https://github.com/5hubham5ingh/WallWiz/blob/dev/docs/FAQ.md).  
+For more information or query, check out the [FAQ](https://github.com/5hubham5ingh/WallWiz/blob/dev/docs/Setup.md#faq).  
