@@ -29,6 +29,8 @@ WallWiz (wallpaper wizard) is terminal based wallpaper and system theme manager 
   and download them to the specified wallpaper directory.
 - **Extensible with Scripts**: You can write custom scripts in JavaScript for
   theme generation and wallpaper application.
+- **Built-in Color Manipulation Library**: Offers a comprehensive set of tools for precise color adjustments, gradients, and palettes, enabling the generation of excellent application themes.
+- **Lightweight**: Built using QuickJS for the fastest startup and smallest executable, resulting in minimal system resource consumption while also facilitating extension support.
 
 # Gallery
 
@@ -37,4 +39,12 @@ https://github.com/user-attachments/assets/26a494b5-0457-4bbf-b44e-c1f34410b3f2
 # Thanks
 - [ctn-malone](https://github.com/ctn-malone/qjs-ext-lib) for QuickJs extension.
 - [Brian Grinstead](https://github.com/bgrins/TinyColor) for tinycolor.js
+  
+<br>
 
+<div align = center >
+  
+---
+  
+**[<kbd> <br> Contribution <br> </kbd>](https://github.com/5hubham5ingh/WallWiz/blob/dev/docs/Contribution.md)** 
+</div>
