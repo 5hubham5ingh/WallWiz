@@ -30,16 +30,16 @@ WallWiz's functionality can be extended through user-defined JavaScript scripts:
   generating and applying themes. Each script should export the following
   functions:
 
-  - `async function setTheme(filepath, execAsync){}`: This function receives the
+  - `async function setTheme(filepath){}`: This function receives the
     file path to the cached theme configuration file and applies the theme using
     the provided configuration file.
 
   - `async function getLightThemeConf(colorHexArray){}` and
     `async function getDarkThemeConf(colorHexArray){}`: These functions generate
-    theme configuration files from an array of up to 16 hex color codes derived
+    theme configuration files from an array of up to 16 hex color codes derived (using the default color backend) 
     from the selected wallpaper and return them as strings. These functions will
     only be called when the cached theme configuration file either does not
-    exist or is outdated.
+    exist or has been changed.
 
     **Example Array**:
     ```javascript
@@ -59,7 +59,7 @@ WallWiz's functionality can be extended through user-defined JavaScript scripts:
   }
   ```
  ### Global Variables and Methods
-   QuickJs's [OS](https://quickjs-ng.github.io/quickjs/stdlib#qjsos-module) and [STD](https://quickjs-ng.github.io/quickjs/stdlib#qjsstd-module) modules, along with a helper [Color library](https://github.com/5hubham5ingh/WallWiz/blob/dev/docs/Color.md) few other helper [methods](https://github.com/5hubham5ingh/WallWiz/blob/dev/src/globalConstants.js), are available in the global scope. This allows them to be used directly in the extension script.
+   QuickJs's [OS](https://quickjs-ng.github.io/quickjs/stdlib#qjsos-module) and [STD](https://quickjs-ng.github.io/quickjs/stdlib#qjsstd-module) modules, along with a built-in [Color library](https://github.com/5hubham5ingh/WallWiz/blob/dev/docs/Color.md) and few other helper [methods](https://github.com/5hubham5ingh/WallWiz/blob/dev/src/globalConstants.js), are available in the global scope. This allows them to be used directly in the extension script.
 
   **Examples:**
   ```javascript
