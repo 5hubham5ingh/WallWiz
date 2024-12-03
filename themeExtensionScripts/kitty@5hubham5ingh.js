@@ -1,6 +1,7 @@
 /*
  For:            Kitty terminal emulator, https://sw.kovidgoyal.net/kitty/
  Author:         https://github.com/5hubham5ingh
+ Version:        0.0.1
  Prerequisite:   For this script to work, enable remote control in the kitty terminal.
                  To enable remote control, start kitty with allow_remote_control=yes.
                  Ex:- kitty allow_remote_control=yes

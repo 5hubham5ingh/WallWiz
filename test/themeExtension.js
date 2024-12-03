@@ -1,9 +1,10 @@
+import * as _ from "../src/globalConstants.js";
 import tinycolor from "../src/Color/color.js";
 
 globalThis.Color = tinycolor;
 
 // Script to be tested.
-import * as themeExtension from "../../../.config/WallWiz/themeExtensionScripts/vsCode@5hubham5ingh.js";
+import * as themeExtension from "../../../.config/WallWiz/themeExtensionScripts/hyprland@default.js";
 
 // Sample color array.
 const colours = Object.values({
@@ -747,6 +748,19 @@ const colours = Object.values({
   ],
 });
 
-colours.map((c) => JSON.parse(themeExtension.getLightThemeConf(c)));
+// test theme generation
+colours.forEach(
+  (c) =>
+    themeExtension.getLightThemeConf(c) && themeExtension.getDarkThemeConf(c)
+);
+
+print("Themes generation done.");
+
+// test theme setting
+themeExtension.setTheme(
+  "/home/ss/.cache/WallWiz/themes/hyprland@default.js/663097375214.png-dark.conf"
+);
+
+print("Theme setting done.");
 
 console.log("Test Completed.");
