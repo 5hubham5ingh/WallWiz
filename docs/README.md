@@ -23,9 +23,8 @@ WallWiz (wallpaper wizard) is terminal based wallpaper and system theme manager 
 - **Wallpaper Selection**: Choose your wallpaper from a grid menu in the
   terminal.
 - **Theme Generation and Application**: Automatically generates and applies
-  themes based on the chosen wallpaper to applications such as Kitty terminal
-  and Hyprland window manager.
-- **Wallpaper Browsing**: Browse wallpapers online directly from your terminal
+  themes based on the chosen wallpaper to different applications.
+- **Online Wallpaper Browsing**: Browse wallpapers online directly from your terminal
   and download them to the specified wallpaper directory.
 - **Extensible with Scripts**: You can write custom scripts in JavaScript for
   theme generation and wallpaper application.
