@@ -55,11 +55,9 @@ function generateRandomSwwwOptions() {
     return arr[Math.floor(Math.random() * arr.length)];
   }
 
-  const fillColors = ["000000", "FFFFFF", "FF0000", "00FF00", "0000FF"]; // Fill colors for padding
-  const filters = ["Nearest", "Bilinear", "CatmullRom", "Mitchell", "Lanczos3"]; // Scaling filters
   const transitionTypes = [
-    "none",
-    "simple",
+    // "none",
+    // "simple",
     "fade",
     "left",
     "right",
@@ -69,20 +67,17 @@ function generateRandomSwwwOptions() {
     "wave",
     "grow",
     "center",
-    "any",
+    // "any",
     "outer",
-    "random",
+    // "random",
   ]; // Transition types
 
   const options = {
-    noResize: Math.random() < 0.5, // Randomly decide whether to resize
-    resize: getRandomElement(["no", "crop", "fit"]), // Resize method
-    fillColor: getRandomElement(fillColors), // Fill color for padding
-    filter: getRandomElement(filters), // Filter to use for scaling images
+    resize: "crop", // Resize method ["no", "crop", "fit"]
     transitionType: getRandomElement(transitionTypes), // Type of transition
-    transitionStep: Math.floor(Math.random() * 256), // Speed of transition (0-255)
-    transitionDuration: Math.floor(Math.random() * 10) + 1, // Duration of transition (1-10 seconds)
-    transitionFps: Math.floor(Math.random() * 60) + 1, // Frame rate for transition (1-60)
+    transitionStep: 255, // Speed of transition (0-255)
+    transitionDuration: 1, // Duration of transition (1-10 seconds)
+    transitionFps: 60, // Frame rate for transition (1-60)
     transitionAngle: Math.floor(Math.random() * 360), // Angle for "wipe" and "wave" transitions (0-360 degrees)
     transitionPos: getRandomElement([
       "center",
