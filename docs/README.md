@@ -5,7 +5,6 @@
 WallWiz (wallpaper wizard) is terminal based wallpaper and system theme manager for linux.
 <br>
 <br>
-<br>
 
 ---
 
