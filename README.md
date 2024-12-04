@@ -9,18 +9,15 @@ WallWiz (wallpaper wizard) is terminal based wallpaper and system theme manager 
 
 ---
 
+**[<kbd> <br> Workflow <br> </kbd>](https://github.com/5hubham5ingh/WallWiz/wiki#workflow-overview)** 
+**[<kbd> <br> Wallpapers <br> </kbd>](https://github.com/5hubham5ingh/WallWiz/blob/main/CONTRIBUTING.md#wallpaper-repositories)** 
+
 **[<kbd> <br> Install <br> </kbd>](https://github.com/5hubham5ingh/WallWiz/wiki/1.-Installation)** 
 **[<kbd> <br> Setup <br> </kbd>](https://github.com/5hubham5ingh/WallWiz/wiki/2.-Setup)** 
 **[<kbd> <br> Usage <br> </kbd>](https://github.com/5hubham5ingh/WallWiz/wiki/3.-Usage-Guide)** 
 **[<kbd> <br> Extensions <br> </kbd>](https://github.com/5hubham5ingh/WallWiz/wiki/4.-Extensions)** 
 
-**[<kbd> <br> Wallpapers <br> </kbd>](https://github.com/5hubham5ingh/WallWiz/blob/main/CONTRIBUTING.md#wallpaper-repositories)** 
-**[<kbd> <br> Contribution <br> </kbd>](https://github.com/5hubham5ingh/WallWiz/blob/main/CONTRIBUTING.md)** 
-**[<kbd> <br> Contribution <br> </kbd>](https://github.com/5hubham5ingh/WallWiz/wiki#workflow-overview)** 
-
 ---
-
-<br>
 </div>
 
 # Features
@@ -45,3 +42,12 @@ https://github.com/user-attachments/assets/675e1120-e5eb-45b2-a6b0-123a1366320b
 # Thanks
 - [ctn-malone](https://github.com/ctn-malone/qjs-ext-lib) for QuickJs extension.
 - [Brian Grinstead](https://github.com/bgrins/TinyColor) for tinycolor.js
+
+---
+
+
+<div align = center>
+  
+**[<kbd> <br> Contribution <br> </kbd>](https://github.com/5hubham5ingh/WallWiz/blob/main/CONTRIBUTING.md)** 
+
+</div>
