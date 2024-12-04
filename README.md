@@ -15,7 +15,7 @@ WallWiz (wallpaper wizard) is terminal based wallpaper and system theme manager 
 **[<kbd> <br> Extensions <br> </kbd>](https://github.com/5hubham5ingh/WallWiz/wiki/4.-Extensions)** 
 
 **[<kbd> <br> Wallpapers <br> </kbd>](https://github.com/5hubham5ingh/WallWiz/wiki/5.-Contribution#wallpaper-repositories)** 
-**[<kbd> <br> Contribution <br> </kbd>](https://github.com/5hubham5ingh/WallWiz/wiki/5.-Contribution)** 
+**[<kbd> <br> Contribution <br> </kbd>](https://github.com/5hubham5ingh/WallWiz/blob/main/CONTRIBUTING.md)** 
 
 ---
 
