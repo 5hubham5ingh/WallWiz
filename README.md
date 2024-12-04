@@ -37,14 +37,9 @@ WallWiz (wallpaper wizard) is terminal based wallpaper and system theme manager 
 
 # Gallery
 
+https://github.com/user-attachments/assets/1847eb59-bc7b-4b0a-a13d-bbea3651e804
 
-https://github.com/user-attachments/assets/efcfe657-14cb-4685-b919-3f723596c86e
-
-
-
-https://github.com/user-attachments/assets/3ee4ee49-5b4a-4a7b-b773-1de77d81b842
-
-
+https://github.com/user-attachments/assets/675e1120-e5eb-45b2-a6b0-123a1366320b
 
 # Thanks
 - [ctn-malone](https://github.com/ctn-malone/qjs-ext-lib) for QuickJs extension.
