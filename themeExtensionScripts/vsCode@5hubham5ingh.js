@@ -517,9 +517,7 @@ function getLightThemeConf(colors) {
 }
 
 function setTheme(
-  themeConfPath = HOME_DIR.concat(
-    "/.cache/WallWiz/themes/vsCode@5hubham5ingh.js/663097375123.webp-dark.conf",
-  ),
+  themeConfPath
 ) {
   const config = STD.loadFile(themeConfPath);
   const themeDir =
