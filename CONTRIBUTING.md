@@ -50,7 +50,7 @@ You can contribute wallpapers in two ways:
      **Example:** `sunset_over_mountains_skyline_john_doe.jpg`  
 
 2. **Share Your Wallpaper Repository:**  
-   - If you maintain a separate wallpaper collection, list the URL of your repository in the **Wallpaper Repositories** section below.  
+   - If you maintain a separate wallpaper collection, list the URL of your repository in the **Wallpaper Repositories** section below.
 
 ## Wallpaper Repositories
 
@@ -58,6 +58,7 @@ If you maintain a GitHub repository for wallpaper collections, you can add it to
 
 1. [**Aesthetic Wallpapers by D3Ext**](https://github.com/D3Ext/aesthetic-wallpapers)  
 2. [**Aesthetic Wallpapers by ronit18**](https://github.com/ronit18/Asthetic-Wallpapers)  
+3. [**dh-wallpapers**](https://github.com/danihek/dh-wallpapers)
 
 Feel free to contribute additional wallpaper repositories by creating a pull request!
 
