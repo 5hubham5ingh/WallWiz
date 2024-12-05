@@ -50,6 +50,7 @@ class WallWiz {
       gridSize: "--grid-size",
       downloadThemeExtensionScripts: "--theme-extensions",
       colorExtractionCommand: "--color-backend",
+      previewPalettes: "--preview-pallete",
       downloadWallpaperDaemonHandlerScript: "--wallpaper-handler",
       browseWallpaperOnline: "--browse",
       wallpaperRepositoryUrls: "--repo-url",
@@ -122,6 +123,9 @@ class WallWiz {
         [argNames.downloadWallpaperDaemonHandlerScript]: arg
           .flag(false)
           .desc("Download wallpaper handler script."),
+        [argNames.previewPalettes]: arg
+          .flag()
+          .desc("Preview the color palletes"),
         [argNames.browseWallpaperOnline]: arg
           .flag(false)
           .desc("Browse wallpapers online."),

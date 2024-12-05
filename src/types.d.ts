@@ -30,6 +30,9 @@ export type UserArguments = {
   /** Set color extraction backend command */
   colorExtractionCommand: string;
 
+  /** Preview extracted colours pallete */
+  previewPalettes: boolean;
+
   /** Download a script to manage wallpaper daemon handlers */
   downloadWallpaperDaemonHandlerScript: boolean;
 

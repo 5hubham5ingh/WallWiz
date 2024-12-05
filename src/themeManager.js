@@ -1,6 +1,8 @@
 import utils from "./utils.js";
 import workerPromise from "./promisifiedWorker.js";
 import Color from "./Color/color.js";
+import { ProcessSync } from "../../qjs-ext-lib/src/process.js";
+import { ansi } from "../../justjs/ansiStyle.js";
 
 /**
  * @typedef {import('./types.d.ts').ColoursCache} ColoursCache
@@ -24,7 +26,8 @@ class Theme {
       this.wallpaperColoursCacheFilePath = `${this.cacheBaseDir}/colours.json`;
       this.wallpaperThemeCacheDir = `${this.cacheBaseDir}/themes/`;
       this.appThemeCacheDir = {};
-      this.themeExtensionScriptsBaseDir = `${HOME_DIR}/.config/WallWiz/themeExtensionScripts/`;
+      this.themeExtensionScriptsBaseDir =
+        `${HOME_DIR}/.config/WallWiz/themeExtensionScripts/`;
       this.themeExtensionScripts = {};
       /** @type {ColoursCache} */
       this.coloursCache = {};
@@ -35,6 +38,7 @@ class Theme {
     return await catchAsyncError(async () => {
       utils.ensureDir(this.wallpaperThemeCacheDir);
       await this.createColoursCacheFromWallpapers();
+      this.handlePreviewCachedColors();
       this.loadThemeExtensionScripts();
       await this.createAppThemesFromColours();
     }, "Theme :: init");
@@ -45,7 +49,7 @@ class Theme {
       const getColoursFromWallpaper = async (wallpaperPath) => {
         return await catchAsyncError(async () => {
           const result = await execAsync(
-            USER_ARGUMENTS.colorExtractionCommand.replace("{}", wallpaperPath)
+            USER_ARGUMENTS.colorExtractionCommand.replace("{}", wallpaperPath),
           );
           return result
             .split("\n")
@@ -72,18 +76,70 @@ class Theme {
         await utils.promiseQueueWithLimit(queue);
         utils.writeFile(
           JSON.stringify(this.coloursCache),
-          this.wallpaperColoursCacheFilePath
+          this.wallpaperColoursCacheFilePath,
         );
         utils.log("Done.");
       }
     }, "createColoursCacheFromWallpapers");
   }
 
+  handlePreviewCachedColors() {
+    if (!USER_ARGUMENTS.previewPalette) return;
+    const [width, height] = OS.ttyGetWinSize();
+    const colorPreviewWindow = Math.floor(width / 2) - 1;
+
+    const fzfArgs = [
+      "fzf", // Launch fzf command
+      "--ansi", // Enable ANSI color sequences
+      "--read0", // Use null-terminated strings for input
+      '--delimiter=" "', // Set delimiter for separating data
+      ...["--with-nth", "1"], // Configure last columns to display in the fuzzy search
+      '--preview="echo -e {} | tail -n +2"', // Preview command to show App's description
+      '--preview-window="wrap,border-none"',
+      "--layout=reverse", // Reverse layout
+      "--no-info",
+    ];
+
+    const fzfInput = Object.entries(this.coloursCache).map((
+      [wallpaperName, pallete],
+    ) =>
+      wallpaperName.concat(
+        " ", // --delimiter
+        JSON.stringify(
+          pallete
+            .map((color) =>
+              Array(Math.floor(height / pallete.length) || 2)
+                .fill(
+                  ansi.bgHex(color).concat(
+                    ansi.hex(color),
+                    "-".repeat(colorPreviewWindow),
+                  ),
+                )
+                .join("\n")
+            )
+            .join("\n").slice(0, -1),
+        ),
+      )
+    ).join("\0");
+
+    const previewer = new ProcessSync(
+      fzfArgs, // Arguments for the fzf command
+      {
+        input: fzfInput, // Pass the formatted options as input to fzf
+        useShell: true, // Allow the use of shell commands in the fzf command
+      },
+    );
+
+    previewer.run();
+
+    throw EXIT;
+  }
+
   loadThemeExtensionScripts() {
     catchError(() => {
       utils.ensureDir(this.themeExtensionScriptsBaseDir);
       const scriptNames = OS.readdir(
-        this.themeExtensionScriptsBaseDir
+        this.themeExtensionScriptsBaseDir,
       )[0].filter((name) => name.endsWith(".js") && !name.startsWith("."));
 
       for (const fileName of scriptNames) {
@@ -97,7 +153,7 @@ class Theme {
                   functionNames: ["setTheme"],
                   args: all,
                 }),
-              "setTheme"
+              "setTheme",
             ),
 
           getThemes: async (...all) =>
@@ -108,7 +164,7 @@ class Theme {
                   functionNames: ["getDarkThemeConf", "getLightThemeConf"],
                   args: all,
                 }),
-              "getTheme"
+              "getTheme",
             ),
         };
         this.themeExtensionScripts[fileName] = extensionScript;
@@ -124,16 +180,16 @@ class Theme {
     await catchAsyncError(async () => {
       const isThemeConfCached = (wallpaperName, scriptName) => {
         return catchError(() => {
-          const cacheDir = `${
-            this.appThemeCacheDir[scriptName]
-          }${this.getThemeName(wallpaperName, "light")}`;
+          const cacheDir = `${this.appThemeCacheDir[scriptName]}${
+            this.getThemeName(wallpaperName, "light")
+          }`;
           const scriptDir = `${this.themeExtensionScriptsBaseDir}${scriptName}`;
           const [cacheStat, cacheErr] = OS.stat(cacheDir);
           const [scriptStat, scriptErr] = OS.stat(scriptDir);
 
           if (scriptErr !== 0) {
             throw new Error(
-              "Failed to read script status.\n" + `Script name: ${scriptName}`
+              "Failed to read script status.\n" + `Script name: ${scriptName}`,
             );
           }
           return cacheErr === 0 && cacheStat.mtime > scriptStat.mtime;
@@ -142,27 +198,29 @@ class Theme {
 
       const createThemeConfFromWallpaperColours = async (
         wallpaper,
-        colours
+        colours,
       ) => {
         await catchAsyncError(async () => {
-          for (const [scriptName, themeHandler] of Object.entries(
-            this.themeExtensionScripts
-          )) {
+          for (
+            const [scriptName, themeHandler] of Object.entries(
+              this.themeExtensionScripts,
+            )
+          ) {
             if (isThemeConfCached(wallpaper.uniqueId, scriptName)) continue;
 
             utils.log(
-              `Generating theme config for wallpaper: "${wallpaper.name}" using "${scriptName}".`
+              `Generating theme config for wallpaper: "${wallpaper.name}" using "${scriptName}".`,
             );
-            const [darkThemeConfig, lightThemeConfig] =
-              await themeHandler.getThemes(colours);
+            const [darkThemeConfig, lightThemeConfig] = await themeHandler
+              .getThemes(colours);
             const cacheDir = this.appThemeCacheDir[scriptName];
             utils.writeFile(
               lightThemeConfig,
-              `${cacheDir}${this.getThemeName(wallpaper.uniqueId, "light")}`
+              `${cacheDir}${this.getThemeName(wallpaper.uniqueId, "light")}`,
             );
             utils.writeFile(
               darkThemeConfig,
-              `${cacheDir}${this.getThemeName(wallpaper.uniqueId, "dark")}`
+              `${cacheDir}${this.getThemeName(wallpaper.uniqueId, "dark")}`,
             );
           }
         }, "createThemeConfFromWallpaperColours");
@@ -174,7 +232,7 @@ class Theme {
         if (!colours) {
           throw new Error(
             "Cache miss\n" +
-              `Wallpaper: ${wallpaper.name}, Colours cache id: ${wallpaper.uniqueId}`
+              `Wallpaper: ${wallpaper.name}, Colours cache id: ${wallpaper.uniqueId}`,
           );
         }
 
@@ -196,7 +254,9 @@ class Theme {
 
       const setTheme = async ([scriptName, themeHandler]) => {
         await catchAsyncError(async () => {
-          const cachedThemePath = `${this.appThemeCacheDir[scriptName]}${themeName}`;
+          const cachedThemePath = `${
+            this.appThemeCacheDir[scriptName]
+          }${themeName}`;
 
           const [, err] = OS.stat(cachedThemePath);
 
@@ -204,31 +264,29 @@ class Theme {
             await themeHandler.setTheme(cachedThemePath).catch((error) =>
               error instanceof SystemError
                 ? utils.notify(
-                    `Error in "${scriptName}"`,
-                    `${error.name ?? ""}: ${error.description ?? ""}\n ${
-                      error.body ?? ""
-                    }`,
-                    "critical"
-                  )
+                  `Error in "${scriptName}"`,
+                  `${error.name ?? ""}: ${error.description ?? ""}\n ${
+                    error.body ?? ""
+                  }`,
+                  "critical",
+                )
                 : (() => {
-                    throw error;
-                  })()
+                  throw error;
+                })()
             );
           } else {
             throw new Error(
               "Cache miss\n" +
-                `Wallpaper: ${wallpaperName}. Theme path: ${cachedThemePath}.`
+                `Wallpaper: ${wallpaperName}. Theme path: ${cachedThemePath}.`,
             );
           }
         }, "setTheme");
       };
 
       const getTaskPromiseCallBacks = Object.entries(
-        this.themeExtensionScripts
+        this.themeExtensionScripts,
       ).map(
-        (...all) =>
-          async () =>
-            await setTheme(...all)
+        (...all) => async () => await setTheme(...all),
       );
       await utils.promiseQueueWithLimit(getTaskPromiseCallBacks);
       await utils.notify("Theme applied.");
@@ -243,14 +301,11 @@ class Theme {
    */
   getThemeName(fileName, type) {
     return catchError(() => {
-      const themeType =
-        type === undefined
-          ? USER_ARGUMENTS.enableLightTheme
-            ? "light"
-            : "dark"
-          : type === "light"
-          ? "light"
-          : "dark";
+      const themeType = type === undefined
+        ? USER_ARGUMENTS.enableLightTheme ? "light" : "dark"
+        : type === "light"
+        ? "light"
+        : "dark";
       return `${fileName}-${themeType}.conf`;
     }, "getThemeName");
   }
