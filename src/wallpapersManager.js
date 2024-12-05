@@ -62,7 +62,7 @@ export default class WallpaperSetter {
       if (!wallpapers.length) {
         throw new SystemError(
           "No wallpaper found in ".concat(USER_ARGUMENTS.wallpapersDirectory),
-          "Male sure the supported image file exists in the directory.",
+          "Make sure the supported image file exists in the directory.",
         );
       }
 
