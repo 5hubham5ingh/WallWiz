@@ -39,6 +39,12 @@ https://github.com/user-attachments/assets/1847eb59-bc7b-4b0a-a13d-bbea3651e804
 
 https://github.com/user-attachments/assets/675e1120-e5eb-45b2-a6b0-123a1366320b
 
+# To Do:
+- Firefox Theme Extension
+- Color Palette Browser
+- Neovim Theme Extension
+- Expand Terminal Support (possibly by compiling with [timg](https://github.com/hzeller/timg) for native image rendering).
+
 # Thanks
 - [ctn-malone](https://github.com/ctn-malone/qjs-ext-lib) for QuickJs extension.
 - [Brian Grinstead](https://github.com/bgrins/TinyColor) for tinycolor.js
