@@ -120,12 +120,12 @@ class WallWiz {
             "magick {} -format %c -define histogram:method=kmeans -colors 16 histogram:info:",
           )
           .desc("Set color extraction command."),
-        [argNames.downloadWallpaperDaemonHandlerScript]: arg
-          .flag(false)
-          .desc("Download wallpaper handler script."),
         [argNames.previewPalettes]: arg
           .flag()
           .desc("Preview the color palletes"),
+        [argNames.downloadWallpaperDaemonHandlerScript]: arg
+          .flag(false)
+          .desc("Download wallpaper handler script."),
         [argNames.browseWallpaperOnline]: arg
           .flag(false)
           .desc("Browse wallpapers online."),
@@ -188,6 +188,7 @@ class WallWiz {
         "-l": argNames.enableLightTheme,
         "-t": argNames.downloadThemeExtensionScripts,
         "-c": argNames.colorExtractionCommand,
+        "-z": argNames.previewPalettes,
         "-w": argNames.downloadWallpaperDaemonHandlerScript,
         "-b": argNames.browseWallpaperOnline,
         "-u": argNames.wallpaperRepositoryUrls,

@@ -38,7 +38,7 @@ class Theme {
     return await catchAsyncError(async () => {
       utils.ensureDir(this.wallpaperThemeCacheDir);
       await this.createColoursCacheFromWallpapers();
-      this.handlePreviewCachedColors();
+      await this.handlePreviewCachedColors();
       this.loadThemeExtensionScripts();
       await this.createAppThemesFromColours();
     }, "Theme :: init");
@@ -83,56 +83,73 @@ class Theme {
     }, "createColoursCacheFromWallpapers");
   }
 
-  handlePreviewCachedColors() {
-    if (!USER_ARGUMENTS.previewPalette) return;
-    const [width, height] = OS.ttyGetWinSize();
-    const colorPreviewWindow = Math.floor(width / 2) - 1;
+  async handlePreviewCachedColors() {
+    await catchAsyncError(() => {
+      if (!USER_ARGUMENTS.previewPalettes) return;
+      const [width, height] = OS.ttyGetWinSize();
+      const palleteViewLength = Math.floor(width / 2) - 1;
+      const wallColors = Object.fromEntries(
+        Object.entries(this.coloursCache)
+          .map(([wallId, pallete]) => {
+            const wallpaperName = this.wallpaper.find((wallpaper) =>
+              wallpaper.uniqueId === wallId
+            )?.name;
+            return wallpaperName
+              ? [[wallpaperName.concat("#", wallId)], pallete]
+              : null;
+          })
+          .filter(Boolean),
+      );
 
-    const fzfArgs = [
-      "fzf", // Launch fzf command
-      "--ansi", // Enable ANSI color sequences
-      "--read0", // Use null-terminated strings for input
-      '--delimiter=" "', // Set delimiter for separating data
-      ...["--with-nth", "1"], // Configure last columns to display in the fuzzy search
-      '--preview="echo -e {} | tail -n +2"', // Preview command to show App's description
-      '--preview-window="wrap,border-none"',
-      "--layout=reverse", // Reverse layout
-      "--no-info",
-    ];
+      const fzfArgs = [
+        "fzf", // Launch fzf command
+        "--ansi", // Enable ANSI color sequences
+        "--read0", // Use null-terminated strings for input
+        '--delimiter=" "', // Set delimiter for separating data
+        ...["--with-nth", "1"], // Configure last columns to display in the fuzzy search
+        // "--preview='kitty icat --clear --transfer-mode=memory --stdin=no --scale-up --place=${FZF_PREVIEW_COLUMNS}x${FZF_PREVIEW_LINES}@0x0 " +
+        "--preview='timg -U --clear -pk -g${FZF_PREVIEW_COLUMNS}x${FZF_PREVIEW_LINES} " +
+        this.wallpaperDir +
+        "`echo -e {} | head -n 2 | tail -n 1`'",
+        '--preview-window="wrap,border-none"',
+        "--no-info",
+        "--bind='change:transform-header(echo -e {} | tail -n +3)'",
+        "--bind='focus:transform-header(echo -e {} | tail -n +3)'",
+        "--layout=reverse",
+        "--header-first",
+      ];
 
-    const fzfInput = Object.entries(this.coloursCache).map((
-      [wallpaperName, pallete],
-    ) =>
-      wallpaperName.concat(
-        " ", // --delimiter
-        JSON.stringify(
-          pallete
-            .map((color) =>
-              Array(Math.floor(height / pallete.length) || 2)
-                .fill(
-                  ansi.bgHex(color).concat(
-                    ansi.hex(color),
-                    "-".repeat(colorPreviewWindow),
-                  ),
-                )
-                .join("\n")
-            )
-            .join("\n").slice(0, -1),
-        ),
-      )
-    ).join("\0");
+      const fzfInput = Object.entries(wallColors).map((
+        [wallpaperName, pallete],
+      ) =>
+        wallpaperName.split("#")[0].concat(
+          " \n",
+          wallpaperName.split("#")[1],
+          " \n", // --delimiter
+          JSON.stringify(
+            pallete
+              .map((color) =>
+                ansi.bgHex(color) + ansi.hex(color) +
+                "-".repeat(Math.floor(palleteViewLength / pallete.length))
+              )
+              .join(""),
+            "\n",
+          ),
+        )
+      ).join("\0");
 
-    const previewer = new ProcessSync(
-      fzfArgs, // Arguments for the fzf command
-      {
-        input: fzfInput, // Pass the formatted options as input to fzf
-        useShell: true, // Allow the use of shell commands in the fzf command
-      },
-    );
+      const previewer = new ProcessSync(
+        fzfArgs, // Arguments for the fzf command
+        {
+          input: fzfInput, // Pass the formatted options as input to fzf
+          useShell: true, // Allow the use of shell commands in the fzf command
+        },
+      );
 
-    previewer.run();
+      previewer.run();
 
-    throw EXIT;
+      throw EXIT;
+    }, "handlePreviewCachedColors");
   }
 
   loadThemeExtensionScripts() {
