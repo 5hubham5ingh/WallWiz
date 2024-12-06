@@ -2,7 +2,7 @@ import { ansi } from "../../justjs/ansiStyle.js";
 import { ProcessSync } from "../../qjs-ext-lib/src/process.js";
 import * as os from "os";
 
-const colors = {
+const wallColors = {
   "663097618375.jpg": [
     "#0C101A",
     "#131A2A",
@@ -748,35 +748,66 @@ const colorPreviewWindow = Math.floor(width / 2) - 1;
 
 const fzfArgs = [
   "fzf", // Launch fzf command
-  "--ansi", // Enable ANSI color sequences
   "--read0", // Use null-terminated strings for input
   '--delimiter=" "', // Set delimiter for separating data
   ...["--with-nth", "1"], // Configure last columns to display in the fuzzy search
   '--preview="echo -e {} | tail -n +2"', // Preview command to show App's description
+  "--bind='focus:transform-header(echo -e {} | tail -n +3)'",
+  "--header-first",
   '--preview-window="wrap,border-none"',
   "--layout=reverse", // Reverse layout
   "--no-info",
 ];
 
-const fzfInput = Object.entries(colors).map(([wallpaperName, pallete]) =>
-  wallpaperName.concat(
-    " ", // --delimiter
-    JSON.stringify(
-      pallete
+// const fzfInput = Object.entries(wallColors).map(([wallpaperName, pallete]) =>
+//   wallpaperName.concat(
+//     " ", // --delimiter
+//     JSON.stringify(
+//       pallete
+//         .map((color) =>
+//           Array(Math.floor(height / pallete.length) || 2)
+//             .fill(
+//               ansi.bgHex(color).concat(
+//                 ansi.hex(color),
+//                 "-".repeat(colorPreviewWindow),
+//               ),
+//             )
+//             .join("\n")
+//         )
+//         .join("\n").slice(0, -1),
+//     ),
+//   )
+// ).join("\0");
+
+// Calculate the length of the palette view
+const paletteViewLength = Math.floor(width / 2) - 1;
+
+// Generate FZF input
+const fzfInput = Object.entries(wallColors)
+  .map(([wallpaperName, palette]) => {
+    const [name, id] = wallpaperName.split("#");
+
+    // Generate the visual representation of the palette
+    const paletteVisualization = (() => {
+      const line = palette
         .map((color) =>
-          Array(Math.floor(height / pallete.length) || 2)
-            .fill(
-              ansi.bgHex(color).concat(
-                ansi.hex(color),
-                "-".repeat(colorPreviewWindow),
-              ),
-            )
-            .join("\n")
+          `${ansi.bgHex(color)}${ansi.hex(color)}${
+            "-".repeat(Math.floor(paletteViewLength / palette.length))
+          }`
         )
-        .join("\n").slice(0, -1),
-    ),
-  )
-).join("\0");
+        .join("");
+
+      // Duplicate the line and return the result
+      return Array(2)
+        .fill(`\b${line}`)
+        .join("\n")
+        .slice(0, -1);
+    })();
+
+    // Format the entry for FZF header
+    return `${name} \n${id} \n${JSON.stringify(paletteVisualization)}\n`;
+  })
+  .join("\0");
 
 const filter = new ProcessSync(
   fzfArgs, // Arguments for the fzf command

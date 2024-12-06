@@ -113,30 +113,39 @@ class Theme {
         "`echo -e {} | head -n 2 | tail -n 1`'",
         '--preview-window="wrap,border-none"',
         "--no-info",
-        "--bind='change:transform-header(echo -e {} | tail -n +3)'",
         "--bind='focus:transform-header(echo -e {} | tail -n +3)'",
         "--layout=reverse",
         "--header-first",
       ];
+      // Calculate the length of the palette view
+      const paletteViewLength = Math.floor(width / 2) - 1;
 
-      const fzfInput = Object.entries(wallColors).map((
-        [wallpaperName, pallete],
-      ) =>
-        wallpaperName.split("#")[0].concat(
-          " \n",
-          wallpaperName.split("#")[1],
-          " \n", // --delimiter
-          JSON.stringify(
-            pallete
+      // Generate FZF input
+      const fzfInput = Object.entries(wallColors)
+        .map(([wallpaperName, palette]) => {
+          const [name, id] = wallpaperName.split("#");
+
+          // Generate the visual representation of the palette
+          const paletteVisualization = (() => {
+            const line = palette
               .map((color) =>
-                ansi.bgHex(color) + ansi.hex(color) +
-                "-".repeat(Math.floor(palleteViewLength / pallete.length))
+                `${ansi.bgHex(color)}${ansi.hex(color)}${
+                  "-".repeat(Math.floor(paletteViewLength / palette.length))
+                }`
               )
-              .join(""),
-            "\n",
-          ),
-        )
-      ).join("\0");
+              .join("");
+
+            // Duplicate the line and return the result
+            return Array(2)
+              .fill(`\b${line}`)
+              .join("\n")
+              .slice(0, -1);
+          })();
+
+          // Format the entry for FZF header
+          return `${name} \n${id} \n${JSON.stringify(paletteVisualization)}\n`;
+        })
+        .join("\0");
 
       const previewer = new ProcessSync(
         fzfArgs, // Arguments for the fzf command
