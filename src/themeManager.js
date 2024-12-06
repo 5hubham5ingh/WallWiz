@@ -44,6 +44,8 @@ class Theme {
     }, "Theme :: init");
   }
 
+  static coloursCache = {}; // Made statis to share it with UI class
+
   async createColoursCacheFromWallpapers() {
     return await catchAsyncError(async () => {
       const getColoursFromWallpaper = async (wallpaperPath) => {
@@ -68,6 +70,7 @@ class Theme {
             const wallpaperPath = `${this.wallpaperDir}${wp.uniqueId}`;
             const colours = await getColoursFromWallpaper(wallpaperPath);
             this.coloursCache[wp.uniqueId] = colours;
+            Theme.coloursCache[wp.uniqueId] = colours;
           }, "Generate colour cache task for : " + wp.name);
         });
 
@@ -87,7 +90,6 @@ class Theme {
     await catchAsyncError(() => {
       if (!USER_ARGUMENTS.previewPalettes) return;
       const [width, height] = OS.ttyGetWinSize();
-      const palleteViewLength = Math.floor(width / 2) - 1;
       const wallColors = Object.fromEntries(
         Object.entries(this.coloursCache)
           .map(([wallId, pallete]) => {
@@ -117,6 +119,7 @@ class Theme {
         "--layout=reverse",
         "--header-first",
       ];
+
       // Calculate the length of the palette view
       const paletteViewLength = Math.floor(width / 2) - 1;
 
