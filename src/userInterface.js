@@ -101,7 +101,7 @@ class UserInterface {
 
   async handlePreviewCachedColors() {
     await catchAsyncError(() => {
-      if (!USER_ARGUMENTS.previewPalettes) return;
+      if (!USER_ARGUMENTS.previewMode === "g") return;
       const [width, height] = OS.ttyGetWinSize();
       const wallColors = Object.fromEntries(
         Object.entries(Theme.coloursCache)

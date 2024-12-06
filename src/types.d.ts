@@ -31,7 +31,7 @@ export type UserArguments = {
   colorExtractionCommand: string;
 
   /** Preview extracted colours pallete */
-  previewPalettes: boolean;
+  previewMode: "l" | "g";
 
   /** Download a script to manage wallpaper daemon handlers */
   downloadWallpaperDaemonHandlerScript: boolean;

@@ -88,7 +88,7 @@ class Theme {
 
   async handlePreviewCachedColors() {
     await catchAsyncError(() => {
-      if (!USER_ARGUMENTS.previewPalettes) return;
+      if (!USER_ARGUMENTS.previewMode === "l") return;
       const [width, height] = OS.ttyGetWinSize();
       const wallColors = Object.fromEntries(
         Object.entries(this.coloursCache)

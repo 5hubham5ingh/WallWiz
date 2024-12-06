@@ -50,7 +50,7 @@ class WallWiz {
       gridSize: "--grid-size",
       downloadThemeExtensionScripts: "--theme-extensions",
       colorExtractionCommand: "--color-backend",
-      previewPalettes: "--preview-pallete",
+      previewMode: "--preview-mode",
       downloadWallpaperDaemonHandlerScript: "--wallpaper-handler",
       browseWallpaperOnline: "--browse",
       wallpaperRepositoryUrls: "--repo-url",
@@ -120,9 +120,10 @@ class WallWiz {
             "magick {} -format %c -define histogram:method=kmeans -colors 16 histogram:info:",
           )
           .desc("Set color extraction command."),
-        [argNames.previewPalettes]: arg
-          .flag()
-          .desc("Preview the color palletes"),
+        [argNames.previewMode]: arg
+          .str("g")
+          .enum(["g", "l"])
+          .desc("UI: g - grid | l - list"),
         [argNames.downloadWallpaperDaemonHandlerScript]: arg
           .flag(false)
           .desc("Download wallpaper handler script."),
@@ -188,7 +189,7 @@ class WallWiz {
         "-l": argNames.enableLightTheme,
         "-t": argNames.downloadThemeExtensionScripts,
         "-c": argNames.colorExtractionCommand,
-        "-z": argNames.previewPalettes,
+        "-z": argNames.previewMode,
         "-w": argNames.downloadWallpaperDaemonHandlerScript,
         "-b": argNames.browseWallpaperOnline,
         "-u": argNames.wallpaperRepositoryUrls,
