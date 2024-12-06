@@ -105,7 +105,7 @@ class UserInterface {
   async handlePreviewCachedColors() {
     await catchAsyncError(async () => {
       if (USER_ARGUMENTS.previewMode === "grid") return;
-      const [width, _height] = OS.ttyGetWinSize();
+      const [width, height] = OS.ttyGetWinSize();
       const cachedColoursFile = STD.loadFile(
         Theme.wallpaperColoursCacheFilePath,
       );
@@ -131,37 +131,42 @@ class UserInterface {
         "--read0", // Use null-terminated strings for input
         '--delimiter=" "', // Set delimiter for separating data
         ...["--with-nth", "1"], // Configure last columns to display in the fuzzy search
-        // "--preview='kitty icat --clear --transfer-mode=memory --stdin=no --scale-up --place=${FZF_PREVIEW_COLUMNS}x${FZF_PREVIEW_LINES}@0x0 " +
-        "--preview='timg -U --clear -pk -g${FZF_PREVIEW_COLUMNS}x${FZF_PREVIEW_LINES} " +
+        "--preview='kitty icat --clear --transfer-mode=memory --stdin=no --scale-up --place=${FZF_PREVIEW_COLUMNS}x${FZF_PREVIEW_LINES}@0x0 " +
+        // `--preview='timg -U -W --clear -pk -g${parseInt(width / 2)}x${
+        //   parseInt(height / 2)
+        // } ` +
         this.wallpapersDir +
-        "`echo -e {} | head -n 2 | tail -n 1`'",
+        "`echo -e {} | head -n 2 | tail -n 1`' > /dev/tty",
         '--preview-window="wrap,border-none"',
         "--no-info",
+        "--separator=' '",
         "--bind='focus:transform-header(echo -e {} | tail -n +3)'",
         "--layout=reverse",
-        "--header-first",
       ];
 
       // Calculate the length of the palette view
-      const paletteViewLength = Math.floor(width / 2) - 1;
+      const maxLineLength = Math.floor(width / 2) - 1;
 
       // Generate FZF input
       const fzfInput = Object.entries(wallColors)
         .map(([wallpaperName, palette]) => {
-          const [name, id] = wallpaperName.split("#");
+          const [wpName, id] = wallpaperName.split("#");
+          const name = wpName.includes(" ") ? `"${wpName}"` : wpName;
+
+          const wordLength = Math.floor(maxLineLength / palette.length);
 
           // Generate the visual representation of the palette
           const paletteVisualization = (() => {
             const line = palette
               .map((color) =>
                 `${ansi.bgHex(color)}${ansi.hex(color)}${
-                  "-".repeat(Math.floor(paletteViewLength / palette.length))
+                  "-".repeat(wordLength)
                 }`
               )
               .join("");
 
             // Duplicate the line and return the result
-            return Array(2)
+            return Array(wordLength * 2)
               .fill(`\b${line}`)
               .join("\n")
               .slice(0, -1);
@@ -182,7 +187,8 @@ class UserInterface {
 
       if (previewer.run() && previewer.success) {
         const wallpaper = previewer.stdout.split("\n")[0].trim();
-        print(wallpaper);
+        print("190: ", wallpaper);
+        STD.exit();
         const selection = this.wallpapers.find((wp) => wp.name === wallpaper);
         await this.handleSelection(selection);
       }
