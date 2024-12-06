@@ -9,6 +9,8 @@ import {
 import { ansi } from "../../justjs/ansiStyle.js";
 import { handleKeysPress, keySequences } from "../../justjs/terminal.js";
 import utils from "./utils.js";
+import { Theme } from "./themeManager.js";
+import { ProcessSync } from "../../qjs-ext-lib/src/process.js";
 
 /**
  * @typedef {import('./types.d.ts').WallpapersList} WallpapersList
@@ -43,6 +45,7 @@ class UserInterface {
    */
   async init() {
     await catchAsyncError(async () => {
+      await this.handlePreviewCachedColors();
       print(clearTerminal, cursorHide);
       // Get initial terminal size
       [this.terminalWidth, this.terminalHeight] = OS.ttyGetWinSize();
@@ -100,11 +103,17 @@ class UserInterface {
   }
 
   async handlePreviewCachedColors() {
-    await catchAsyncError(() => {
-      if (!USER_ARGUMENTS.previewMode === "g") return;
-      const [width, height] = OS.ttyGetWinSize();
+    await catchAsyncError(async () => {
+      if (USER_ARGUMENTS.previewMode === "grid") return;
+      const [width, _height] = OS.ttyGetWinSize();
+      const cachedColoursFile = STD.loadFile(
+        Theme.wallpaperColoursCacheFilePath,
+      );
+      const cachedColours = JSON.parse(cachedColoursFile);
       const wallColors = Object.fromEntries(
-        Object.entries(Theme.coloursCache)
+        Object.entries(
+          cachedColours,
+        )
           .map(([wallId, pallete]) => {
             const wallpaperName = this.wallpapers.find((wallpaper) =>
               wallpaper.uniqueId === wallId
@@ -172,10 +181,10 @@ class UserInterface {
       );
 
       if (previewer.run() && previewer.success) {
-        const wallpaper = filter.stdout.split("\n").trim();
-        this.handleSelection(
-          this.wallpapers.find((wp) => wp.name === wallpaper),
-        );
+        const wallpaper = previewer.stdout.split("\n")[0].trim();
+        print(wallpaper);
+        const selection = this.wallpapers.find((wp) => wp.name === wallpaper);
+        await this.handleSelection(selection);
       }
       throw EXIT;
     }, "handlePreviewCachedColors");

@@ -1,8 +1,6 @@
 import utils from "./utils.js";
 import workerPromise from "./promisifiedWorker.js";
 import Color from "./Color/color.js";
-import { ProcessSync } from "../../qjs-ext-lib/src/process.js";
-import { ansi } from "../../justjs/ansiStyle.js";
 
 /**
  * @typedef {import('./types.d.ts').ColoursCache} ColoursCache
@@ -22,9 +20,7 @@ class Theme {
     catchError(() => {
       this.wallpaperDir = wallpaperDir;
       this.wallpaper = wallpaper;
-      this.cacheBaseDir = `${HOME_DIR}/.cache/WallWiz`;
-      this.wallpaperColoursCacheFilePath = `${this.cacheBaseDir}/colours.json`;
-      this.wallpaperThemeCacheDir = `${this.cacheBaseDir}/themes/`;
+      this.wallpaperThemeCacheDir = `${HOME_DIR}/.cache/WallWiz/themes/`;
       this.appThemeCacheDir = {};
       this.themeExtensionScriptsBaseDir =
         `${HOME_DIR}/.config/WallWiz/themeExtensionScripts/`;
@@ -38,13 +34,13 @@ class Theme {
     return await catchAsyncError(async () => {
       utils.ensureDir(this.wallpaperThemeCacheDir);
       await this.createColoursCacheFromWallpapers();
-      await this.handlePreviewCachedColors();
       this.loadThemeExtensionScripts();
       await this.createAppThemesFromColours();
     }, "Theme :: init");
   }
 
-  static coloursCache = {}; // Made statis to share it with UI class
+  static wallpaperColoursCacheFilePath =
+    `${HOME_DIR}/.cache/WallWiz/colours.json`; // Made static to share it with UI class
 
   async createColoursCacheFromWallpapers() {
     return await catchAsyncError(async () => {
@@ -70,6 +66,7 @@ class Theme {
             const wallpaperPath = `${this.wallpaperDir}${wp.uniqueId}`;
             const colours = await getColoursFromWallpaper(wallpaperPath);
             this.coloursCache[wp.uniqueId] = colours;
+            print("colour cache mounted");
             Theme.coloursCache[wp.uniqueId] = colours;
           }, "Generate colour cache task for : " + wp.name);
         });
@@ -79,89 +76,11 @@ class Theme {
         await utils.promiseQueueWithLimit(queue);
         utils.writeFile(
           JSON.stringify(this.coloursCache),
-          this.wallpaperColoursCacheFilePath,
+          Theme.wallpaperColoursCacheFilePath,
         );
         utils.log("Done.");
       }
     }, "createColoursCacheFromWallpapers");
-  }
-
-  async handlePreviewCachedColors() {
-    await catchAsyncError(() => {
-      if (!USER_ARGUMENTS.previewMode === "l") return;
-      const [width, height] = OS.ttyGetWinSize();
-      const wallColors = Object.fromEntries(
-        Object.entries(this.coloursCache)
-          .map(([wallId, pallete]) => {
-            const wallpaperName = this.wallpaper.find((wallpaper) =>
-              wallpaper.uniqueId === wallId
-            )?.name;
-            return wallpaperName
-              ? [[wallpaperName.concat("#", wallId)], pallete]
-              : null;
-          })
-          .filter(Boolean),
-      );
-
-      const fzfArgs = [
-        "fzf", // Launch fzf command
-        "--ansi", // Enable ANSI color sequences
-        "--read0", // Use null-terminated strings for input
-        '--delimiter=" "', // Set delimiter for separating data
-        ...["--with-nth", "1"], // Configure last columns to display in the fuzzy search
-        // "--preview='kitty icat --clear --transfer-mode=memory --stdin=no --scale-up --place=${FZF_PREVIEW_COLUMNS}x${FZF_PREVIEW_LINES}@0x0 " +
-        "--preview='timg -U --clear -pk -g${FZF_PREVIEW_COLUMNS}x${FZF_PREVIEW_LINES} " +
-        this.wallpaperDir +
-        "`echo -e {} | head -n 2 | tail -n 1`'",
-        '--preview-window="wrap,border-none"',
-        "--no-info",
-        "--bind='focus:transform-header(echo -e {} | tail -n +3)'",
-        "--layout=reverse",
-        "--header-first",
-      ];
-
-      // Calculate the length of the palette view
-      const paletteViewLength = Math.floor(width / 2) - 1;
-
-      // Generate FZF input
-      const fzfInput = Object.entries(wallColors)
-        .map(([wallpaperName, palette]) => {
-          const [name, id] = wallpaperName.split("#");
-
-          // Generate the visual representation of the palette
-          const paletteVisualization = (() => {
-            const line = palette
-              .map((color) =>
-                `${ansi.bgHex(color)}${ansi.hex(color)}${
-                  "-".repeat(Math.floor(paletteViewLength / palette.length))
-                }`
-              )
-              .join("");
-
-            // Duplicate the line and return the result
-            return Array(2)
-              .fill(`\b${line}`)
-              .join("\n")
-              .slice(0, -1);
-          })();
-
-          // Format the entry for FZF header
-          return `${name} \n${id} \n${JSON.stringify(paletteVisualization)}\n`;
-        })
-        .join("\0");
-
-      const previewer = new ProcessSync(
-        fzfArgs, // Arguments for the fzf command
-        {
-          input: fzfInput, // Pass the formatted options as input to fzf
-          useShell: true, // Allow the use of shell commands in the fzf command
-        },
-      );
-
-      previewer.run();
-
-      throw EXIT;
-    }, "handlePreviewCachedColors");
   }
 
   loadThemeExtensionScripts() {
@@ -348,7 +267,7 @@ class Theme {
     return catchError(() => {
       if (this.coloursCache[cacheName]) return this.coloursCache[cacheName];
 
-      const cacheContent = STD.loadFile(this.wallpaperColoursCacheFilePath);
+      const cacheContent = STD.loadFile(Theme.wallpaperColoursCacheFilePath);
       if (!cacheContent) {
         return null;
       }

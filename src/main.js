@@ -121,9 +121,9 @@ class WallWiz {
           )
           .desc("Set color extraction command."),
         [argNames.previewMode]: arg
-          .str("g")
-          .enum(["g", "l"])
-          .desc("UI: g - grid | l - list"),
+          .str("grid")
+          .enum(["grid", "list"])
+          .desc("Wallpaper preview mode."),
         [argNames.downloadWallpaperDaemonHandlerScript]: arg
           .flag(false)
           .desc("Download wallpaper handler script."),
