@@ -1,4 +1,4 @@
-<img src="https://github.com/user-attachments/assets/58a5f213-21a0-401b-a4f2-28d823b89b0f" alt="Placeholder Image" style="width: 20vw; height: auto;"><img src="https://github.com/user-attachments/assets/4acc4cf6-0142-4800-a25d-ff9b5206b155" alt="WallRizz" style="width: 50vw; height: auto; padding-bottom: 20%; background: black;">
+<img src="https://github.com/user-attachments/assets/58a5f213-21a0-401b-a4f2-28d823b89b0f" alt="Placeholder Image" style="width: 15vw; height: auto;"><img src="https://github.com/user-attachments/assets/4acc4cf6-0142-4800-a25d-ff9b5206b155" alt="WallRizz" style="width: 35vw; height: auto; padding-bottom: 20%; background: black;">
 
 <div align = center>
 
