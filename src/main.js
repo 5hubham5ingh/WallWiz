@@ -9,7 +9,6 @@ import WallpaperSetter from "./wallpapersManager.js";
 import { UserInterface } from "./userInterface.js";
 import { ansi } from "../../justjs/ansiStyle.js";
 
-"use strip";
 class WallWiz {
   constructor() {
     globalThis.USER_ARGUMENTS = this.parseArguments();

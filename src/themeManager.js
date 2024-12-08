@@ -8,7 +8,6 @@ import workerPromise from "./extensionHandler.js";
 /**
  * Theme class manages colors and theme configurations of wallpapers
  */
-("use strip");
 class Theme {
   /**
    * Constructor for the Theme class

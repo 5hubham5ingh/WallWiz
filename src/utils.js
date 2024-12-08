@@ -1,6 +1,5 @@
 import { ansi } from "../../justjs/ansiStyle.js";
 
-"use strip";
 class Utils {
   /**
    * @method processLimit

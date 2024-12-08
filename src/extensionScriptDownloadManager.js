@@ -7,7 +7,6 @@ import utils from "./utils.js";
  * @typedef {import('./types.d.ts').DownloadItemMenu} DownloadItemMenu
  */
 
-"use strip";
 class ExtensionScriptsDownloader extends Download {
   constructor(...all) {
     super(...all);

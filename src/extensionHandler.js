@@ -12,7 +12,7 @@ export default async function extensionHandler(data) {
       return await handleExtensionPromise(data);
     }
 
-    return handleExtensionThread(data);
+    return await handleExtensionThread(data);
   }, "workerPromise");
 }
 

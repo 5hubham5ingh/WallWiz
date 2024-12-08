@@ -6,7 +6,6 @@ import utils from "./utils.js";
  * @typedef {import('./types.d.ts').DownloadItemList} DownloadItemList
  */
 
-"use strip";
 export default class Download {
   /**
    * @param {string[]} sourceRepoUrls

@@ -16,7 +16,6 @@ import { ProcessSync } from "../../qjs-ext-lib/src/process.js";
  * @typedef {import('./types.d.ts').WallpapersList} WallpapersList
  */
 
-"use strip";
 class UserInterface {
   /**
    * Constructor for the UserInterface class

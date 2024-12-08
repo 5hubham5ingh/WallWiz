@@ -8,7 +8,6 @@ import utils from "./utils.js";
  * @extends Download
  * @description Manages the process of downloading, filtering, and previewing wallpapers
  */
-"use strip";
 export default class WallpaperDownloadManager extends Download {
   constructor() {
     const downloadDestinationDirectory = `${HOME_DIR}/.cache/WallWiz/tmp/`;
