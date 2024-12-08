@@ -1,10 +1,132 @@
-/*
- For:            tinycolor (Color) type definitions.
- Author:         https://github.com/DefinitelyTyped/DefinitelyTyped
+import * as os from "./os.types.ts";
+import * as std from "./std.types.ts";
 
- NOTE: This is NOT a theme extension script, rather a type definition file
-       for tinycolor (Color) library available globaly in each extension script.
+/**
+ * Run a command and return its stdout
+ *
+ * @param {string[]|string} cmdline - command line to execute. If a {string} is passed, it will be splitted into a {string[]}
+ * @param {object} [opt] - options
+ * @param {boolean} [opt.usePath=true] - if {true}, the file is searched in the PATH environment variable (default = {true})
+ * @param {string} [opt.cwd] - set the working directory of the new process
+ * @param {number} [opt.uid] - if defined, process uid will be set using setuid
+ * @param {number} [opt.gid] - if defined, process gid will be set using setgid
+ * @param {object} [opt.env] - define child process environment (if not defined, use the environment of parent process)
+ * @param {boolean} [opt.replaceEnv=true] - if {true}, ignore parent environment when setting child environment (default = {true})
+ * @param {boolean} [opt.useShell=false] - if {true}, run command using '/bin/sh -c' (default = {false})
+ * @param {string} [opt.shell="/bin/sh"] - full path to shell (default = '/bin/sh', ignored if {opt.useShell} is {false})
+ * @param {boolean} [opt.newSession=false] - if {true} setsid will be used (ie: child will not receive SIGINT sent to parent) (default = {false})
+ * @param {boolean} [opt.passStderr=false] - if {true} stderr will not be intercepted (default = {false}) (ignored if {opt.streamStdout} is {false})
+ * @param {boolean} [opt.redirectStderr=false] - if {true} stderr will be redirected to stdout (default = {false})
+ *                                               Ignored if {opt.passStderr} is {true} or {opt.streamStdout} is {false}
+ * @param {boolean} [opt.streamStdout=true] - whether or not streaming should be enabled (default = {true})
+ *                                            NB: when set to {false}
+ *                                              - stderr redirection will be ignored
+ *                                              - {opt.passStderr} will be ignored
+ * @param {boolean} [opt.lineBuffered=false] - if {true} call stdout & stderr event listeners only after a line is complete (default = {false})
+ * @param {boolean} [opt.trim=true] - if {true} stdout & stderr content will be trimmed (default = {true})
+ * @param {boolean} [opt.skipBlankLines=false] - if {true} empty lines will be ignored in both stdout & stderr content (default = {false})
+ * @param {number} [opt.timeout] - maximum number of seconds before killing child (if {undefined}, no timeout will be configured)
+ * @param {number} [opt.timeoutSignal=os.SIGTERM] - signal to use when killing the child after timeout (default = SIGTERM, ignored if {opt.timeout} is not defined)
+ * @param {number} [opt.stdin] - if defined, sets the stdin handle used by child process (it will be rewind)
+ *                                NB: don't share the same handle between multiple instances
+ * @param {string} [opt.input] - content which will be used as input (will be ignored if {stdin} is set)
+ * @param {boolean} [opt.ignoreError=false] - if {true} promise will resolve to the content of stdout even if process exited with a non zero code (default = {false})
+ * @param {number} [opt.bufferSize=512] - size (in bytes) of the buffer used to read from process stdout & stderr streams (default = {512})
+ *
+ * @returns {Promise<string>} promise which will resolve to the content of stdout in case process exited with zero or {opt.ignoreError} is {true}
+ * @throws {Error} content of stderr as the message and following extra properties :
+ *                 - {state} (as returned by {run})
  */
+export function exec(cmdline: string[] | string, opt?: {
+  usePath?: boolean;
+  cwd?: string;
+  uid?: number;
+  gid?: number;
+  env?: object;
+  replaceEnv?: boolean;
+  useShell?: boolean;
+  shell?: string;
+  newSession?: boolean;
+  passStderr?: boolean;
+  redirectStderr?: boolean;
+  streamStdout?: boolean;
+  lineBuffered?: boolean;
+  trim?: boolean;
+  skipBlankLines?: boolean;
+  timeout?: number;
+  timeoutSignal?: number;
+  stdin?: number;
+  input?: string;
+  ignoreError?: boolean;
+  bufferSize?: number;
+}): Promise<string>;
+
+declare global {
+  const OS: typeof os;
+  const STD: typeof std;
+  const execAsync: typeof exec;
+  /**
+   * The home directory path retrieved from the environment.
+   */
+  const HOME_DIR: string;
+
+  /**
+   * Represents a system-level error that extends the built-in Error class.
+   * Provides a method to log the error in a formatted style.
+   */
+  class SystemError extends Error {
+    /**
+     * The description of the error.
+     */
+    description?: string;
+
+    /**
+     * The body of the error, which can contain additional details.
+     */
+    body: typeof Error;
+
+    /**
+     * Creates an instance of SystemError.
+     *
+     * @param name - The error name describing the nature of the issue.
+     * @param description - Additional description about the error (optional).
+     * @param body - The error body containing detailed information.
+     */
+    constructor(name: string, description?: string, body: typeof Error);
+
+    /**
+     * Logs the error in a formatted style, using ANSI codes for styling.
+     *
+     * @param inspect - Whether to print the error body for inspection.
+     */
+    log(inspect: boolean): void;
+  }
+  /**
+   * Catches errors in asynchronous code and handles them using a custom error handler.
+   *
+   * @param cb - The callback function to execute.
+   * @param blockName - The name of the block or an error message.
+   * @returns A promise resolving to the callback result or rethrows the error.
+   */
+  const catchAsyncError: <T>(
+    cb: () => Promise<T>,
+    blockName?: string,
+  ) => Promise<T>;
+
+  /**
+   * Catches errors in synchronous code and handles them using a custom error handler.
+   *
+   * @param cb - The callback function to execute.
+   * @param blockName - The name of the block or an error message.
+   * @returns The result of the callback function or rethrows the error.
+   */
+  const catchError: <T>(cb: () => T, blockName?: string) => T;
+
+  /**
+   * A constant used to signal exit conditions.
+   */
+  const EXIT: string;
+}
 
 declare namespace Color {
   type ColorInputWithoutInstance =
@@ -1189,6 +1311,7 @@ declare namespace Color {
 
 declare const Color: Color.Constructor;
 
+// @ts-ignore
 export = Color;
 
 export as namespace Color;
