@@ -239,7 +239,7 @@ class WallWiz {
             ansi.style.reset,
           ),
       ))
-      .ver("0.0.2")
+      .ver("0.0.3")
       .parse();
 
     // Convert parsed arguments to a more convenient object format
@@ -252,7 +252,6 @@ class WallWiz {
 
   async handleExtensionTest() {
     if (!USER_ARGUMENTS.test) return;
-    USER_ARGUMENTS.inspection = true;
     await testExtensions();
     throw EXIT;
   }

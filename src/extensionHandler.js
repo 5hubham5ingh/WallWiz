@@ -134,8 +134,8 @@ export async function testExtensions() {
         "Template created successfully at " + extensionTemplateDirPath,
       );
       OS.chdir(extensionTemplateDirPath);
-      throw EXIT;
     }
+    throw EXIT;
   }
 
   await extensions.main();
