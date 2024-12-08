@@ -45,7 +45,10 @@ class UserInterface {
    */
   async init() {
     await catchAsyncError(async () => {
-      await this.handlePreviewCachedColors();
+      // Check if list preview enabled
+      await this.handleListPreview();
+
+      // Prepare UI config for grid preview
       print(clearTerminal, cursorHide);
       // Get initial terminal size
       [this.terminalWidth, this.terminalHeight] = OS.ttyGetWinSize();
@@ -102,7 +105,7 @@ class UserInterface {
     }, "prepareUiConfig");
   }
 
-  async handlePreviewCachedColors() {
+  async handleListPreview() {
     await catchAsyncError(async () => {
       if (USER_ARGUMENTS.previewMode === "grid") return;
       const [width, height] = OS.ttyGetWinSize();
@@ -125,27 +128,31 @@ class UserInterface {
           .filter(Boolean),
       );
 
+      const icat =
+        parseInt(await execAsync(["kitty", "icat", "--detect-support"])) === 1
+          ? `--preview='timg -U -W --clear -pk -g${
+            parseInt(width * 6.5 / 10)
+          }x${parseInt(height)} `
+          : "--preview='kitty icat --clear --transfer-mode=memory --stdin=no --scale-up --place=${FZF_PREVIEW_COLUMNS}x${FZF_PREVIEW_LINES}@0x0 ";
+
       const fzfArgs = [
         "fzf", // Launch fzf command
-        "--ansi", // Enable ANSI color sequences
+        "--color=16,current-bg:-1", // Set colors for background and border
         "--read0", // Use null-terminated strings for input
         '--delimiter=" "', // Set delimiter for separating data
         ...["--with-nth", "1"], // Configure last columns to display in the fuzzy search
-        "--preview='kitty icat --clear --transfer-mode=memory --stdin=no --scale-up --place=${FZF_PREVIEW_COLUMNS}x${FZF_PREVIEW_LINES}@0x0 " +
-        // `--preview='timg -U -W --clear -pk -g${parseInt(width / 2)}x${
-        //   parseInt(height / 2)
-        // } ` +
+        icat +
         this.wallpapersDir +
-        "`echo -e {} | head -n 2 | tail -n 1`' > /dev/tty",
+        "`echo -e {} | head -n 2 | tail -n 1`'", // wallpaper name
         '--preview-window="wrap,border-none"',
         "--no-info",
         "--separator=' '",
-        "--bind='focus:transform-header(echo -e {} | tail -n +3)'",
+        "--bind='focus:transform-header(echo -e {} | tail -n +3)'", // print wallpaper color pallete
         "--layout=reverse",
       ];
 
       // Calculate the length of the palette view
-      const maxLineLength = Math.floor(width / 2) - 1;
+      const maxLineLength = Math.floor(width / 2);
 
       // Generate FZF input
       const fzfInput = Object.entries(wallColors)
@@ -172,7 +179,7 @@ class UserInterface {
               .slice(0, -1);
           })();
 
-          // Format the entry for FZF header
+          // Format the entry for FZF
           return `${name} \n${id} \n${JSON.stringify(paletteVisualization)}\n`;
         })
         .join("\0");
@@ -185,13 +192,23 @@ class UserInterface {
         },
       );
 
-      if (previewer.run() && previewer.success) {
-        const wallpaper = previewer.stdout.split("\n")[0].trim();
-        print("190: ", wallpaper);
-        STD.exit();
-        const selection = this.wallpapers.find((wp) => wp.name === wallpaper);
-        await this.handleSelection(selection);
+      try {
+        previewer.run();
+      } catch (error) {
+        throw new SystemError(
+          "Failed to run fzf.",
+          "Make sure fzf is installed and available in the system.",
+          error,
+        );
       }
+
+      if (!previewer.success) {
+        throw new SystemError("Error", previewer.stderr || "No item selected.");
+      }
+
+      const wallpaper = previewer.stdout.split("\n")[0].trim();
+      const selection = this.wallpapers.find((wp) => wp.name === wallpaper);
+      await this.handleSelection(selection);
       throw EXIT;
     }, "handlePreviewCachedColors");
   }
@@ -315,6 +332,16 @@ class UserInterface {
           ? this.xy[i]
           : this.xy[i % this.xy.length];
         const coordinates = `${this.imageWidth}x${this.imageHeight}@${x}x${y}`;
+        // print(cursorMove(x, y));
+        // OS.exec([
+        //   "timg",
+        //   "-U",
+        //   "-W",
+        //   "--clear",
+        //   "-pk",
+        //   `-g${this.imageWidth}x${this.imageHeight}`,
+        //   wallpaperDir,
+        // ]);
         OS.exec([
           "kitten",
           "icat",
