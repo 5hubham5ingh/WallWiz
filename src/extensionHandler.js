@@ -1,3 +1,6 @@
+import { curlRequest } from "../../qjs-ext-lib/src/curl.js";
+import utils from "./utils.js";
+
 /**
  * @description - Promisify the extensionScriptHandlerWorker.
  * @param {Object} data - The data to be passed to the worker.
@@ -91,4 +94,49 @@ async function handleExtensionThread(data) {
       };
     });
   }, "handleExtensionThread");
+}
+
+export async function testExtensions() {
+  const cwd = OS.getcwd()[0];
+  let extensions;
+
+  try {
+    extensions = await import(cwd.concat("/test.js"));
+  } catch (_) {
+    const createExtensionTemplate = await execAsync([
+      "fzf",
+      "--header=\nFailed to load main.js for testing.\nCreate a new extension template in current directory?\n\n",
+      "--color=16,current-bg:-1", // Set colors for background and border
+      "--no-info",
+      "--layout=reverse",
+      "--highlight-line",
+      "--header-first",
+    ], { input: "Yes\nNo" });
+
+    if (createExtensionTemplate === "Yes") {
+      utils.log("Fetching extensions template...");
+      const zipPath = cwd + "/extensionTemplate.zip";
+      await curlRequest(
+        "https://github.com/5hubham5ingh/WallWiz/archive/refs/heads/ext.zip",
+        { outputFile: zipPath },
+      );
+      utils.log("Extracting template...");
+      await execAsync(["unzip", zipPath])
+        .catch((_) => {
+          throw new SystemError(
+            "Extraction failed!",
+            "Make sure unzip is installed and available.",
+          );
+        });
+      const extensionTemplateDirPath = cwd + "/extensionTemplate";
+      OS.rename(cwd + "/WallWiz-ext", extensionTemplateDirPath);
+      utils.log(
+        "Template created successfully at " + extensionTemplateDirPath,
+      );
+      OS.chdir(extensionTemplateDirPath);
+      throw EXIT;
+    }
+  }
+
+  await extensions.main();
 }

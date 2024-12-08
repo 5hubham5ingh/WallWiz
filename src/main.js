@@ -8,6 +8,7 @@ import WallpaperDownloadManager from "./wallpaperDownloadManager.js";
 import WallpaperSetter from "./wallpapersManager.js";
 import { UserInterface } from "./userInterface.js";
 import { ansi } from "../../justjs/ansiStyle.js";
+import { testExtensions } from "./extensionHandler.js";
 
 class WallWiz {
   constructor() {
@@ -18,6 +19,7 @@ class WallWiz {
     try {
       OS.ttySetRaw();
       this.handleShowKeymaps();
+      await this.handleExtensionTest();
       await this.handleThemeExtensionScriptDownload();
       await this.handleWallpaperHandlerScriptDownload();
       await this.handleWallpaperBrowsing();
@@ -62,6 +64,7 @@ class WallWiz {
       hold: "--hold",
       processLimit: "--plimit",
       inspection: "--inspection",
+      test: "--test",
     };
 
     // Define and parse command-line arguments using the 'arg' library
@@ -179,6 +182,9 @@ class WallWiz {
         [argNames.inspection]: arg
           .flag(false)
           .desc("Enable verbose error log for inspection."),
+        [argNames.test]: arg
+          .flag()
+          .desc("Test extensions"),
         "-d": argNames.wallpapersDirectory,
         "-r": argNames.setRandomWallpaper,
         "-s": argNames.imageSize,
@@ -242,6 +248,13 @@ class WallWiz {
         [key, value],
       ) => [key, userArguments[value]]),
     );
+  }
+
+  async handleExtensionTest() {
+    if (!USER_ARGUMENTS.test) return;
+    USER_ARGUMENTS.inspection = true;
+    await testExtensions();
+    throw EXIT;
   }
 
   async handleThemeExtensionScriptDownload() {

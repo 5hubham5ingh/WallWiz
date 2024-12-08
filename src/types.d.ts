@@ -68,6 +68,9 @@ export type UserArguments = {
 
   /** Enable verbose error log for inspection. */
   inspection: boolean;
+
+  /** Test entensions */
+  test: boolean;
 };
 
 /**
