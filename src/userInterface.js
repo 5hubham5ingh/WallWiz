@@ -128,12 +128,14 @@ class UserInterface {
           .filter(Boolean),
       );
 
-      const icat =
-        parseInt(await execAsync(["kitty", "icat", "--detect-support"])) === 1
-          ? `--preview='timg -U -W --clear -pk -g${
-            parseInt(width * 6.5 / 10)
-          }x${parseInt(height)} `
-          : "--preview='kitty icat --clear --transfer-mode=memory --stdin=no --scale-up --place=${FZF_PREVIEW_COLUMNS}x${FZF_PREVIEW_LINES}@0x0 ";
+      const icat = await execAsync(["kitty", "icat", "--detect-support"])
+        .then((_) =>
+          "--preview='kitty icat --clear --transfer-mode=memory --stdin=no --scale-up --place=${FZF_PREVIEW_COLUMNS}x${FZF_PREVIEW_LINES}@0x0 "
+        ).catch((_) =>
+          `--preview='timg -U -W --clear -pk -g${parseInt(width * 6.5 / 10)}x${
+            parseInt(height)
+          } `
+        );
 
       const fzfArgs = [
         "fzf", // Launch fzf command
@@ -141,7 +143,7 @@ class UserInterface {
         "--read0", // Use null-terminated strings for input
         '--delimiter=" "', // Set delimiter for separating data
         ...["--with-nth", "1"], // Configure last columns to display in the fuzzy search
-        icat +
+        icat + // image previewer
         this.wallpapersDir +
         "`echo -e {} | head -n 2 | tail -n 1`'", // wallpaper name
         '--preview-window="wrap,border-none"',
@@ -160,7 +162,7 @@ class UserInterface {
           const [wpName, id] = wallpaperName.split("#");
           const name = wpName.includes(" ") ? `"${wpName}"` : wpName;
 
-          const wordLength = Math.floor(maxLineLength / palette.length);
+          const wordLength = Math.floor(maxLineLength / palette.length) || 1;
 
           // Generate the visual representation of the palette
           const paletteVisualization = (() => {
