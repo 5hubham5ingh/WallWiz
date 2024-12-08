@@ -1,9 +1,8 @@
-import workerPromise from "./promisifiedWorker.js";
+import workerPromise from "./extensionHandler.js";
 import { Theme } from "./themeManager.js";
 import { UserInterface } from "./userInterface.js";
 import utils from "./utils.js";
 
-"use strip";
 export default class WallpaperSetter {
   constructor() {
     catchError(() => {

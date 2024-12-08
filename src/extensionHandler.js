@@ -6,9 +6,48 @@
  * @param {any[]} data.args - Arguments for the function from the imported script.
  * @returns {Promise<any>} A promise that resolves with the result or rejects with error from the worker script.
  */
-export default async function workerPromise(data) {
+export default async function extensionHandler(data) {
+  return await catchAsyncError(async () => {
+    if (USER_ARGUMENTS.processLimit == 1) {
+      return await handleExtensionPromise(data);
+    }
+
+    return handleExtensionThread(data);
+  }, "workerPromise");
+}
+
+async function handleExtensionPromise(data) {
+  return await catchAsyncError(async () => {
+    const { scriptPath, functionNames, args } = data;
+    const exports = await import(scriptPath);
+    const results = [];
+
+    for (const functionName of functionNames) {
+      const cb = exports?.[functionName];
+      if (!cb) {
+        throw SystemError(
+          "Error in " + scriptPath,
+          "No function named " + functionName + " found.",
+        );
+      }
+      try {
+        const result = await cb(...args);
+        results.push(result);
+      } catch (status) {
+        if (status === EXIT) continue;
+
+        throw status;
+      }
+    }
+
+    return results;
+  }, "handleExtensionPromise");
+}
+
+async function handleExtensionThread(data) {
   return await catchAsyncError(async () => {
     return await new Promise((resolve, reject) => {
+      // When process limit is set greater than one.
       const worker = new OS.Worker(
         "./extensionScriptHandlerWorker.js",
       );
@@ -32,7 +71,7 @@ export default async function workerPromise(data) {
             reject(
               new Error(
                 `Error in "${fileName}"`,
-                { cause: cause },
+                { body: cause },
               ),
             );
             break;
@@ -51,5 +90,5 @@ export default async function workerPromise(data) {
         }
       };
     });
-  }, "workerPromise");
+  }, "handleExtensionThread");
 }
