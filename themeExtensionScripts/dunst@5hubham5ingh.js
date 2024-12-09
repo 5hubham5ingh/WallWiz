@@ -37,7 +37,7 @@ function getThemeConf(colours, isDark) {
   const theme = generateTheme(colours, isDark);
 
   const config = `
-# WallWiz theme
+# WallRiz theme
 [global]
 frame_color = "${theme.frameColor}"
 separator_color = frame
@@ -76,7 +76,7 @@ function setTheme(newThemeConfigPath) {
   let updated = false;
   const updatedConfig = dunstOldConfig.split("\n")
     .filter((line) => {
-      if (line.includes("# WallWiz theme")) {
+      if (line.includes("# WallRiz theme")) {
         filterOut = true;
         updated = true;
         return false;

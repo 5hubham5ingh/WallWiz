@@ -1,4 +1,4 @@
-Contributions are always welcome! Feel free to submit a pull request, on dev branch, to improve WallWiz by adding extension scripts, wallpapers, or refining the core code.
+Contributions are always welcome! Feel free to submit a pull request, on dev branch, to improve WallRizz by adding extension scripts, wallpapers, or refining the core code.
 
 ## Extension Scripts
 
@@ -11,12 +11,12 @@ Contributions are always welcome! Feel free to submit a pull request, on dev bra
 
 - **Directory Structure:**  
   - **Theme Extensions:**  
-    Theme-related extensions should be placed in the [themeExtensionScripts](https://github.com/5hubham5ingh/WallWiz/tree/main/themeExtensionScripts) directory.  
+    Theme-related extensions should be placed in the [themeExtensionScripts](https://github.com/5hubham5ingh/WallRizz/tree/main/themeExtensionScripts) directory.  
     These scripts are responsible for generating and applying application's theme.
     Example: `kittyTerminalEmulator_material_theme@5hubham5ingh.js`
     
   - **Wallpaper Handler Scripts:**  
-    Wallpaper daemon handler scripts should go in the [wallpaperDaemonHandlerScripts](https://github.com/5hubham5ingh/WallWiz/tree/main/wallpaperDaemonHandlerScripts) directory.  
+    Wallpaper daemon handler scripts should go in the [wallpaperDaemonHandlerScripts](https://github.com/5hubham5ingh/WallRizz/tree/main/wallpaperDaemonHandlerScripts) directory.  
     These scripts manage the handling of wallpaper-related tasks, such as changing wallpapers or managing their configurations.  
     Example: `swww@5hubham5ingh.js`
 
@@ -34,7 +34,7 @@ Contributions are always welcome! Feel free to submit a pull request, on dev bra
   */
   ```
 - **Script Guidelines:**  
-  For details on how to write and structure your extension scripts, including the required functions and example implementations, please refer to the [Extension Writing Guide](https://github.com/5hubham5ingh/WallWiz/wiki/4.-Extensions#2-user-defined-extensions).
+  For details on how to write and structure your extension scripts, including the required functions and example implementations, please refer to the [Extension Writing Guide](https://github.com/5hubham5ingh/WallRizz/wiki/4.-Extensions#2-user-defined-extensions).
 
 ---
 
@@ -43,7 +43,7 @@ Contributions are always welcome! Feel free to submit a pull request, on dev bra
 You can contribute wallpapers in two ways:
 
 1. **Upload Your Wallpaper:**  
-   - Upload your wallpaper images directly to [wallpaper's](https://github.com/5hubham5ingh/WallWiz/tree/wallpapers) repository.  
+   - Upload your wallpaper images directly to [wallpaper's](https://github.com/5hubham5ingh/WallRizz/tree/wallpapers) repository.  
    - **Naming Convention:** Use descriptive names with underscores (`_`) to separate words for better searchability.  
      **Example:** `sunset_over_mountains_skyline.jpg`  
    - **Optional:** Include the artist's name in the file name if known.  
@@ -80,7 +80,7 @@ Feel free to contribute additional wallpaper repositories by creating a pull req
 
 If you are an artist whose work is included in this repository without proper credit, **please contact us** so we can add your name.  
 
-We respect the work of all artists, and proper attribution is a priority. Reach out via [issues](https://github.com/5hubham5ingh/wallwiz/issues) or submit a pull request with the correct details.
+We respect the work of all artists, and proper attribution is a priority. Reach out via [issues](https://github.com/5hubham5ingh/WallRizz/issues) or submit a pull request with the correct details.
 
 ## License
 

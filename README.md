@@ -6,13 +6,13 @@
 **WallRizz** is terminal based wallpaper and system theme manager that lets you **<i>𝑹𝒊𝒛𝒛 𝒚𝒐𝒖𝒓 𝑳𝒊𝒏𝒖𝒙</i>.**
 
 ---
-**[<kbd> <br> Workflow <br> </kbd>](https://github.com/5hubham5ingh/WallWiz/wiki#workflow-overview)** 
-**[<kbd> <br> Wallpapers <br> </kbd>](https://github.com/5hubham5ingh/WallWiz/blob/main/CONTRIBUTING.md#wallpaper-repositories)** 
+**[<kbd> <br> Workflow <br> </kbd>](https://github.com/5hubham5ingh/WallRizz/wiki#workflow-overview)** 
+**[<kbd> <br> Wallpapers <br> </kbd>](https://github.com/5hubham5ingh/WallRizz/blob/main/CONTRIBUTING.md#wallpaper-repositories)** 
 
-**[<kbd> <br> Install <br> </kbd>](https://github.com/5hubham5ingh/WallWiz/wiki/1.-Installation)** 
-**[<kbd> <br> Setup <br> </kbd>](https://github.com/5hubham5ingh/WallWiz/wiki/2.-Setup)** 
-**[<kbd> <br> Usage <br> </kbd>](https://github.com/5hubham5ingh/WallWiz/wiki/3.-Usage-Guide)** 
-**[<kbd> <br> Extensions <br> </kbd>](https://github.com/5hubham5ingh/WallWiz/wiki/4.-Extensions)** 
+**[<kbd> <br> Install <br> </kbd>](https://github.com/5hubham5ingh/WallRizz/wiki/1.-Installation)** 
+**[<kbd> <br> Setup <br> </kbd>](https://github.com/5hubham5ingh/WallRizz/wiki/2.-Setup)** 
+**[<kbd> <br> Usage <br> </kbd>](https://github.com/5hubham5ingh/WallRizz/wiki/3.-Usage-Guide)** 
+**[<kbd> <br> Extensions <br> </kbd>](https://github.com/5hubham5ingh/WallRizz/wiki/4.-Extensions)** 
  
 </div>
 
@@ -52,6 +52,6 @@ https://github.com/user-attachments/assets/675e1120-e5eb-45b2-a6b0-123a1366320b
 
 <div align = center>
   
-**[<kbd> <br> Contribution <br> </kbd>](https://github.com/5hubham5ingh/WallWiz/blob/main/CONTRIBUTING.md)** 
+**[<kbd> <br> Contribution <br> </kbd>](https://github.com/5hubham5ingh/WallRizz/blob/main/CONTRIBUTING.md)** 
 
 </div>

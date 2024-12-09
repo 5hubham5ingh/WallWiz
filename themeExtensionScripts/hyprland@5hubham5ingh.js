@@ -3,10 +3,10 @@
  Author:         https://github.com/5hubham5ingh
  Version:        0.0.1
  Prerequisite:   Edit the ~/.config/hypr/hyprland.conf file to add this line-
-                 source = "WallWizTheme.conf"
+                 source = "WallRizzTheme.conf"
 
  Note: Sourcing the file on top will not override the predefined colours in hyprland.conf.
-       So, to override the default theme colours, source the WallWizTheme.conf at the bottom.
+       So, to override the default theme colours, source the WallRizzTheme.conf at the bottom.
 */
 
 function calculateColorHarmony(baseColor) {
@@ -168,7 +168,7 @@ const getLightThemeConf = (colors) =>
 function setTheme(themeConfPath) {
   const newConfig = STD.loadFile(themeConfPath);
   const oldConfigPath = HOME_DIR.concat(
-    "/.config/hypr/WallWizTheme.conf",
+    "/.config/hypr/WallRizzTheme.conf",
   );
   const oldConfig = STD.open(oldConfigPath, "w+");
   oldConfig.puts(newConfig);

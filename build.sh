@@ -1,6 +1,6 @@
 #!/bin/env bash
 
-# Build script for WallWiz
+# Build script for WallRizz
 
 ## Fetch the QuickJS source code, then build and install the compiler and interpreter in the system.
 echo -e "\e[1;4;33mFetching source code...\e[0m" &&
@@ -19,13 +19,13 @@ echo -e "\e[1;4;33mFetching source code...\e[0m" &&
   ## Fetch helper scripts
   git clone --depth 1 https://github.com/5hubham5ingh/justjs.git &&
 
-  ## Clone the WallWiz project
-  git clone --depth 1 https://github.com/5hubham5ingh/WallWiz.git &&
+  ## Clone the WallRizz project
+  git clone --depth 1 https://github.com/5hubham5ingh/WallRizz.git &&
 
-  ## Build WallWiz then install it.
-  cd WallWiz/src &&
-  echo -e "\e[1;4;33mBuilding WallWiz...\e[0m" &&
-  qjsc -flto -D extensionHandlerWorker.js -o WallWiz main.js &&
-  echo -e "\e[1;4;33mInstalling WallWiz...\e[0m" &&
-  sudo cp WallWiz /usr/bin/ &&
-  echo -e "\e[1;32mWallWiz installation completed successfully.\e[0m"
+  ## Build WallRizz then install it.
+  cd WallRizz/src &&
+  echo -e "\e[1;4;33mBuilding WallRizz...\e[0m" &&
+  qjsc -flto -D extensionHandlerWorker.js -o WallRizz main.js &&
+  echo -e "\e[1;4;33mInstalling WallRizz...\e[0m" &&
+  sudo cp WallRizz /usr/bin/ &&
+  echo -e "\e[1;32mWallRizz installation completed successfully.\e[0m"

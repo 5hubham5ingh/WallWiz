@@ -517,7 +517,7 @@ function getLightThemeConf(colors) {
 }
 
 function setTheme(
-  themeConfPath
+  themeConfPath,
 ) {
   const config = STD.loadFile(themeConfPath);
   const themeDir =

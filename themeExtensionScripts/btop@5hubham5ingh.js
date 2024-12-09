@@ -3,7 +3,7 @@
  Author:         https://github.com/5hubham5ingh
  Version:        0.0.1
  Prerequisite:   Edit the ~/.config/btop/btop.conf file to add this line-
-                 color_theme = "WallWiz.theme"
+                 color_theme = "WallRizz.theme"
 
  Note: The theme only takes effect after restarting btop.
 */
@@ -169,7 +169,7 @@ function getLightThemeConf(colors) {
 
 function setTheme(themeConfPath) {
   const btopThemeConf = STD.open(
-    HOME_DIR.concat("/.config/btop/themes/WallWiz.theme"),
+    HOME_DIR.concat("/.config/btop/themes/WallRizz.theme"),
     "w+",
   );
   const conf = STD.loadFile(themeConfPath);
