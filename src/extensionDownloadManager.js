@@ -11,7 +11,7 @@ class ExtensionScriptsDownloader extends Download {
   constructor(...all) {
     super(...all);
     catchError(() => {
-      this.tempDir = "/tmp/WallWiz/";
+      this.tempDir = "/tmp/WallRizz/";
 
       /**
        * @type {DownloadItemMenu}
@@ -104,9 +104,9 @@ class ExtensionScriptsDownloader extends Download {
 class ThemeExtensionScriptsDownloadManager extends ExtensionScriptsDownloader {
   constructor() {
     const themeExtensionSourceRepoUrl =
-      `https://api.github.com/repos/5hubham5ingh/WallWiz/contents/themeExtensionScripts`;
+      `https://api.github.com/repos/5hubham5ingh/WallRizz/contents/themeExtensionScripts`;
     const themeExtensionScriptDestinationDir = HOME_DIR.concat(
-      "/.config/WallWiz/themeExtensionScripts/",
+      "/.config/WallRizz/themeExtensionScripts/",
     );
     super([themeExtensionSourceRepoUrl], themeExtensionScriptDestinationDir);
   }
@@ -127,9 +127,9 @@ class WallpaperDaemonHandlerScriptDownloadManager
   extends ExtensionScriptsDownloader {
   constructor() {
     const themeExtensionSourceRepoUrl =
-      `https://api.github.com/repos/5hubham5ingh/WallWiz/contents/wallpaperDaemonHandlerScripts`;
+      `https://api.github.com/repos/5hubham5ingh/WallRizz/contents/wallpaperDaemonHandlerScripts`;
     const themeExtensionScriptDestinationDir = HOME_DIR.concat(
-      "/.config/WallWiz/",
+      "/.config/WallRizz/",
     );
     super([themeExtensionSourceRepoUrl], themeExtensionScriptDestinationDir);
   }

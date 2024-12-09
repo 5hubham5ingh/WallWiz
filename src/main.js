@@ -10,7 +10,7 @@ import { UserInterface } from "./userInterface.js";
 import { ansi } from "../../justjs/ansiStyle.js";
 import { testExtensions } from "./extensionHandler.js";
 
-class WallWiz {
+class WallRizz {
   constructor() {
     globalThis.USER_ARGUMENTS = this.parseArguments();
   }
@@ -133,7 +133,7 @@ class WallWiz {
           .flag(false)
           .desc("Browse wallpapers online."),
         [argNames.wallpaperRepositoryUrls]: arg
-          .str("https://github.com/5hubham5ingh/WallWiz/tree/wallpapers/")
+          .str("https://github.com/5hubham5ingh/WallRizz/tree/wallpapers/")
           .env("WALLPAPER_REPO_URLS")
           .reg(
             /^https:\/\/github\.com\/[a-zA-Z0-9.-]+\/[a-zA-Z0-9.-]+(\/tree\/[a-zA-Z0-9.-]+(\/.*)?)?(\s*;\s*https:\/\/github\.com\/[a-zA-Z0-9.-]+\/[a-zA-Z0-9.-]+(\/tree\/[a-zA-Z0-9.-]+(\/.*)?)?)*$/,
@@ -226,7 +226,7 @@ class WallWiz {
           "Set dark or light theme based on the hour of the day.",
         ],
         [
-          "-d ~/Pictures -u https://github.com/D3Ext/aesthetic-wallpapers/tree/main/images;https://github.com/5hubham5ingh/WallWiz/tree/wallpapers",
+          "-d ~/Pictures -u https://github.com/D3Ext/aesthetic-wallpapers/tree/main/images;https://github.com/5hubham5ingh/WallRizz/tree/wallpapers",
           "Browse online wallpapers.",
         ],
       ].map(
@@ -308,5 +308,5 @@ class WallWiz {
   }
 }
 
-const wallWiz = new WallWiz();
-await wallWiz.run();
+const WallRizz = new WallRizz();
+await WallRizz.run();

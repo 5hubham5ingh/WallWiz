@@ -6,7 +6,7 @@ import utils from "./utils.js";
 export default class WallpaperSetter {
   constructor() {
     catchError(() => {
-      this.picCacheDir = HOME_DIR.concat("/.cache/WallWiz/pic/");
+      this.picCacheDir = HOME_DIR.concat("/.cache/WallRizz/pic/");
       utils.ensureDir(this.picCacheDir);
       this.wallpapers = this.loadWallpapers();
       this.themeManager = new Theme(
@@ -71,7 +71,7 @@ export default class WallpaperSetter {
 
   async loadWallpaperDaemonHandlerScript() {
     return await catchError(() => {
-      const extensionDir = HOME_DIR.concat("/.config/WallWiz/");
+      const extensionDir = HOME_DIR.concat("/.config/WallRizz/");
       utils.ensureDir(extensionDir);
       const scriptNames = OS.readdir(extensionDir)[0]
         .filter((name) =>
@@ -96,7 +96,7 @@ export default class WallpaperSetter {
         throw new SystemError(
           "Failed to find any wallpaper daemon handler script in " +
             extensionDir,
-          'Run "WallWiz -w" to download it.',
+          'Run "WallRizz -w" to download it.',
         );
       }
     }, "loadWallpaperDaemonHandlerScript");

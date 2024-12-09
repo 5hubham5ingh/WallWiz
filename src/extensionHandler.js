@@ -117,7 +117,7 @@ export async function testExtensions() {
       utils.log("Fetching extensions template...");
       const zipPath = cwd + "/extensionTemplate.zip";
       await curlRequest(
-        "https://github.com/5hubham5ingh/WallWiz/archive/refs/heads/ext.zip",
+        "https://github.com/5hubham5ingh/WallRizz/archive/refs/heads/ext.zip",
         { outputFile: zipPath },
       );
       utils.log("Extracting template...");
@@ -129,7 +129,7 @@ export async function testExtensions() {
           );
         });
       const extensionTemplateDirPath = cwd + "/extensionTemplate";
-      OS.rename(cwd + "/WallWiz-ext", extensionTemplateDirPath);
+      OS.rename(cwd + "/WallRizz-ext", extensionTemplateDirPath);
       utils.log(
         "Template created successfully at " + extensionTemplateDirPath,
       );

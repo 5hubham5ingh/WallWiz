@@ -10,7 +10,7 @@ import utils from "./utils.js";
  */
 export default class WallpaperDownloadManager extends Download {
   constructor() {
-    const downloadDestinationDirectory = `${HOME_DIR}/.cache/WallWiz/tmp/`;
+    const downloadDestinationDirectory = `${HOME_DIR}/.cache/WallRizz/tmp/`;
     super(USER_ARGUMENTS.wallpaperRepositoryUrls, downloadDestinationDirectory);
 
     this.downloadItemMenu = [];

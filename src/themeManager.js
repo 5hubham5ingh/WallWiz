@@ -18,10 +18,10 @@ class Theme {
     catchError(() => {
       this.wallpaperDir = wallpaperDir;
       this.wallpaper = wallpaper;
-      this.wallpaperThemeCacheDir = `${HOME_DIR}/.cache/WallWiz/themes/`;
+      this.wallpaperThemeCacheDir = `${HOME_DIR}/.cache/WallRizz/themes/`;
       this.appThemeCacheDir = {};
       this.themeExtensionScriptsBaseDir =
-        `${HOME_DIR}/.config/WallWiz/themeExtensionScripts/`;
+        `${HOME_DIR}/.config/WallRizz/themeExtensionScripts/`;
       this.themeExtensionScripts = {};
       /** @type {ColoursCache} */
       this.coloursCache = {};
@@ -38,7 +38,7 @@ class Theme {
   }
 
   static wallpaperColoursCacheFilePath =
-    `${HOME_DIR}/.cache/WallWiz/colours.json`; // Made static to share it with UI class
+    `${HOME_DIR}/.cache/WallRizz/colours.json`; // Made static to share it with UI class
 
   async createColoursCacheFromWallpapers() {
     return await catchAsyncError(async () => {
