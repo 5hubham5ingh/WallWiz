@@ -23,10 +23,11 @@ class Theme {
       this.themeExtensionScriptsBaseDir =
         `${HOME_DIR}/.config/WallRizz/themeExtensionScripts/`;
       this.themeExtensionScripts = {};
-      /** @type {ColoursCache} */
-      this.coloursCache = {};
     }, "Theme :: constructor");
   }
+
+  /** @type {ColoursCache} */
+  static coloursCache = {};
 
   async init() {
     return await catchAsyncError(async () => {
@@ -63,8 +64,7 @@ class Theme {
           await catchAsyncError(async () => {
             const wallpaperPath = `${this.wallpaperDir}${wp.uniqueId}`;
             const colours = await getColoursFromWallpaper(wallpaperPath);
-            this.coloursCache[wp.uniqueId] = colours;
-            print("colour cache mounted");
+            Theme.coloursCache[wp.uniqueId] = colours;
             Theme.coloursCache[wp.uniqueId] = colours;
           }, "Generate colour cache task for : " + wp.name);
         });
@@ -73,7 +73,7 @@ class Theme {
         utils.log("Extracting colours from wallpapers...");
         await utils.promiseQueueWithLimit(queue);
         utils.writeFile(
-          JSON.stringify(this.coloursCache),
+          JSON.stringify(Theme.coloursCache),
           Theme.wallpaperColoursCacheFilePath,
         );
         utils.log("Done.");
@@ -263,15 +263,15 @@ class Theme {
    */
   getCachedColours(cacheName) {
     return catchError(() => {
-      if (this.coloursCache[cacheName]) return this.coloursCache[cacheName];
+      if (Theme.coloursCache[cacheName]) return Theme.coloursCache[cacheName];
 
       const cacheContent = STD.loadFile(Theme.wallpaperColoursCacheFilePath);
       if (!cacheContent) {
         return null;
       }
-      this.coloursCache = JSON.parse(cacheContent) || {};
+      Theme.coloursCache = JSON.parse(cacheContent) || {};
 
-      return this.coloursCache[cacheName] || null;
+      return Theme.coloursCache[cacheName] || null;
     }, "getCachedColours");
   }
 }
