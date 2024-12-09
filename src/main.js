@@ -308,5 +308,5 @@ class WallRizz {
   }
 }
 
-const WallRizz = new WallRizz();
-await WallRizz.run();
+const wallRizz = new WallRizz();
+await wallRizz.run();

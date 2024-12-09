@@ -101,7 +101,7 @@ export async function testExtensions() {
   let extensions;
 
   try {
-    extensions = await import(cwd.concat("/test.js"));
+    extensions = await import(cwd.concat("/main.js"));
   } catch (_) {
     const createExtensionTemplate = await execAsync([
       "fzf",
@@ -128,12 +128,12 @@ export async function testExtensions() {
             "Make sure unzip is installed and available.",
           );
         });
+      OS.remove(zipPath);
       const extensionTemplateDirPath = cwd + "/extensionTemplate";
       OS.rename(cwd + "/WallRizz-ext", extensionTemplateDirPath);
       utils.log(
         "Template created successfully at " + extensionTemplateDirPath,
       );
-      OS.chdir(extensionTemplateDirPath);
     }
     throw EXIT;
   }
