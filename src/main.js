@@ -3,7 +3,7 @@ import arg from "../../qjs-ext-lib/src/arg.js";
 import {
   ThemeExtensionScriptsDownloadManager,
   WallpaperDaemonHandlerScriptDownloadManager,
-} from "./extensionScriptDownloadManager.js";
+} from "./extensionDownloadManager.js";
 import WallpaperDownloadManager from "./wallpaperDownloadManager.js";
 import WallpaperSetter from "./wallpapersManager.js";
 import { UserInterface } from "./userInterface.js";

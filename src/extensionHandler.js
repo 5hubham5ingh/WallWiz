@@ -52,7 +52,7 @@ async function handleExtensionThread(data) {
     return await new Promise((resolve, reject) => {
       // When process limit is set greater than one.
       const worker = new OS.Worker(
-        "./extensionScriptHandlerWorker.js",
+        "./extensionHandlerWorker.js",
       );
       const abortWorker = () => {
         worker.postMessage({ type: "abort" });
