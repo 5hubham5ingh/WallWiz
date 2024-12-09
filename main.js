@@ -7,9 +7,9 @@ import {
 
 // Constants
 const cwd = OS.getcwd()[0];
-const DARK_THEME_FILE = cwd.concat("./results/darkTheme.conf");
-const LIGHT_THEME_FILE = cwd.concat("./results/lightTheme.conf");
-const WALLPAPER_PATH = cwd.concat("./asset/wallrizz.png");
+const DARK_THEME_FILE = cwd.concat("/darkTheme.conf");
+const LIGHT_THEME_FILE = cwd.concat("/lightTheme.conf");
+const WALLPAPER_PATH = cwd.concat("/asset/wallrizz.png");
 
 // Test theme generation
 async function testGenerateThemes() {
@@ -36,7 +36,12 @@ async function testGenerateThemes() {
     if (!darkTheme) {
       throw Error("No theme config returned from 'getDarkThemeConf'");
     }
-    const fd1 = STD.open(DARK_THEME_FILE, "+w");
+    if (typeof darkTheme !== "string") {
+      throw TypeError("Config is not a string.");
+    }
+    const error = { errno: 0 };
+    const fd1 = STD.open(DARK_THEME_FILE, "w+", error);
+    print(error.errno);
     fd1.puts(darkTheme);
     fd1.close();
     print("Dark theme configuration generated and saved");
@@ -45,8 +50,11 @@ async function testGenerateThemes() {
     if (!lightTheme) {
       throw Error("No theme config returned from 'getLightThemeConf'");
     }
+    if (typeof lightTheme !== "string") {
+      throw TypeError("Config is not a string.");
+    }
 
-    const fd2 = STD.open(LIGHT_THEME_FILE, "+w");
+    const fd2 = STD.open(LIGHT_THEME_FILE, "w+");
     fd2.puts(lightTheme);
     fd2.close();
     print("Light theme configuration generated and saved");
