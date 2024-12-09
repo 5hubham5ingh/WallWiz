@@ -3,7 +3,7 @@
 <div align = center>
 <img src="https://github.com/user-attachments/assets/58a5f213-21a0-401b-a4f2-28d823b89b0f" alt="Rizzed penguin" style="width: 30%;"><img src="https://github.com/user-attachments/assets/4acc4cf6-0142-4800-a25d-ff9b5206b155" alt="WallRizz" style="width: 50%;">
  
-**WallRizz** is terminal based wallpaper and system theme manager that lets you **<i>𝑹𝒊𝒛𝒛 𝒚𝒐𝒖𝒓 𝑳𝒊𝒏𝒖𝒙</i>.**
+**WallRizz** is terminal based wallpaper and system theme manager that lets you **<i>"𝑹𝒊𝒛𝒛 𝒚𝒐𝒖𝒓 𝑳𝒊𝒏𝒖𝒙"</i>.**
 
 ---
 **[<kbd> <br> Workflow <br> </kbd>](https://github.com/5hubham5ingh/WallRizz/wiki#workflow-overview)** 
