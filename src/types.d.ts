@@ -30,6 +30,9 @@ export type UserArguments = {
   /** Set color extraction backend command */
   colorExtractionCommand: string;
 
+  /** Preview extracted colours pallete */
+  previewMode: "list" | "grid";
+
   /** Download a script to manage wallpaper daemon handlers */
   downloadWallpaperDaemonHandlerScript: boolean;
 
@@ -65,6 +68,9 @@ export type UserArguments = {
 
   /** Enable verbose error log for inspection. */
   inspection: boolean;
+
+  /** Test entensions */
+  test: boolean;
 };
 
 /**

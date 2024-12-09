@@ -3,13 +3,13 @@ import arg from "../../qjs-ext-lib/src/arg.js";
 import {
   ThemeExtensionScriptsDownloadManager,
   WallpaperDaemonHandlerScriptDownloadManager,
-} from "./extensionScriptDownloadManager.js";
+} from "./extensionDownloadManager.js";
 import WallpaperDownloadManager from "./wallpaperDownloadManager.js";
 import WallpaperSetter from "./wallpapersManager.js";
 import { UserInterface } from "./userInterface.js";
 import { ansi } from "../../justjs/ansiStyle.js";
+import { testExtensions } from "./extensionHandler.js";
 
-"use strip";
 class WallWiz {
   constructor() {
     globalThis.USER_ARGUMENTS = this.parseArguments();
@@ -19,6 +19,7 @@ class WallWiz {
     try {
       OS.ttySetRaw();
       this.handleShowKeymaps();
+      await this.handleExtensionTest();
       await this.handleThemeExtensionScriptDownload();
       await this.handleWallpaperHandlerScriptDownload();
       await this.handleWallpaperBrowsing();
@@ -50,6 +51,7 @@ class WallWiz {
       gridSize: "--grid-size",
       downloadThemeExtensionScripts: "--theme-extensions",
       colorExtractionCommand: "--color-backend",
+      previewMode: "--preview-mode",
       downloadWallpaperDaemonHandlerScript: "--wallpaper-handler",
       browseWallpaperOnline: "--browse",
       wallpaperRepositoryUrls: "--repo-url",
@@ -62,6 +64,7 @@ class WallWiz {
       hold: "--hold",
       processLimit: "--plimit",
       inspection: "--inspection",
+      test: "--test",
     };
 
     // Define and parse command-line arguments using the 'arg' library
@@ -119,6 +122,10 @@ class WallWiz {
             "magick {} -format %c -define histogram:method=kmeans -colors 16 histogram:info:",
           )
           .desc("Set color extraction command."),
+        [argNames.previewMode]: arg
+          .str("grid")
+          .enum(["grid", "list"])
+          .desc("Wallpaper preview mode."),
         [argNames.downloadWallpaperDaemonHandlerScript]: arg
           .flag(false)
           .desc("Download wallpaper handler script."),
@@ -175,6 +182,9 @@ class WallWiz {
         [argNames.inspection]: arg
           .flag(false)
           .desc("Enable verbose error log for inspection."),
+        [argNames.test]: arg
+          .flag()
+          .desc("Test extensions"),
         "-d": argNames.wallpapersDirectory,
         "-r": argNames.setRandomWallpaper,
         "-s": argNames.imageSize,
@@ -184,6 +194,7 @@ class WallWiz {
         "-l": argNames.enableLightTheme,
         "-t": argNames.downloadThemeExtensionScripts,
         "-c": argNames.colorExtractionCommand,
+        "-z": argNames.previewMode,
         "-w": argNames.downloadWallpaperDaemonHandlerScript,
         "-b": argNames.browseWallpaperOnline,
         "-u": argNames.wallpaperRepositoryUrls,
@@ -228,7 +239,7 @@ class WallWiz {
             ansi.style.reset,
           ),
       ))
-      .ver("0.0.2")
+      .ver("0.0.3")
       .parse();
 
     // Convert parsed arguments to a more convenient object format
@@ -237,6 +248,12 @@ class WallWiz {
         [key, value],
       ) => [key, userArguments[value]]),
     );
+  }
+
+  async handleExtensionTest() {
+    if (!USER_ARGUMENTS.test) return;
+    await testExtensions();
+    throw EXIT;
   }
 
   async handleThemeExtensionScriptDownload() {

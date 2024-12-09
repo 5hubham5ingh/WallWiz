@@ -25,7 +25,7 @@ echo -e "\e[1;4;33mFetching source code...\e[0m" &&
   ## Build WallWiz then install it.
   cd WallWiz/src &&
   echo -e "\e[1;4;33mBuilding WallWiz...\e[0m" &&
-  qjsc -flto -D extensionScriptHandlerWorker.js -o WallWiz main.js &&
+  qjsc -flto -D extensionHandlerWorker.js -o WallWiz main.js &&
   echo -e "\e[1;4;33mInstalling WallWiz...\e[0m" &&
   sudo cp WallWiz /usr/bin/ &&
   echo -e "\e[1;32mWallWiz installation completed successfully.\e[0m"

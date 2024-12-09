@@ -9,12 +9,13 @@ import {
 import { ansi } from "../../justjs/ansiStyle.js";
 import { handleKeysPress, keySequences } from "../../justjs/terminal.js";
 import utils from "./utils.js";
+import { Theme } from "./themeManager.js";
+import { ProcessSync } from "../../qjs-ext-lib/src/process.js";
 
 /**
  * @typedef {import('./types.d.ts').WallpapersList} WallpapersList
  */
 
-"use strip";
 class UserInterface {
   /**
    * Constructor for the UserInterface class
@@ -43,6 +44,10 @@ class UserInterface {
    */
   async init() {
     await catchAsyncError(async () => {
+      // Check if list preview enabled
+      await this.handleListPreview();
+
+      // Prepare UI config for grid preview
       print(clearTerminal, cursorHide);
       // Get initial terminal size
       [this.terminalWidth, this.terminalHeight] = OS.ttyGetWinSize();
@@ -97,6 +102,116 @@ class UserInterface {
         this.wallpapers = this.wallpaperBatch[this.pageNo];
       }
     }, "prepareUiConfig");
+  }
+
+  async handleListPreview() {
+    await catchAsyncError(async () => {
+      if (USER_ARGUMENTS.previewMode === "grid") return;
+      const [width, height] = OS.ttyGetWinSize();
+      const cachedColoursFile = STD.loadFile(
+        Theme.wallpaperColoursCacheFilePath,
+      );
+      const cachedColours = JSON.parse(cachedColoursFile);
+      const wallColors = Object.fromEntries(
+        Object.entries(
+          cachedColours,
+        )
+          .map(([wallId, pallete]) => {
+            const wallpaperName = this.wallpapers.find((wallpaper) =>
+              wallpaper.uniqueId === wallId
+            )?.name;
+            return wallpaperName
+              ? [[wallpaperName.concat("#", wallId)], pallete]
+              : null;
+          })
+          .filter(Boolean),
+      );
+
+      const icat = await execAsync(["kitty", "icat", "--detect-support"])
+        .then((_) =>
+          "--preview='kitty icat --clear --transfer-mode=memory --stdin=no --scale-up --place=${FZF_PREVIEW_COLUMNS}x${FZF_PREVIEW_LINES}@0x0 "
+        ).catch((_) =>
+          `--preview='timg -U -W --clear -pk -g${parseInt(width * 6.5 / 10)}x${
+            parseInt(height)
+          } `
+        );
+
+      const fzfArgs = [
+        "fzf", // Launch fzf command
+        "--color=16,current-bg:-1", // Set colors for background and border
+        "--read0", // Use null-terminated strings for input
+        '--delimiter=" "', // Set delimiter for separating data
+        ...["--with-nth", "1"], // Configure last columns to display in the fuzzy search
+        icat + // image previewer
+        this.wallpapersDir +
+        "`echo -e {} | head -n 2 | tail -n 1`'", // wallpaper name
+        '--preview-window="wrap,border-none"',
+        "--no-info",
+        "--separator=' '",
+        "--bind='focus:transform-header(echo -e {} | tail -n +3)'", // print wallpaper color pallete
+        "--layout=reverse",
+      ];
+
+      // Calculate the length of the palette view
+      const maxLineLength = Math.floor(width / 2);
+
+      // Generate FZF input
+      const fzfInput = Object.entries(wallColors)
+        .map(([wallpaperName, palette]) => {
+          const [wpName, id] = wallpaperName.split("#");
+          const name = wpName.includes(" ") ? `"${wpName}"` : wpName;
+
+          const wordLength = Math.floor(maxLineLength / palette.length) || 1;
+
+          // Generate the visual representation of the palette
+          const paletteVisualization = (() => {
+            const line = palette
+              .map((color) =>
+                `${ansi.bgHex(color)}${ansi.hex(color)}${
+                  "-".repeat(wordLength)
+                }`
+              )
+              .join("");
+
+            // Duplicate the line and return the result
+            return Array(wordLength * 2)
+              .fill(`\b${line}`)
+              .join("\n")
+              .slice(0, -1);
+          })();
+
+          // Format the entry for FZF
+          return `${name} \n${id} \n${JSON.stringify(paletteVisualization)}\n`;
+        })
+        .join("\0");
+
+      const previewer = new ProcessSync(
+        fzfArgs, // Arguments for the fzf command
+        {
+          input: fzfInput, // Pass the formatted options as input to fzf
+          useShell: true, // Allow the use of shell commands in the fzf command
+        },
+      );
+
+      try {
+        previewer.run();
+      } catch (error) {
+        throw new SystemError(
+          "Failed to run fzf.",
+          "Make sure fzf is installed and available in the system.",
+          error,
+        );
+      }
+
+      if (!previewer.success) {
+        throw new SystemError("Error", previewer.stderr || "No item selected.");
+      }
+
+      const wallpaper = previewer.stdout.split("\n")[0].trim();
+      const selection = this.wallpapers.find((wp) => wp.name === wallpaper);
+      await this.handleSelection(selection);
+      throw EXIT;
+    }, "handlePreviewCachedColors");
   }
 
   async increaseTerminalSize() {
@@ -218,6 +333,16 @@ class UserInterface {
           ? this.xy[i]
           : this.xy[i % this.xy.length];
         const coordinates = `${this.imageWidth}x${this.imageHeight}@${x}x${y}`;
+        // print(cursorMove(x, y));
+        // OS.exec([
+        //   "timg",
+        //   "-U",
+        //   "-W",
+        //   "--clear",
+        //   "-pk",
+        //   `-g${this.imageWidth}x${this.imageHeight}`,
+        //   wallpaperDir,
+        // ]);
         OS.exec([
           "kitten",
           "icat",

@@ -1,6 +1,5 @@
 import utils from "./utils.js";
-import workerPromise from "./promisifiedWorker.js";
-import Color from "./Color/color.js";
+import workerPromise from "./extensionHandler.js";
 
 /**
  * @typedef {import('./types.d.ts').ColoursCache} ColoursCache
@@ -9,7 +8,6 @@ import Color from "./Color/color.js";
 /**
  * Theme class manages colors and theme configurations of wallpapers
  */
-("use strip");
 class Theme {
   /**
    * Constructor for the Theme class
@@ -20,11 +18,10 @@ class Theme {
     catchError(() => {
       this.wallpaperDir = wallpaperDir;
       this.wallpaper = wallpaper;
-      this.cacheBaseDir = `${HOME_DIR}/.cache/WallWiz`;
-      this.wallpaperColoursCacheFilePath = `${this.cacheBaseDir}/colours.json`;
-      this.wallpaperThemeCacheDir = `${this.cacheBaseDir}/themes/`;
+      this.wallpaperThemeCacheDir = `${HOME_DIR}/.cache/WallWiz/themes/`;
       this.appThemeCacheDir = {};
-      this.themeExtensionScriptsBaseDir = `${HOME_DIR}/.config/WallWiz/themeExtensionScripts/`;
+      this.themeExtensionScriptsBaseDir =
+        `${HOME_DIR}/.config/WallWiz/themeExtensionScripts/`;
       this.themeExtensionScripts = {};
       /** @type {ColoursCache} */
       this.coloursCache = {};
@@ -40,12 +37,15 @@ class Theme {
     }, "Theme :: init");
   }
 
+  static wallpaperColoursCacheFilePath =
+    `${HOME_DIR}/.cache/WallWiz/colours.json`; // Made static to share it with UI class
+
   async createColoursCacheFromWallpapers() {
     return await catchAsyncError(async () => {
       const getColoursFromWallpaper = async (wallpaperPath) => {
         return await catchAsyncError(async () => {
           const result = await execAsync(
-            USER_ARGUMENTS.colorExtractionCommand.replace("{}", wallpaperPath)
+            USER_ARGUMENTS.colorExtractionCommand.replace("{}", wallpaperPath),
           );
           return result
             .split("\n")
@@ -64,6 +64,8 @@ class Theme {
             const wallpaperPath = `${this.wallpaperDir}${wp.uniqueId}`;
             const colours = await getColoursFromWallpaper(wallpaperPath);
             this.coloursCache[wp.uniqueId] = colours;
+            print("colour cache mounted");
+            Theme.coloursCache[wp.uniqueId] = colours;
           }, "Generate colour cache task for : " + wp.name);
         });
 
@@ -72,7 +74,7 @@ class Theme {
         await utils.promiseQueueWithLimit(queue);
         utils.writeFile(
           JSON.stringify(this.coloursCache),
-          this.wallpaperColoursCacheFilePath
+          Theme.wallpaperColoursCacheFilePath,
         );
         utils.log("Done.");
       }
@@ -83,7 +85,7 @@ class Theme {
     catchError(() => {
       utils.ensureDir(this.themeExtensionScriptsBaseDir);
       const scriptNames = OS.readdir(
-        this.themeExtensionScriptsBaseDir
+        this.themeExtensionScriptsBaseDir,
       )[0].filter((name) => name.endsWith(".js") && !name.startsWith("."));
 
       for (const fileName of scriptNames) {
@@ -97,7 +99,7 @@ class Theme {
                   functionNames: ["setTheme"],
                   args: all,
                 }),
-              "setTheme"
+              "setTheme",
             ),
 
           getThemes: async (...all) =>
@@ -108,7 +110,7 @@ class Theme {
                   functionNames: ["getDarkThemeConf", "getLightThemeConf"],
                   args: all,
                 }),
-              "getTheme"
+              "getTheme",
             ),
         };
         this.themeExtensionScripts[fileName] = extensionScript;
@@ -124,16 +126,16 @@ class Theme {
     await catchAsyncError(async () => {
       const isThemeConfCached = (wallpaperName, scriptName) => {
         return catchError(() => {
-          const cacheDir = `${
-            this.appThemeCacheDir[scriptName]
-          }${this.getThemeName(wallpaperName, "light")}`;
+          const cacheDir = `${this.appThemeCacheDir[scriptName]}${
+            this.getThemeName(wallpaperName, "light")
+          }`;
           const scriptDir = `${this.themeExtensionScriptsBaseDir}${scriptName}`;
           const [cacheStat, cacheErr] = OS.stat(cacheDir);
           const [scriptStat, scriptErr] = OS.stat(scriptDir);
 
           if (scriptErr !== 0) {
             throw new Error(
-              "Failed to read script status.\n" + `Script name: ${scriptName}`
+              "Failed to read script status.\n" + `Script name: ${scriptName}`,
             );
           }
           return cacheErr === 0 && cacheStat.mtime > scriptStat.mtime;
@@ -142,27 +144,29 @@ class Theme {
 
       const createThemeConfFromWallpaperColours = async (
         wallpaper,
-        colours
+        colours,
       ) => {
         await catchAsyncError(async () => {
-          for (const [scriptName, themeHandler] of Object.entries(
-            this.themeExtensionScripts
-          )) {
+          for (
+            const [scriptName, themeHandler] of Object.entries(
+              this.themeExtensionScripts,
+            )
+          ) {
             if (isThemeConfCached(wallpaper.uniqueId, scriptName)) continue;
 
             utils.log(
-              `Generating theme config for wallpaper: "${wallpaper.name}" using "${scriptName}".`
+              `Generating theme config for wallpaper: "${wallpaper.name}" using "${scriptName}".`,
             );
-            const [darkThemeConfig, lightThemeConfig] =
-              await themeHandler.getThemes(colours);
+            const [darkThemeConfig, lightThemeConfig] = await themeHandler
+              .getThemes(colours);
             const cacheDir = this.appThemeCacheDir[scriptName];
             utils.writeFile(
               lightThemeConfig,
-              `${cacheDir}${this.getThemeName(wallpaper.uniqueId, "light")}`
+              `${cacheDir}${this.getThemeName(wallpaper.uniqueId, "light")}`,
             );
             utils.writeFile(
               darkThemeConfig,
-              `${cacheDir}${this.getThemeName(wallpaper.uniqueId, "dark")}`
+              `${cacheDir}${this.getThemeName(wallpaper.uniqueId, "dark")}`,
             );
           }
         }, "createThemeConfFromWallpaperColours");
@@ -174,7 +178,7 @@ class Theme {
         if (!colours) {
           throw new Error(
             "Cache miss\n" +
-              `Wallpaper: ${wallpaper.name}, Colours cache id: ${wallpaper.uniqueId}`
+              `Wallpaper: ${wallpaper.name}, Colours cache id: ${wallpaper.uniqueId}`,
           );
         }
 
@@ -196,7 +200,9 @@ class Theme {
 
       const setTheme = async ([scriptName, themeHandler]) => {
         await catchAsyncError(async () => {
-          const cachedThemePath = `${this.appThemeCacheDir[scriptName]}${themeName}`;
+          const cachedThemePath = `${
+            this.appThemeCacheDir[scriptName]
+          }${themeName}`;
 
           const [, err] = OS.stat(cachedThemePath);
 
@@ -204,31 +210,29 @@ class Theme {
             await themeHandler.setTheme(cachedThemePath).catch((error) =>
               error instanceof SystemError
                 ? utils.notify(
-                    `Error in "${scriptName}"`,
-                    `${error.name ?? ""}: ${error.description ?? ""}\n ${
-                      error.body ?? ""
-                    }`,
-                    "critical"
-                  )
+                  `Error in "${scriptName}"`,
+                  `${error.name ?? ""}: ${error.description ?? ""}\n ${
+                    error.body ?? ""
+                  }`,
+                  "critical",
+                )
                 : (() => {
-                    throw error;
-                  })()
+                  throw error;
+                })()
             );
           } else {
             throw new Error(
               "Cache miss\n" +
-                `Wallpaper: ${wallpaperName}. Theme path: ${cachedThemePath}.`
+                `Wallpaper: ${wallpaperName}. Theme path: ${cachedThemePath}.`,
             );
           }
         }, "setTheme");
       };
 
       const getTaskPromiseCallBacks = Object.entries(
-        this.themeExtensionScripts
+        this.themeExtensionScripts,
       ).map(
-        (...all) =>
-          async () =>
-            await setTheme(...all)
+        (...all) => async () => await setTheme(...all),
       );
       await utils.promiseQueueWithLimit(getTaskPromiseCallBacks);
       await utils.notify("Theme applied.");
@@ -243,14 +247,11 @@ class Theme {
    */
   getThemeName(fileName, type) {
     return catchError(() => {
-      const themeType =
-        type === undefined
-          ? USER_ARGUMENTS.enableLightTheme
-            ? "light"
-            : "dark"
-          : type === "light"
-          ? "light"
-          : "dark";
+      const themeType = type === undefined
+        ? USER_ARGUMENTS.enableLightTheme ? "light" : "dark"
+        : type === "light"
+        ? "light"
+        : "dark";
       return `${fileName}-${themeType}.conf`;
     }, "getThemeName");
   }
@@ -264,7 +265,7 @@ class Theme {
     return catchError(() => {
       if (this.coloursCache[cacheName]) return this.coloursCache[cacheName];
 
-      const cacheContent = STD.loadFile(this.wallpaperColoursCacheFilePath);
+      const cacheContent = STD.loadFile(Theme.wallpaperColoursCacheFilePath);
       if (!cacheContent) {
         return null;
       }

@@ -1,14 +1,11 @@
 
-![ww](https://github.com/user-attachments/assets/a2b79672-8186-4d78-a040-f966afa7bb0a)
-
 
 <div align = center>
-WallWiz (wallpaper wizard) is terminal based wallpaper and system theme manager for linux.
-<br>
-<br>
+<img src="https://github.com/user-attachments/assets/58a5f213-21a0-401b-a4f2-28d823b89b0f" alt="Rizzed penguin" style="width: 30%;"><img src="https://github.com/user-attachments/assets/4acc4cf6-0142-4800-a25d-ff9b5206b155" alt="WallRizz" style="width: 50%;">
+ 
+**WallRizz** is terminal based wallpaper and system theme manager that lets you **<i>𝑹𝒊𝒛𝒛 𝒚𝒐𝒖𝒓 𝑳𝒊𝒏𝒖𝒙</i>.**
 
 ---
-
 **[<kbd> <br> Workflow <br> </kbd>](https://github.com/5hubham5ingh/WallWiz/wiki#workflow-overview)** 
 **[<kbd> <br> Wallpapers <br> </kbd>](https://github.com/5hubham5ingh/WallWiz/blob/main/CONTRIBUTING.md#wallpaper-repositories)** 
 
@@ -16,9 +13,10 @@ WallWiz (wallpaper wizard) is terminal based wallpaper and system theme manager 
 **[<kbd> <br> Setup <br> </kbd>](https://github.com/5hubham5ingh/WallWiz/wiki/2.-Setup)** 
 **[<kbd> <br> Usage <br> </kbd>](https://github.com/5hubham5ingh/WallWiz/wiki/3.-Usage-Guide)** 
 **[<kbd> <br> Extensions <br> </kbd>](https://github.com/5hubham5ingh/WallWiz/wiki/4.-Extensions)** 
+ 
+</div>
 
 ---
-</div>
 
 # Features
 

@@ -3,6 +3,9 @@ import * as os from "../../qjs-ext-lib/src/os.js";
 import { ansi } from "../../justjs/ansiStyle.js";
 import { exec as execAsync } from "../../qjs-ext-lib/src/process.js";
 import { cursorShow } from "../../justjs/cursor.js";
+import Color from "./Color/color.js";
+
+globalThis.Color = Color;
 
 globalThis.OS = os;
 
