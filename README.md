@@ -22,7 +22,8 @@
 - **Theme Generation and Application**: Automatically generates and applies themes based on the chosen wallpaper to various applications.  
 - **Online Wallpaper Browsing**: Browse wallpapers from your favorite wallpaper repositories directly from the terminal, and download them to the specified wallpaper directory.  
 - **Extensible with Scripts**: Write or edit theming scripts for different applications. Create an extension template for writing new extensions with a single command.
-- **Built-in Color Manipulation Library**: Provides a comprehensive set of tools for precise color adjustments, gradients, and palettes, allowing for excellent application themes with fine-tuned control over each color for individual applications.  
+- **Finest Level of Control Over Colors and Themes**  
+Achieve unparalleled precision with the built-in **ColorJs** library and the option to set a custom color generation backend, enabling highly customizable and seamless theme creation.
 - **Lightweight**: Built with QuickJS for fast startup and a small standalone executable, ensuring minimal system resource usage while also facilitating extension support.  
 
 # Gallery
