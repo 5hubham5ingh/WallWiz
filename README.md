@@ -27,10 +27,18 @@ Achieve unparalleled precision with the built-in **ColorJs** library and the opt
 - **Lightweight**: Built with QuickJS for fast startup and a small standalone executable, ensuring minimal system resource usage while also facilitating extension support.  
 
 # Gallery
-
+## Applications
 https://github.com/user-attachments/assets/1847eb59-bc7b-4b0a-a13d-bbea3651e804
 
 https://github.com/user-attachments/assets/675e1120-e5eb-45b2-a6b0-123a1366320b
+
+**Firefox**
+![1000003005](https://github.com/user-attachments/assets/f874fc40-efb0-4b1a-981d-586b7738ccfc)
+
+## User Interface
+**List view**
+![1000003004](https://github.com/user-attachments/assets/2c0e1c34-a196-42b7-9273-2b844f4a52d2)
+
 
 # To Do:
 - Firefox Theme Extension
