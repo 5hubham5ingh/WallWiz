@@ -30,17 +30,23 @@ Achieve unparalleled precision with the built-in **ColorJs** library and the opt
 ## Applications
 https://github.com/user-attachments/assets/1847eb59-bc7b-4b0a-a13d-bbea3651e804
 
-**VSCode**
+**VSCode**                                            
 ![ezgif com-optimize](https://github.com/user-attachments/assets/3b94f40c-41cd-4242-a0ae-7c35cff8a567)
 
 
 **Firefox**
 ![1000003005](https://github.com/user-attachments/assets/f874fc40-efb0-4b1a-981d-586b7738ccfc)
 
+**Jiffy**
+![ezgif com-animated-gif-maker](https://github.com/user-attachments/assets/a0303dca-355d-4601-8bb8-aa59ae13a9f8)
+
+
 ## User Interface
 **List view**
 ![1000003004](https://github.com/user-attachments/assets/2c0e1c34-a196-42b7-9273-2b844f4a52d2)
 
+**Grid view**
+![ezgif com-animated-gif-maker(1)](https://github.com/user-attachments/assets/25335e24-f625-4de5-8de3-08e222d0294b)
 
 # To Do:
 - Neovim Theme Extension
