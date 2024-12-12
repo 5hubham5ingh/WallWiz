@@ -30,7 +30,9 @@ Achieve unparalleled precision with the built-in **ColorJs** library and the opt
 ## Applications
 https://github.com/user-attachments/assets/1847eb59-bc7b-4b0a-a13d-bbea3651e804
 
-https://github.com/user-attachments/assets/675e1120-e5eb-45b2-a6b0-123a1366320b
+**VSCode**
+![ezgif com-optimize](https://github.com/user-attachments/assets/3b94f40c-41cd-4242-a0ae-7c35cff8a567)
+
 
 **Firefox**
 ![1000003005](https://github.com/user-attachments/assets/f874fc40-efb0-4b1a-981d-586b7738ccfc)
