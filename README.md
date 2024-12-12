@@ -41,7 +41,6 @@ https://github.com/user-attachments/assets/675e1120-e5eb-45b2-a6b0-123a1366320b
 
 
 # To Do:
-- Firefox Theme Extension
 - Neovim Theme Extension
 
 # Thanks
