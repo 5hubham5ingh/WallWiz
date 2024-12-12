@@ -1,7 +1,7 @@
 
 # Wallpaper Collection
 
-Welcome to the **Wallpaper Collection** repository for [WallWiz](https://github.com/5hubham5ingh/WallWiz)! 
+Welcome to the **Wallpaper Collection** repository for [WallRizz](https://github.com/5hubham5ingh/WallRizz)! 
 This repo is a curated collection of beautiful, high-quality wallpapers for your devices. 
 It's open for contributions, and anyone can add new wallpapers or share their existing wallpaper repositories here.
 
