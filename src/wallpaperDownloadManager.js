@@ -57,7 +57,7 @@ export default class WallpaperDownloadManager extends Download {
         wallpaper.name
       ).join("\n");
       const fzfCommand =
-        `fzf -m --bind 'enter:select-all+accept' --layout="reverse" --highlight-line --info inline-right --prompt="" --marker="" --pointer="" --header="Type wallpaper name or category to a group of matching wallpapers to preview" --header-first --border=double --border-label=" Wallpapers "`;
+        `fzf --color=16 -m --bind 'enter:select-all+accept' --layout="reverse" --highlight-line --info inline-right --prompt="" --marker="" --pointer="" --header="Type wallpaper name or category to a group of matching wallpapers to preview" --header-first --border=double --border-label=" Wallpapers "`;
 
       const filter = new ProcessSync(fzfCommand, {
         input: availableWallpaperNames,
