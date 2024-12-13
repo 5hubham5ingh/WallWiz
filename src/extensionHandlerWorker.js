@@ -1,5 +1,6 @@
 import * as _ from "./globalConstants.js";
 import Color from "./Color/color.js";
+import utils from "./utils.js";
 
 globalThis.Color = Color;
 
@@ -8,15 +9,14 @@ const parent = OS.Worker.parent;
 /**
  * @param {Object} data
  * @param {string} data.scriptPath - Path to the script to be imported.
- * @param {string[]} data.functionNames - Name of the functions to be imported from the imported script.
+ * @param {string[]} data.scriptMethods - { methodName: cacheDir }.
  * @param {any[]} data.args - Arguments for the functions from the imported script.
  */
 const startWork = async (data) => {
   await catchAsyncError(async () => {
-    const { scriptPath, functionNames, args } = data;
+    const { scriptPath, scriptMethods, args } = data;
     const exports = await import(scriptPath);
-    const results = [];
-    for (const functionName of functionNames) {
+    for (const [functionName, cacheDir] of Object.entries(scriptMethods)) {
       const cb = exports?.[functionName];
       if (!cb) {
         parent.postMessage({
@@ -30,7 +30,7 @@ const startWork = async (data) => {
       }
       try {
         const result = await cb(...args);
-        results.push(result);
+        if (!!result && !!cacheDir) utils.writeFile(result, cacheDir);
       } catch (status) {
         if (status === EXIT) continue;
 
@@ -53,7 +53,7 @@ const startWork = async (data) => {
       }
     }
 
-    parent.postMessage({ type: "success", data: results });
+    parent.postMessage({ type: "success" });
   }, "startWork");
 };
 

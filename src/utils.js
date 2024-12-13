@@ -36,7 +36,7 @@ class Utils {
           executing.delete(promise)
         );
         executing.add(promise);
-        if (executing.size == this.pLimit) {
+        if (executing.size > this.pLimit) {
           await Promise.race(executing);
         }
       }

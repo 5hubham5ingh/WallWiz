@@ -89,7 +89,9 @@ export default class WallpaperSetter {
           await catchAsyncError(async () =>
             await workerPromise({
               scriptPath: extensionPath,
-              functionNames: ["setWallpaper"],
+              scriptMethods: {
+                setWallpaper: null,
+              },
               args: all,
             }), "wallpaperDaemonHandler");
       } else {

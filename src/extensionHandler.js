@@ -21,11 +21,10 @@ export default async function extensionHandler(data) {
 
 async function handleExtensionPromise(data) {
   return await catchAsyncError(async () => {
-    const { scriptPath, functionNames, args } = data;
+    const { scriptPath, scriptMethods, args } = data;
     const exports = await import(scriptPath);
-    const results = [];
 
-    for (const functionName of functionNames) {
+    for (const [functionName, cacheDir] of Object.entries(scriptMethods)) {
       const cb = exports?.[functionName];
       if (!cb) {
         throw SystemError(
@@ -35,15 +34,13 @@ async function handleExtensionPromise(data) {
       }
       try {
         const result = await cb(...args);
-        results.push(result);
+        if (!!result && !!cacheDir) utils.writeFile(result, cacheDir);
       } catch (status) {
         if (status === EXIT) continue;
 
         throw status;
       }
     }
-
-    return results;
   }, "handleExtensionPromise");
 }
 

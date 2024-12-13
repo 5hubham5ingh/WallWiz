@@ -96,19 +96,24 @@ class Theme {
               async () =>
                 await workerPromise({
                   scriptPath: extensionPath,
-                  functionNames: ["setTheme"],
+                  scriptMethods: {
+                    setTheme: null,
+                  },
                   args: all,
                 }),
               "setTheme",
             ),
 
-          getThemes: async (...all) =>
+          getThemes: async (colors, cacheDirs) =>
             await catchAsyncError(
               async () =>
                 await workerPromise({
                   scriptPath: extensionPath,
-                  functionNames: ["getDarkThemeConf", "getLightThemeConf"],
-                  args: all,
+                  scriptMethods: {
+                    getDarkThemeConf: cacheDirs[0],
+                    getLightThemeConf: cacheDirs[1],
+                  },
+                  args: [colors],
                 }),
               "getTheme",
             ),
@@ -142,37 +147,8 @@ class Theme {
         }, "isThemeConfCached");
       };
 
-      const createThemeConfFromWallpaperColours = async (
-        wallpaper,
-        colours,
-      ) => {
-        await catchAsyncError(async () => {
-          for (
-            const [scriptName, themeHandler] of Object.entries(
-              this.themeExtensionScripts,
-            )
-          ) {
-            if (isThemeConfCached(wallpaper.uniqueId, scriptName)) continue;
+      const promises = [];
 
-            utils.log(
-              `Generating theme config for wallpaper: "${wallpaper.name}" using "${scriptName}".`,
-            );
-            const [darkThemeConfig, lightThemeConfig] = await themeHandler
-              .getThemes(colours);
-            const cacheDir = this.appThemeCacheDir[scriptName];
-            utils.writeFile(
-              lightThemeConfig,
-              `${cacheDir}${this.getThemeName(wallpaper.uniqueId, "light")}`,
-            );
-            utils.writeFile(
-              darkThemeConfig,
-              `${cacheDir}${this.getThemeName(wallpaper.uniqueId, "dark")}`,
-            );
-          }
-        }, "createThemeConfFromWallpaperColours");
-      };
-
-      const getTaskPromiseCallBacks = [];
       for (const wallpaper of this.wallpaper) {
         const colours = this.getCachedColours(wallpaper.uniqueId);
         if (!colours) {
@@ -181,12 +157,32 @@ class Theme {
               `Wallpaper: ${wallpaper.name}, Colours cache id: ${wallpaper.uniqueId}`,
           );
         }
+        for (
+          const [scriptName, themeHandler] of Object.entries(
+            this.themeExtensionScripts,
+          )
+        ) {
+          if (isThemeConfCached(wallpaper.uniqueId, scriptName)) continue;
 
-        getTaskPromiseCallBacks.push(() =>
-          createThemeConfFromWallpaperColours(wallpaper, colours)
-        );
+          promises.push(() => {
+            utils.log(
+              `Generating theme config for wallpaper: "${wallpaper.name}" using "${scriptName}".`,
+            );
+
+            return themeHandler
+              .getThemes(colours, [
+                `${this.appThemeCacheDir[scriptName]}${
+                  this.getThemeName(wallpaper.uniqueId, "dark")
+                }`,
+                `${this.appThemeCacheDir[scriptName]}${
+                  this.getThemeName(wallpaper.uniqueId, "light")
+                }`,
+              ]);
+          });
+        }
       }
-      await utils.promiseQueueWithLimit(getTaskPromiseCallBacks);
+
+      await utils.promiseQueueWithLimit(promises);
     }, "createAppThemesFromColours");
   }
 

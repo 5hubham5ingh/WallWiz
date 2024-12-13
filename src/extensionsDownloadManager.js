@@ -59,7 +59,7 @@ class ExtensionScriptsDownloader extends Download {
         `${ansi.style.bold}${ansi.style.brightCyan}"Type program name to search for ${kindOfScript}."`;
 
       const filter = new ProcessSync(
-        `fzf -m --delimiter / --with-nth -1 --info inline-right --preview="cat {}"  --preview-window="down:40%,wrap" --preview-label=" Description " --layout="reverse" --header=${header} --header-first --border=double --border-label=" ${kindOfScript} "`,
+        `fzf -m --color=16 --delimiter / --with-nth -1 --info inline-right --preview="cat {}"  --preview-window="down:40%,wrap" --preview-label=" Description " --layout="reverse" --header=${header} --header-first --border=double --border-label=" ${kindOfScript} "`,
         {
           input: tempScriptsPaths,
           useShell: true,
