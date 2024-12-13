@@ -96,19 +96,24 @@ class Theme {
               async () =>
                 await workerPromise({
                   scriptPath: extensionPath,
-                  functionNames: ["setTheme"],
+                  scriptMethods: {
+                    setTheme: null,
+                  },
                   args: all,
                 }),
               "setTheme",
             ),
 
-          getThemes: async (...all) =>
+          getThemes: async (colors, cacheDirs) =>
             await catchAsyncError(
               async () =>
                 await workerPromise({
                   scriptPath: extensionPath,
-                  functionNames: ["getDarkThemeConf", "getLightThemeConf"],
-                  args: all,
+                  scriptMethods: {
+                    getDarkThemeConf: cacheDirs[0],
+                    getLightThemeConf: cacheDirs[1],
+                  },
+                  args: [colors],
                 }),
               "getTheme",
             ),
@@ -160,23 +165,14 @@ class Theme {
             );
             promises.push(
               themeHandler
-                .getThemes(colours).then(
-                  ([darkThemeConfig, lightThemeConfig]) => {
-                    const cacheDir = this.appThemeCacheDir[scriptName];
-                    utils.writeFile(
-                      lightThemeConfig,
-                      `${cacheDir}${
-                        this.getThemeName(wallpaper.uniqueId, "light")
-                      }`,
-                    );
-                    utils.writeFile(
-                      darkThemeConfig,
-                      `${cacheDir}${
-                        this.getThemeName(wallpaper.uniqueId, "dark")
-                      }`,
-                    );
-                  },
-                ),
+                .getThemes(colours, [
+                  `${this.appThemeCacheDir[scriptName]}${
+                    this.getThemeName(wallpaper.uniqueId, "dark")
+                  }`,
+                  `${this.appThemeCacheDir[scriptName]}${
+                    this.getThemeName(wallpaper.uniqueId, "light")
+                  }`,
+                ]),
             );
           }
 

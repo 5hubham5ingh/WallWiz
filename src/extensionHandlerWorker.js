@@ -9,57 +9,10 @@ const parent = OS.Worker.parent;
 /**
  * @param {Object} data
  * @param {string} data.scriptPath - Path to the script to be imported.
- * @param {string[]} data.functionNames - Name of the functions to be imported from the imported script.
+ * @param {string[]} data.scriptMethods - { methodName: cacheDir }.
  * @param {any[]} data.args - Arguments for the functions from the imported script.
  */
 const startWork = async (data) => {
-  await catchAsyncError(async () => {
-    const { scriptPath, functionNames, args } = data;
-    const exports = await import(scriptPath);
-    const results = [];
-    for (const functionName of functionNames) {
-      const cb = exports?.[functionName];
-      if (!cb) {
-        parent.postMessage({
-          type: "systemError",
-          data: (
-            "Error in " + scriptPath + ";" +
-            "No function named " + functionName + " found."
-          ),
-        });
-        break;
-      }
-      try {
-        const result = await cb(...args);
-        results.push(result);
-      } catch (status) {
-        if (status === EXIT) continue;
-
-        status instanceof SystemError
-          ? parent.postMessage({
-            type: "systemError",
-            data: [
-              status.name,
-              status.description,
-              JSON.stringify(status.body ?? ""),
-            ],
-          })
-          : parent.postMessage({
-            type: "error",
-            data: [
-              scriptPath,
-              JSON.stringify(status),
-            ],
-          });
-      }
-    }
-
-    parent.postMessage({ type: "success", data: results });
-  }, "startWork");
-};
-
-// TODO: impliment config caching here instead of delegating it to parent thread
-const startWork2 = async (data) => {
   await catchAsyncError(async () => {
     const { scriptPath, scriptMethods, args } = data;
     const exports = await import(scriptPath);
@@ -77,7 +30,7 @@ const startWork2 = async (data) => {
       }
       try {
         const result = await cb(...args);
-        utils.writeFile(result, cacheDir);
+        if (!!result && !!cacheDir) utils.writeFile(result, cacheDir);
       } catch (status) {
         if (status === EXIT) continue;
 
