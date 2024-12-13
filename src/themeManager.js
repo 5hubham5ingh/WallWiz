@@ -148,36 +148,6 @@ class Theme {
       };
 
       const promises = [];
-      const createThemeConfFromWallpaperColours = async (
-        wallpaper,
-        colours,
-      ) => {
-        await catchAsyncError(async () => {
-          for (
-            const [scriptName, themeHandler] of Object.entries(
-              this.themeExtensionScripts,
-            )
-          ) {
-            if (isThemeConfCached(wallpaper.uniqueId, scriptName)) continue;
-
-            promises.push(() => {
-              utils.log(
-                `Generating theme config for wallpaper: "${wallpaper.name}" using "${scriptName}".`,
-              );
-
-              return themeHandler
-                .getThemes(colours, [
-                  `${this.appThemeCacheDir[scriptName]}${
-                    this.getThemeName(wallpaper.uniqueId, "dark")
-                  }`,
-                  `${this.appThemeCacheDir[scriptName]}${
-                    this.getThemeName(wallpaper.uniqueId, "light")
-                  }`,
-                ]);
-            });
-          }
-        }, "createThemeConfFromWallpaperColours");
-      };
 
       for (const wallpaper of this.wallpaper) {
         const colours = this.getCachedColours(wallpaper.uniqueId);
@@ -187,9 +157,31 @@ class Theme {
               `Wallpaper: ${wallpaper.name}, Colours cache id: ${wallpaper.uniqueId}`,
           );
         }
+        for (
+          const [scriptName, themeHandler] of Object.entries(
+            this.themeExtensionScripts,
+          )
+        ) {
+          if (isThemeConfCached(wallpaper.uniqueId, scriptName)) continue;
 
-        createThemeConfFromWallpaperColours(wallpaper, colours);
+          promises.push(() => {
+            utils.log(
+              `Generating theme config for wallpaper: "${wallpaper.name}" using "${scriptName}".`,
+            );
+
+            return themeHandler
+              .getThemes(colours, [
+                `${this.appThemeCacheDir[scriptName]}${
+                  this.getThemeName(wallpaper.uniqueId, "dark")
+                }`,
+                `${this.appThemeCacheDir[scriptName]}${
+                  this.getThemeName(wallpaper.uniqueId, "light")
+                }`,
+              ]);
+          });
+        }
       }
+
       await utils.promiseQueueWithLimit(promises);
     }, "createAppThemesFromColours");
   }

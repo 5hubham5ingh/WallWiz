@@ -34,7 +34,6 @@ const startWork = async (data) => {
       } catch (status) {
         if (status === EXIT) continue;
 
-        // TODO: Send the error in system notification
         status instanceof SystemError
           ? parent.postMessage({
             type: "systemError",
