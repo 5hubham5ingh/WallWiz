@@ -147,6 +147,7 @@ class Theme {
         colours,
       ) => {
         await catchAsyncError(async () => {
+          const promises = [];
           for (
             const [scriptName, themeHandler] of Object.entries(
               this.themeExtensionScripts,
@@ -157,18 +158,29 @@ class Theme {
             utils.log(
               `Generating theme config for wallpaper: "${wallpaper.name}" using "${scriptName}".`,
             );
-            const [darkThemeConfig, lightThemeConfig] = await themeHandler
-              .getThemes(colours);
-            const cacheDir = this.appThemeCacheDir[scriptName];
-            utils.writeFile(
-              lightThemeConfig,
-              `${cacheDir}${this.getThemeName(wallpaper.uniqueId, "light")}`,
-            );
-            utils.writeFile(
-              darkThemeConfig,
-              `${cacheDir}${this.getThemeName(wallpaper.uniqueId, "dark")}`,
+            promises.push(
+              themeHandler
+                .getThemes(colours).then(
+                  ([darkThemeConfig, lightThemeConfig]) => {
+                    const cacheDir = this.appThemeCacheDir[scriptName];
+                    utils.writeFile(
+                      lightThemeConfig,
+                      `${cacheDir}${
+                        this.getThemeName(wallpaper.uniqueId, "light")
+                      }`,
+                    );
+                    utils.writeFile(
+                      darkThemeConfig,
+                      `${cacheDir}${
+                        this.getThemeName(wallpaper.uniqueId, "dark")
+                      }`,
+                    );
+                  },
+                ),
             );
           }
+
+          return promises;
         }, "createThemeConfFromWallpaperColours");
       };
 
@@ -186,7 +198,7 @@ class Theme {
           createThemeConfFromWallpaperColours(wallpaper, colours)
         );
       }
-      await utils.promiseQueueWithLimit(getTaskPromiseCallBacks);
+      await utils.promiseQueueWithLimit(getTaskPromiseCallBacks.flat());
     }, "createAppThemesFromColours");
   }
 
