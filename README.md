@@ -27,6 +27,14 @@ Achieve unparalleled precision with the built-in **ColorJs** library and the opt
 - **Lightweight**: Built with QuickJS for fast startup and a small standalone executable, ensuring minimal system resource usage while also facilitating extension support.  
 
 # Gallery
+
+## User Interface
+**List view**                                                                                               
+![1000003004](https://github.com/user-attachments/assets/2c0e1c34-a196-42b7-9273-2b844f4a52d2)
+
+**Grid view**                                                                                  
+![ezgif com-animated-gif-maker(1)](https://github.com/user-attachments/assets/25335e24-f625-4de5-8de3-08e222d0294b)
+
 ## Applications
 https://github.com/user-attachments/assets/1847eb59-bc7b-4b0a-a13d-bbea3651e804
 
@@ -44,15 +52,10 @@ https://github.com/user-attachments/assets/1847eb59-bc7b-4b0a-a13d-bbea3651e804
 ![ezgif com-animated-gif-maker](https://github.com/user-attachments/assets/a0303dca-355d-4601-8bb8-aa59ae13a9f8)
 
 
-## User Interface
-**List view**                                                                                               
-![1000003004](https://github.com/user-attachments/assets/2c0e1c34-a196-42b7-9273-2b844f4a52d2)
-
-**Grid view**                                                                                  
-![ezgif com-animated-gif-maker(1)](https://github.com/user-attachments/assets/25335e24-f625-4de5-8de3-08e222d0294b)
-
 # To Do:
+PRs are welcome.
 - Neovim Theme Extension
+- Rofi theme extension
 
 # Thanks
 - [ctn-malone](https://github.com/ctn-malone/qjs-ext-lib) for QuickJs extension.
