@@ -26,6 +26,8 @@
 Achieve unparalleled precision with the built-in **ColorJs** library and the option to set a custom color generation backend, enabling highly customizable and seamless theme creation.
 - **Lightweight**: Built with QuickJS for fast startup and a small standalone executable, ensuring minimal system resource usage while also facilitating extension support.  
 
+  Check [wiki](https://github.com/5hubham5ingh/WallRizz/wiki) for more.
+
 # Gallery
 
 ## User Interface
