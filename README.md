@@ -68,6 +68,7 @@ PRs are welcome.
 
 <div align = center>
   
-**[<kbd> <br> Contribution <br> </kbd>](https://github.com/5hubham5ingh/WallRizz/blob/main/CONTRIBUTING.md)** 
+**[<kbd> <br> Contribute <br> </kbd>](https://github.com/5hubham5ingh/WallRizz/blob/main/CONTRIBUTING.md)** 
+**[<kbd> <br> Support <br> </kbd>](https://github.com/sponsors/5hubham5ingh?o=esb)** 
 
 </div>
