@@ -56,8 +56,14 @@ https://github.com/user-attachments/assets/1847eb59-bc7b-4b0a-a13d-bbea3651e804
 
 # To Do:
 PRs are welcome.
+
+**Theme extension**
 - Neovim Theme Extension
 - Rofi theme extension
+
+**Wallpaper handler extensions**
+- KDE
+- Gnome
 
 # Thanks
 - [ctn-malone](https://github.com/ctn-malone/qjs-ext-lib) for QuickJs extension.
