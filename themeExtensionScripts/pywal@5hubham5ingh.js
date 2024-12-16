@@ -1,7 +1,7 @@
 /*
  For:            Pywal
  Author:         https://github.com/5hubham5ingh
- Version:        0.0.1
+ Version:        0.0.2
 
  This is a compatibility script for Pywal.
  It ensures that extensions and applications compatible with Pywal
@@ -44,6 +44,9 @@ export function setTheme(
   const jsonFile = STD.open(pywalCacheDir.concat("/colors.json"), "w+");
   jsonFile.puts(themeConfig["colors.json"]);
   jsonFile.close();
+
+  // update firefox theme
+  OS.exec(["pywalfox", "update"]);
 }
 
 function generateConfigFiles(theme) {
@@ -58,11 +61,12 @@ function generateConfigFiles(theme) {
   const colorsSh = colorKeys
     .map((key, index) => `export ${key}='${colors[index]}'`)
     .join("\n") +
-    `\n\nexport background='${theme.background}'\nexport foreground='${theme.foreground}'\nexport cursor='${theme.cursor}'`;
+    `\n\nexport background='${theme.background}'\nexport foreground='${theme.foreground}'\nexport cursor='${theme.cursor}'\nwallpaper='/path/to/your/wallpaper.jpg'`;
 
   // Generate the colors.json file (JSON format)
   const colorsJson = JSON.stringify(
     {
+      wallpaper: "/dummy/path/to/wallpaper.jpg",
       special: {
         background: theme.background,
         foreground: theme.foreground,
@@ -87,58 +91,98 @@ function generateConfigFiles(theme) {
 
 /** Helpers */
 
-function generateTheme(colors, isDark) {
-  const sortedColors = colors.sort((a, b) => {
-    const la = Color(a).getLuminance();
-    const lb = Color(b).getLuminance();
-    return isDark ? la - lb : lb - la;
-  });
+function generateTheme(colorCodes, isDark) {
+  const colors = colorCodes.map((c) => Color(c));
+  const pickColor = (dark) => {
+    // find the dark or light most frequent color index
+    const index = colors.findIndex((color) =>
+      (dark ?? isDark) ? color.isDark() : color.isLight()
+    );
 
-  const background = sortedColors[0];
-  const foreground = sortedColors[colors.length - 1];
+    return index !== -1
+      ? colors.splice(index, 1)[0]
+      : isDark
+      ? Color("black")
+      : Color("white");
+  };
 
-  const midIndex = Math.floor(sortedColors.length / 2);
-  const selection = sortedColors[midIndex];
-  const cursor = isDark
-    ? sortedColors[Math.floor(midIndex / 2)]
-    : sortedColors[Math.floor(midIndex * 1.5)];
+  const background = pickColor().toHexString();
+  const foreground = pickColor().toHexString();
+  const cursor = pickColor().toHexString();
 
-  const black = isDark
-    ? sortedColors[1]
-    : sortedColors[sortedColors.length - 2];
-  const white = isDark
-    ? sortedColors[sortedColors.length - 2]
-    : sortedColors[1];
+  // Ensure visibility of colors against the background color.
+  for (const color of colors) {
+    while (!Color.isReadable(color, background)) {
+      isDark ? color.saturate(1).brighten(1) : color.desaturate(1).darken(1);
+    }
+  }
+
+  // Ensure there are atleast 8 colors remaining
+  while (colors.length < 8) {
+    colors.push(
+      colors[Math.floor(Math.random() * colors.length)].analogous()[3],
+    );
+  }
+
+  const distinctColors = selectDistinctColors(colors, 8);
 
   return Object.assign(
     {
       background,
       foreground,
-      selection,
       cursor,
-      black,
-      white,
     },
-    ...sortedColors.filter(
-      (color) =>
-        color !== selection ||
-        color !== cursor,
-    )
-      .map((color, i) => ({
-        [`color${i + 1}`]: adjustColorForReadability(background, color),
-      })),
+    ...distinctColors.map((color, i) => ({
+      [`color${i}`]: color.toHexString(),
+    })),
+    ...distinctColors.map((color, i) => ({
+      [`color${i + 8}`]: color.brighten(5).toHexString(),
+    })),
   );
 }
 
-function adjustColorForReadability(background, foreground) {
-  const fg = Color(foreground);
-  while (!Color.isReadable(background, foreground)) {
-    fg.brighten(1).saturate(1);
-    const hex = fg.toHex();
-    if (hex === "000000" || hex === "ffffff") {
-      return Color(foreground).brighten().saturate().toHexString();
+function selectDistinctColors(colorObjects, count) {
+  // Sort colors by perceived brightness
+  const sortedColors = colorObjects.sort((a, b) =>
+    a.getBrightness() - b.getBrightness()
+  );
+
+  // Select colors with maximum color distance
+  const selectedColors = [];
+  while (selectedColors.length < count && colorObjects.length > 0) {
+    // If first selection, pick from middle of brightness range
+    if (selectedColors.length === 0) {
+      const midIndex = Math.floor(sortedColors.length / 2);
+      selectedColors.push(sortedColors[midIndex]);
+      sortedColors.splice(midIndex, 1);
+      continue;
+    }
+
+    // Find color with maximum distance from previously selected colors
+    let maxDistanceColor = null;
+    let maxDistance = -1;
+
+    for (let i = 0; i < sortedColors.length; i++) {
+      const currentColor = sortedColors[i];
+      const minDistance = Math.min(
+        ...selectedColors.map((selected) =>
+          Color.readability(selected, currentColor)
+        ),
+      );
+
+      if (minDistance > maxDistance) {
+        maxDistance = minDistance;
+        maxDistanceColor = currentColor;
+      }
+    }
+
+    if (maxDistanceColor) {
+      selectedColors.push(maxDistanceColor);
+      sortedColors.splice(sortedColors.indexOf(maxDistanceColor), 1);
+    } else {
+      break;
     }
   }
 
-  return fg.toHexString();
+  return selectedColors;
 }
