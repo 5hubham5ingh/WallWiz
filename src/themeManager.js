@@ -48,13 +48,20 @@ class Theme {
           const result = await execAsync(
             USER_ARGUMENTS.colorExtractionCommand.replace("{}", wallpaperPath),
           );
-          return result
+          const colors = result
             .split("\n")
-            .flatMap((line) =>
+            .map((line) =>
               line.split(" ").filter((word) => Color(word).isValid())
             )
-            .filter(Boolean)
+            .flat()
             .map((color) => Color(color).toHexString());
+          if (!colors.length) {
+            throw new SystemError(
+              "Color extraction failed.",
+              "Make sure the backend is extracting colors correctly.",
+            );
+          }
+          return colors;
         }, "getColoursFromWallpaper");
       };
 
