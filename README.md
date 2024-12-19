@@ -46,6 +46,9 @@ https://github.com/user-attachments/assets/1847eb59-bc7b-4b0a-a13d-bbea3651e804
 **VSCode**                                                                                                                        
 ![ezgif com-optimize](https://github.com/user-attachments/assets/3b94f40c-41cd-4242-a0ae-7c35cff8a567)
 
+**NeoVim**                                                                                                                                
+![ezgif com-optimize(1)](https://github.com/user-attachments/assets/400fae79-dae1-4555-8144-c17b00220cfc)
+
 
 **Firefox**                                                                                                                                  
 ![1000003005](https://github.com/user-attachments/assets/f874fc40-efb0-4b1a-981d-586b7738ccfc)
