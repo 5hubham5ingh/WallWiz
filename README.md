@@ -40,7 +40,7 @@ Check [wiki](https://github.com/5hubham5ingh/WallRizz/wiki) for more.
 ## Applications
 https://github.com/user-attachments/assets/1847eb59-bc7b-4b0a-a13d-bbea3651e804
 
-**Kitty**                                                                                                                                                          
+**Kitty**                                                                                                                                                         
 ![ezgif com-animated-gif-maker(2)](https://github.com/user-attachments/assets/b534600f-8198-4a2e-a88a-f9e1bce06f35)
 
 **VSCode**                                                                                                                        
@@ -49,10 +49,9 @@ https://github.com/user-attachments/assets/1847eb59-bc7b-4b0a-a13d-bbea3651e804
 **NeoVim**                                                                                                                                
 ![ezgif com-optimize(1)](https://github.com/user-attachments/assets/400fae79-dae1-4555-8144-c17b00220cfc)
 
-
-**Firefox**                                                                                                                                  
-![1000003005](https://github.com/user-attachments/assets/f874fc40-efb0-4b1a-981d-586b7738ccfc)
-
+**Firefox**                                                               
+![ezgif com-animated-gif-maker(4)](https://github.com/user-attachments/assets/2596446d-0da4-47bd-90f6-82d857a43865)
+ 
 **Jiffy**                                                                                       
 ![ezgif com-animated-gif-maker](https://github.com/user-attachments/assets/a0303dca-355d-4601-8bb8-aa59ae13a9f8)
 
